@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -28,6 +29,8 @@ use Spatie\Permission\Traits\HasRoles;
     'external_institution',
     'phone',
     'status',
+    'google_id',
+    'microsoft_id',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
@@ -70,6 +73,27 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(EvaluationResult::class);
     }
 
+    public function completedDiplomaPrograms(): BelongsToMany
+    {
+        return $this->belongsToMany(DiplomaProgram::class, 'user_diploma_programs')
+            ->withPivot(['status', 'progress_percentage', 'unlocked_at', 'completed_at'])
+            ->withTimestamps();
+    }
+
+    public function completedCertificationPrograms(): BelongsToMany
+    {
+        return $this->belongsToMany(CertificationProgram::class, 'user_certification_programs')
+            ->withPivot(['status', 'progress_percentage', 'unlocked_at', 'completed_at'])
+            ->withTimestamps();
+    }
+
+    public function completedCompetencies(): BelongsToMany
+    {
+        return $this->belongsToMany(Competency::class, 'user_competencies')
+            ->withPivot(['status', 'progress_percentage', 'unlocked_at', 'completed_at'])
+            ->withTimestamps();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->status === 'activo'
@@ -78,7 +102,7 @@ class User extends Authenticatable implements FilamentUser
                 'Recursos Humanos',
                 'Calidad Academica',
                 'Educacion Continua',
-                'Instructor',
+                'Personal',
                 'Evaluador',
                 'Responsable Area',
             ]);

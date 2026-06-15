@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\EvidenceManagement\EvidenceManagementCluster;
+use App\Filament\Clusters\SurveyManagement\SurveyManagementCluster;
 use App\Filament\Resources\SurveyQuestionResource\Pages\ManageSurveyQuestions;
 use App\Models\SurveyQuestion;
 
 class SurveyQuestionResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $model = SurveyQuestion::class;
 
-    protected static ?string $cluster = EvidenceManagementCluster::class;
+    protected static ?string $cluster = SurveyManagementCluster::class;
 
     protected static ?string $modelLabel = 'Pregunta de encuesta';
 

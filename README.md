@@ -43,6 +43,8 @@ Centralizar la gestión del ciclo completo de formación institucional:
 La base funcional y de seguridad incluye:
 
 - Autenticación local.
+- Inicio de sesión con Google y Microsoft mediante Laravel Socialite.
+- Registro externo obligatorio mediante una cuenta personal `@gmail.com`.
 - Roles con `spatie/laravel-permission`.
 - Portales separados por perfil institucional.
 - Panel administrativo construido con Filament.
@@ -70,7 +72,7 @@ Las integraciones con OAuth, MFA, Azure Blob Storage, proveedores externos de mi
 | Frontend de portales | Blade, Tailwind CSS 4 y Vite 8 |
 | Base de datos | MySQL en operación o SQLite para desarrollo/pruebas |
 | ORM | Eloquent |
-| Autenticación | Sesión web de Laravel |
+| Autenticación | Sesión web de Laravel y OAuth con Google/Microsoft |
 | Archivos | Laravel Filesystem, almacenamiento privado local y preparación S3 |
 | API | REST JSON con URLs firmadas |
 | Colas | Laravel Queues |
@@ -212,7 +214,7 @@ erDiagram
 
 - Tipos de actividad.
 - Actividades formativas.
-- Instructores y responsables.
+- Personal docente, administrativo y responsables.
 - Inscripciones.
 - Asistencias.
 - Rutas de aprendizaje y sus actividades.
@@ -261,7 +263,7 @@ erDiagram
 | `Recursos Humanos` | Formación interna, personal, evidencias, constancias y reportes |
 | `Calidad Academica` | Evidencias, evaluaciones, auditoría y reportes de calidad |
 | `Educacion Continua` | Oferta externa, participantes, pagos y constancias externas |
-| `Instructor` | Actividades asignadas, participantes, asistencia, evidencias y evaluaciones |
+| `Personal` | Actividades asignadas, participantes, asistencia, evidencias y evaluaciones |
 | `Evaluador` | Evidencias y evaluaciones expresamente asignadas |
 | `Responsable Area` | Registros e indicadores de su propia área |
 | `Profesor` | Portal de participante |
@@ -271,7 +273,7 @@ erDiagram
 Las rutas están separadas en:
 
 - `routes/participant.php`
-- `routes/instructor.php`
+- `routes/personal.php`
 - `routes/evaluator.php`
 - `routes/rh.php`
 - `routes/quality.php`
@@ -345,7 +347,7 @@ La autorización combina:
 - Validación de propiedad.
 - Restricción por área.
 - Separación de oferta interna y externa.
-- Asignación explícita de instructor o evaluador.
+- Asignación explícita de personal responsable o evaluador.
 - Scopes `visibleTo()` en consultas y Filament.
 
 ### Archivos privados
@@ -413,7 +415,7 @@ database/
 
 resources/views/
 ├── participant/
-├── instructor/
+├── personal/
 ├── evaluator/
 ├── rh/
 ├── quality/
@@ -660,7 +662,49 @@ APP_DEBUG=false
 SESSION_SECURE_COOKIE=true
 ```
 
-Las variables de Google y Microsoft están reservadas para autenticación social futura; definirlas no activa todavía esos proveedores.
+### Configuración de Google OAuth
+
+Crear un cliente OAuth 2.0 de tipo aplicación web en Google Cloud Console y registrar como URI de redirección:
+
+```text
+http://127.0.0.1:8000/auth/google/callback
+```
+
+En producción debe utilizarse la URL HTTPS real. Configurar:
+
+```dotenv
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI="${APP_URL}/auth/google/callback"
+```
+
+El registro de participantes externos:
+
+- Sólo utiliza Google.
+- Exige un correo verificado terminado en `@gmail.com`.
+- Rechaza cuentas institucionales y Google Workspace.
+- Asigna automáticamente `user_type=externo`, `profile_type=externo` y rol `Externo`.
+
+### Configuración de Microsoft OAuth
+
+Registrar una aplicación web en Microsoft Entra ID con la URI:
+
+```text
+http://127.0.0.1:8000/auth/microsoft/callback
+```
+
+Configurar:
+
+```dotenv
+MICROSOFT_CLIENT_ID=
+MICROSOFT_CLIENT_SECRET=
+MICROSOFT_REDIRECT_URI="${APP_URL}/auth/microsoft/callback"
+MICROSOFT_TENANT_ID=organizations
+```
+
+`organizations` limita el acceso a cuentas de trabajo o escuela. Para restringir el sistema a una sola institución, sustituirlo por el ID del tenant de Microsoft Entra.
+
+Microsoft y Google no crean cuentas institucionales automáticamente: sólo permiten entrar a usuarios previamente registrados y vinculan el identificador del proveedor después de validar el correo.
 
 ## Pruebas y calidad
 
@@ -710,7 +754,7 @@ Las pruebas incluyen:
 - Acceso de usuarios no autenticados.
 - ULID en rutas sensibles.
 - Prevención de acceso a constancias y evidencias ajenas.
-- Restricción de cursos por instructor.
+- Restricción de cursos por personal responsable.
 - Restricción de evidencias por evaluador asignado.
 - Acceso a Filament por rol.
 - Protección de datos en constancias públicas.
@@ -797,7 +841,6 @@ En producción se recomienda administrar el worker con Supervisor, systemd o el 
 
 ## Pendientes
 
-- Autenticación mediante Microsoft y Google.
 - Verificación de correo.
 - MFA.
 - Recuperación de contraseña reforzada.
@@ -818,4 +861,3 @@ En producción se recomienda administrar el worker con Supervisor, systemd o el 
 - Esquema: `database/migrations/`
 - Roles iniciales: `database/seeders/RoleSeeder.php`
 - Configuración Filament: `app/Providers/Filament/AdminPanelProvider.php`
-

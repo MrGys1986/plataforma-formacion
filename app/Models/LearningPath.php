@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LearningPath extends Model
 {
-    use HasPublicId, VisibleToUser;
+    use HasPublicId, SoftDeletes, VisibleToUser;
 
     protected $guarded = [];
 
@@ -39,6 +40,14 @@ class LearningPath extends Model
     {
         return $this->belongsToMany(Activity::class, 'learning_path_items')
             ->withPivot(['order_number', 'is_required', 'minimum_score'])
+            ->withTimestamps()
+            ->orderByPivot('order_number');
+    }
+
+    public function competencyDefinitions(): BelongsToMany
+    {
+        return $this->belongsToMany(Competency::class, 'learning_path_competency')
+            ->withPivot(['order_number', 'is_required'])
             ->withTimestamps()
             ->orderByPivot('order_number');
     }

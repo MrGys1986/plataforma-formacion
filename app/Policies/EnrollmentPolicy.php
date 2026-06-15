@@ -16,7 +16,7 @@ class EnrollmentPolicy
     public function viewAny(User $user): bool
     {
         return $user->hasAnyRole([
-            'Profesor', 'Alumno', 'Externo', 'Instructor',
+            'Profesor', 'Alumno', 'Externo', 'Personal',
             'Recursos Humanos', 'Educacion Continua', 'Responsable Area',
         ]);
     }
@@ -42,7 +42,7 @@ class EnrollmentPolicy
      */
     public function update(User $user, Enrollment $enrollment): bool
     {
-        return ($user->hasRole('Instructor') && $enrollment->activity?->instructor_id === $user->id)
+        return ($user->hasRole('Personal') && $enrollment->activity?->instructor_id === $user->id)
             || ($user->hasRole('Responsable Area') && $enrollment->activity?->area_id === $user->area_id)
             || ($user->hasRole('Recursos Humanos') && ! $enrollment->activity?->is_external)
             || ($user->hasRole('Educacion Continua') && $enrollment->activity?->is_external);

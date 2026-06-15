@@ -2,14 +2,16 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\TrainingProgramResource;
+use App\Filament\Resources\UserResource;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -31,16 +33,42 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-                Dashboard::class,
+            ->resources([
+                UserResource::make('administracion')->slug('users/administracion'),
+                UserResource::make('personal')->slug('users/personal'),
+                UserResource::make('responsables_area')->slug('users/responsables-area'),
+                UserResource::make('evaluadores')->slug('users/evaluadores'),
+                UserResource::make('profesores')->slug('users/profesores'),
+                UserResource::make('alumnos')->slug('users/alumnos'),
+                UserResource::make('externos')->slug('users/externos'),
+                TrainingProgramResource::make('cursos')->slug('training-programs/cursos'),
+                TrainingProgramResource::make('minicursos')->slug('training-programs/minicursos'),
+                TrainingProgramResource::make('talleres')->slug('training-programs/talleres'),
             ])
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::STYLES_AFTER,
+                fn (): string => view('filament.partials.panel-styles')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): string => view('filament.partials.panel-loader')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::SCRIPTS_AFTER,
+                fn (): string => view('filament.partials.panel-loader-script')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::PAGE_END,
+                fn (): string => view('filament.partials.panel-footer')->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

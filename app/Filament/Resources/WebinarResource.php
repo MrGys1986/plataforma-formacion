@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\ContinuingEducation\ContinuingEducationCluster;
+use App\Filament\Clusters\ResourceManagement\ResourceManagementCluster;
 use App\Filament\Resources\WebinarResource\Pages\ManageWebinars;
 use App\Models\Webinar;
 
 class WebinarResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $model = Webinar::class;
 
-    protected static ?string $cluster = ContinuingEducationCluster::class;
+    protected static ?string $cluster = ResourceManagementCluster::class;
 
     protected static ?string $modelLabel = 'Webinar';
 

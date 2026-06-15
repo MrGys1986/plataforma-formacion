@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\EvidenceManagement\EvidenceManagementCluster;
+use App\Filament\Clusters\SurveyManagement\SurveyManagementCluster;
 use App\Filament\Resources\SurveyResponseResource\Pages\ManageSurveyResponses;
 use App\Models\SurveyResponse;
 
 class SurveyResponseResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 3;
+
     protected static ?string $model = SurveyResponse::class;
 
-    protected static ?string $cluster = EvidenceManagementCluster::class;
+    protected static ?string $cluster = SurveyManagementCluster::class;
 
     protected static ?string $modelLabel = 'Respuesta de encuesta';
 
@@ -40,12 +42,18 @@ class SurveyResponseResource extends InstitutionalResource
             'relationship' => 'activity',
         ],
         3 => [
+            'name' => 'diploma_program_id',
+            'label' => 'Diplomado',
+            'type' => 'relation',
+            'relationship' => 'diplomaProgram',
+        ],
+        4 => [
             'name' => 'answers',
             'label' => 'Respuestas',
             'type' => 'json',
             'required' => true,
         ],
-        4 => [
+        5 => [
             'name' => 'submitted_at',
             'label' => 'Fecha de envío',
             'type' => 'datetime',
@@ -66,6 +74,10 @@ class SurveyResponseResource extends InstitutionalResource
             'label' => 'Actividad',
         ],
         3 => [
+            'name' => 'diplomaProgram.name',
+            'label' => 'Diplomado',
+        ],
+        4 => [
             'name' => 'submitted_at',
             'label' => 'Enviada',
             'type' => 'datetime',

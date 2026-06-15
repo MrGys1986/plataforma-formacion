@@ -2,15 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\AcademicManagement\AcademicManagementCluster;
+use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\ActivityTypeResource\Pages\ManageActivityTypes;
 use App\Models\ActivityType;
 
 class ActivityTypeResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?int $navigationSort = 3;
+
     protected static ?string $model = ActivityType::class;
 
-    protected static ?string $cluster = AcademicManagementCluster::class;
+    protected static ?string $cluster = TrainingManagementCluster::class;
 
     protected static ?string $modelLabel = 'Tipo de actividad';
 

@@ -16,9 +16,6 @@ class ActivityTypeSeeder extends Seeder
             'Minicurso',
             'Taller',
             'Curso',
-            'Diplomado',
-            'Certificacion',
-            'Competencia',
         ] as $name) {
             ActivityType::updateOrCreate(
                 ['name' => $name],

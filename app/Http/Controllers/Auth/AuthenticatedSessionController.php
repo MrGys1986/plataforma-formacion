@@ -67,7 +67,7 @@ class AuthenticatedSessionController extends Controller
     private function homeFor(User $user): string
     {
         return match (true) {
-            $user->hasRole('Instructor') => route('instructor.dashboard'),
+            $user->hasRole('Personal') => route('personal.dashboard'),
             $user->hasRole('Evaluador') => route('evaluator.dashboard'),
             $user->hasRole('Recursos Humanos') => route('rh.dashboard'),
             $user->hasRole('Calidad Academica') => route('quality.dashboard'),

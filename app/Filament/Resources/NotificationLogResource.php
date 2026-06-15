@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\SystemAdministration\SystemAdministrationCluster;
+use App\Filament\Clusters\AuditManagement\AuditManagementCluster;
 use App\Filament\Resources\NotificationLogResource\Pages\ManageNotificationLogs;
 use App\Models\NotificationLog;
 
 class NotificationLogResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $model = NotificationLog::class;
 
-    protected static ?string $cluster = SystemAdministrationCluster::class;
+    protected static ?string $cluster = AuditManagementCluster::class;
 
     protected static ?string $modelLabel = 'Registro de notificación';
 

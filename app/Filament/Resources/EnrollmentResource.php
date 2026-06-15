@@ -2,15 +2,20 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\AcademicManagement\AcademicManagementCluster;
+use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\EnrollmentResource\Pages\ManageEnrollments;
 use App\Models\Enrollment;
+use Illuminate\Database\Eloquent\Builder;
 
 class EnrollmentResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $model = Enrollment::class;
 
-    protected static ?string $cluster = AcademicManagementCluster::class;
+    protected static ?string $cluster = TrainingManagementCluster::class;
 
     protected static ?string $modelLabel = 'Inscripción';
 
@@ -18,56 +23,22 @@ class EnrollmentResource extends InstitutionalResource
 
     protected static ?string $recordTitleAttribute = 'id';
 
-    protected static array $formFields = [
-        0 => [
-            'name' => 'user_id',
-            'label' => 'Participante',
-            'type' => 'relation',
-            'relationship' => 'user',
-            'required' => true,
-        ],
-        1 => [
-            'name' => 'activity_id',
-            'label' => 'Actividad',
-            'type' => 'relation',
-            'relationship' => 'activity',
-            'required' => true,
-        ],
-        2 => [
-            'name' => 'status',
-            'label' => 'Estado',
-        ],
-        3 => [
-            'name' => 'payment_status',
-            'label' => 'Estado de pago',
-        ],
-        4 => [
-            'name' => 'completion_status',
-            'label' => 'Estado de finalización',
-        ],
-        5 => [
-            'name' => 'final_score',
-            'label' => 'Calificación final',
-            'type' => 'number',
-        ],
-    ];
-
     protected static array $tableColumns = [
-        0 => [
+        [
             'name' => 'user.name',
             'label' => 'Participante',
             'searchable' => true,
         ],
-        1 => [
+        [
             'name' => 'activity.name',
             'label' => 'Actividad',
             'searchable' => true,
         ],
-        2 => [
+        [
             'name' => 'status',
             'label' => 'Estado',
         ],
-        3 => [
+        [
             'name' => 'completion_status',
             'label' => 'Finalización',
         ],
@@ -82,5 +53,56 @@ class EnrollmentResource extends InstitutionalResource
         return [
             'index' => ManageEnrollments::route('/'),
         ];
+    }
+
+    protected static function getFormFields(): array
+    {
+        return [
+            [
+                'name' => 'user_id',
+                'label' => 'Participante',
+                'type' => 'relation',
+                'relationship' => 'user',
+                'required' => true,
+            ],
+            [
+                'name' => 'activity_id',
+                'label' => 'Actividad',
+                'type' => 'relation',
+                'relationship' => 'activity',
+                'required' => true,
+                'default' => fn (): ?int => request()->filled('activity')
+                    ? request()->integer('activity')
+                    : null,
+                'disabled' => fn (): bool => request()->filled('activity'),
+                'dehydrated' => true,
+            ],
+            [
+                'name' => 'status',
+                'label' => 'Estado',
+            ],
+            [
+                'name' => 'payment_status',
+                'label' => 'Estado de pago',
+            ],
+            [
+                'name' => 'completion_status',
+                'label' => 'Estado de finalización',
+            ],
+            [
+                'name' => 'final_score',
+                'label' => 'Calificación final',
+                'type' => 'number',
+            ],
+        ];
+    }
+
+    protected static function applyContextToQuery(Builder $query): Builder
+    {
+        if (! request()->filled('activity')) {
+            return $query;
+        }
+
+        return $query->where('activity_id', request()->integer('activity'));
     }
 }

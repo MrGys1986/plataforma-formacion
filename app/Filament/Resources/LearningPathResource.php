@@ -2,21 +2,26 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\AcademicManagement\AcademicManagementCluster;
+use App\Filament\Clusters\LearningPathManagement\LearningPathManagementCluster;
 use App\Filament\Resources\LearningPathResource\Pages\ManageLearningPaths;
 use App\Models\LearningPath;
+use Illuminate\Database\Eloquent\Builder;
 
 class LearningPathResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $model = LearningPath::class;
 
-    protected static ?string $cluster = AcademicManagementCluster::class;
+    protected static ?string $cluster = LearningPathManagementCluster::class;
 
     protected static ?string $modelLabel = 'Ruta de aprendizaje';
 
     protected static ?string $pluralModelLabel = 'Rutas de aprendizaje';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $softDeletes = true;
 
     protected static array $formFields = [
         0 => [
@@ -46,8 +51,22 @@ class LearningPathResource extends InstitutionalResource
             'type' => 'number',
         ],
         5 => [
+            'name' => 'competencyDefinitions',
+            'label' => 'Competencias de la ruta',
+            'type' => 'relation',
+            'relationship' => 'competencyDefinitions',
+            'multiple' => true,
+        ],
+        6 => [
             'name' => 'status',
             'label' => 'Estado',
+            'type' => 'select',
+            'options' => [
+                'borrador' => 'Borrador',
+                'publicada' => 'Publicada',
+                'inactiva' => 'Inactiva',
+                'archivada' => 'Archivada',
+            ],
         ],
     ];
 
@@ -66,6 +85,10 @@ class LearningPathResource extends InstitutionalResource
             'label' => 'Horas',
         ],
         3 => [
+            'name' => 'competency_definitions_count',
+            'label' => 'Competencias',
+        ],
+        4 => [
             'name' => 'status',
             'label' => 'Estado',
         ],
@@ -74,6 +97,11 @@ class LearningPathResource extends InstitutionalResource
     protected static ?string $statusColumn = 'status';
 
     protected static bool $readOnly = false;
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withCount('competencyDefinitions');
+    }
 
     public static function getPages(): array
     {

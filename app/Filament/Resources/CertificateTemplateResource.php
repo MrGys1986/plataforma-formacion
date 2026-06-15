@@ -8,6 +8,10 @@ use App\Models\CertificateTemplate;
 
 class CertificateTemplateResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?int $navigationSort = 3;
+
     protected static ?string $model = CertificateTemplate::class;
 
     protected static ?string $cluster = CredentialManagementCluster::class;

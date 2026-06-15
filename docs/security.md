@@ -10,6 +10,8 @@
 - Las descargas requieren autenticación, URL firmada temporal, Policy, existencia física y auditoría.
 - La verificación pública de constancias sólo muestra folio, validez, titular, actividad, tipo, fecha e institución.
 - La API de microcredenciales requiere firma y rate limit; sólo expone `public_id`.
+- El login social vincula `google_id` o `microsoft_id` además del correo para evitar sustitución de identidad.
+- El registro público sólo acepta Google verificado con dominio personal `@gmail.com` y fuerza el rol `Externo`.
 - Login, descargas, verificación pública, API y portales autenticados tienen límites de frecuencia.
 - Las respuestas incluyen headers contra MIME sniffing, framing y filtración excesiva de referencias.
 - La auditoría elimina valores sensibles y nunca interrumpe el flujo principal si falla.
@@ -33,7 +35,6 @@
 ## Pendientes deliberados
 
 - MFA y recuperación reforzada.
-- Autenticación social con vinculación segura de cuentas.
 - `auth:sanctum` o token dedicado para operaciones futuras de envío/estado de microcredenciales.
 - Firma criptográfica del payload, reintentos en queue y rotación de credenciales externas.
 - Antivirus/antimalware y validación de contenido para archivos cargados.

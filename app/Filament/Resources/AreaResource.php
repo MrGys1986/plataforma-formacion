@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\SystemAdministration\SystemAdministrationCluster;
+use App\Filament\Clusters\UserManagement\UserManagementCluster;
 use App\Filament\Resources\AreaResource\Pages\ManageAreas;
 use App\Models\Area;
 
 class AreaResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $model = Area::class;
 
-    protected static ?string $cluster = SystemAdministrationCluster::class;
+    protected static ?string $cluster = UserManagementCluster::class;
 
     protected static ?string $modelLabel = 'Área';
 

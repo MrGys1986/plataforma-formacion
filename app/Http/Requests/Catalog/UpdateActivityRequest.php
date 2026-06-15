@@ -28,21 +28,18 @@ class UpdateActivityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'slug' => [
-                'sometimes', 'required', 'string', 'max:255', 'alpha_dash',
-                Rule::unique('activities', 'slug')->ignore($this->route('activity')),
-            ],
-            'activity_type_public_id' => ['sometimes', 'required', 'ulid', Rule::exists('activity_types', 'public_id')],
+            'training_program_public_id' => ['sometimes', 'required', 'ulid', Rule::exists('training_programs', 'public_id')],
+            'edition_number' => ['sometimes', 'integer', 'min:1'],
+            'edition_code' => ['nullable', 'string', 'max:255'],
             'area_public_id' => ['nullable', 'ulid', Rule::exists('areas', 'public_id')],
             'instructor_public_id' => ['nullable', 'ulid', Rule::exists('users', 'public_id')],
-            'description' => ['nullable', 'string', 'max:5000'],
             'modality' => ['sometimes', Rule::in(['presencial', 'virtual', 'hibrida'])],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'duration_hours' => ['sometimes', 'numeric', 'min:0.5', 'max:9999'],
+            'enrollment_start_date' => ['nullable', 'date'],
+            'enrollment_end_date' => ['nullable', 'date', 'after_or_equal:enrollment_start_date'],
             'cost' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
-            'status' => ['nullable', Rule::in(['borrador', 'publicada', 'archivada', 'cancelada'])],
+            'status' => ['nullable', Rule::in(['borrador', 'publicado', 'en_inscripcion', 'cupo_lleno', 'en_curso', 'finalizado', 'cancelado', 'archivado'])],
         ];
     }
 }

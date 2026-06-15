@@ -16,7 +16,7 @@ class CertificatePolicy
     public function viewAny(User $user): bool
     {
         return $user->hasAnyRole([
-            'Profesor', 'Alumno', 'Externo', 'Instructor', 'Evaluador',
+            'Profesor', 'Alumno', 'Externo', 'Personal', 'Evaluador',
             'Recursos Humanos', 'Calidad Academica', 'Educacion Continua', 'Responsable Area',
         ]);
     }

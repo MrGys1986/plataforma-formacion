@@ -13,7 +13,7 @@ class ActivityPolicy
     public function viewAny(User $user): bool
     {
         return $user->hasAnyRole([
-            'Profesor', 'Alumno', 'Externo', 'Instructor', 'Evaluador',
+            'Profesor', 'Alumno', 'Externo', 'Personal', 'Evaluador',
             'Recursos Humanos', 'Calidad Academica', 'Educacion Continua', 'Responsable Area',
         ]);
     }
@@ -39,7 +39,7 @@ class ActivityPolicy
      */
     public function update(User $user, Activity $activity): bool
     {
-        return ($user->hasRole('Instructor') && $activity->instructor_id === $user->id)
+        return ($user->hasRole('Personal') && $activity->instructor_id === $user->id)
             || ($user->hasRole('Responsable Area') && $activity->area_id === $user->area_id)
             || ($user->hasRole('Recursos Humanos') && ! $activity->is_external)
             || ($user->hasRole('Educacion Continua') && $activity->is_external);
@@ -50,7 +50,7 @@ class ActivityPolicy
      */
     public function delete(User $user, Activity $activity): bool
     {
-        return false;
+        return $user->hasRole('Superadministrador');
     }
 
     /**

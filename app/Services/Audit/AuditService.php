@@ -45,7 +45,7 @@ class AuditService
         $sensitiveKeys = [
             'password', 'password_confirmation', 'curp', 'email', 'phone',
             'token', 'secret', 'json_payload', 'external_response', 'path',
-            'stored_name', 'payment_reference',
+            'stored_name', 'payment_reference', 'google_id', 'microsoft_id',
         ];
 
         foreach ($values as $key => $value) {

@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\ContinuingEducation\ContinuingEducationCluster;
+use App\Filament\Clusters\PaymentManagement\PaymentManagementCluster;
 use App\Filament\Resources\PaymentResource\Pages\ManagePayments;
 use App\Models\Payment;
 
 class PaymentResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $model = Payment::class;
 
-    protected static ?string $cluster = ContinuingEducationCluster::class;
+    protected static ?string $cluster = PaymentManagementCluster::class;
 
     protected static ?string $modelLabel = 'Pago';
 

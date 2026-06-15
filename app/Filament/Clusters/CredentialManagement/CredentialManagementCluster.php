@@ -8,11 +8,13 @@ use Filament\Support\Icons\Heroicon;
 
 class CredentialManagementCluster extends Cluster
 {
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquares2x2;
+    protected static ?int $navigationSort = 7;
 
-    protected static ?string $navigationLabel = 'Constancias y Microcredenciales';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
-    protected static ?string $title = 'Constancias y Microcredenciales';
+    protected static ?string $navigationLabel = 'Microcredenciales';
 
-    protected static ?string $slug = 'constancias-microcredenciales';
+    protected static ?string $title = 'Microcredenciales';
+
+    protected static ?string $slug = 'microcredenciales-constancias';
 }

@@ -2,15 +2,20 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\EvidenceManagement\EvidenceManagementCluster;
+use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\EvidenceResource\Pages\ManageEvidences;
 use App\Models\Evidence;
+use Illuminate\Database\Eloquent\Builder;
 
 class EvidenceResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?int $navigationSort = 6;
+
     protected static ?string $model = Evidence::class;
 
-    protected static ?string $cluster = EvidenceManagementCluster::class;
+    protected static ?string $cluster = TrainingManagementCluster::class;
 
     protected static ?string $modelLabel = 'Evidencia';
 
@@ -18,66 +23,25 @@ class EvidenceResource extends InstitutionalResource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static array $formFields = [
-        0 => [
-            'name' => 'user_id',
-            'label' => 'Participante',
-            'type' => 'relation',
-            'relationship' => 'user',
-            'required' => true,
-        ],
-        1 => [
-            'name' => 'activity_id',
-            'label' => 'Actividad',
-            'type' => 'relation',
-            'relationship' => 'activity',
-        ],
-        6 => [
-            'name' => 'assigned_evaluator_id',
-            'label' => 'Evaluador asignado',
-            'type' => 'relation',
-            'relationship' => 'assignedEvaluator',
-            'role' => 'Evaluador',
-        ],
-        2 => [
-            'name' => 'title',
-            'label' => 'Título',
-            'required' => true,
-        ],
-        3 => [
-            'name' => 'description',
-            'label' => 'Descripción',
-            'type' => 'textarea',
-        ],
-        4 => [
-            'name' => 'evidence_type',
-            'label' => 'Tipo de evidencia',
-        ],
-        5 => [
-            'name' => 'status',
-            'label' => 'Estado',
-        ],
-    ];
-
     protected static array $tableColumns = [
-        0 => [
+        [
             'name' => 'title',
             'label' => 'Título',
             'searchable' => true,
         ],
-        1 => [
+        [
             'name' => 'user.name',
             'label' => 'Participante',
         ],
-        2 => [
+        [
             'name' => 'activity.name',
             'label' => 'Actividad',
         ],
-        4 => [
+        [
             'name' => 'assignedEvaluator.name',
             'label' => 'Evaluador',
         ],
-        3 => [
+        [
             'name' => 'status',
             'label' => 'Estado',
         ],
@@ -92,5 +56,63 @@ class EvidenceResource extends InstitutionalResource
         return [
             'index' => ManageEvidences::route('/'),
         ];
+    }
+
+    protected static function getFormFields(): array
+    {
+        return [
+            [
+                'name' => 'user_id',
+                'label' => 'Participante',
+                'type' => 'relation',
+                'relationship' => 'user',
+                'required' => true,
+            ],
+            [
+                'name' => 'activity_id',
+                'label' => 'Actividad',
+                'type' => 'relation',
+                'relationship' => 'activity',
+                'default' => fn (): ?int => request()->filled('activity')
+                    ? request()->integer('activity')
+                    : null,
+                'disabled' => fn (): bool => request()->filled('activity'),
+                'dehydrated' => true,
+            ],
+            [
+                'name' => 'assigned_evaluator_id',
+                'label' => 'Evaluador asignado',
+                'type' => 'relation',
+                'relationship' => 'assignedEvaluator',
+                'role' => 'Evaluador',
+            ],
+            [
+                'name' => 'title',
+                'label' => 'Título',
+                'required' => true,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Descripción',
+                'type' => 'textarea',
+            ],
+            [
+                'name' => 'evidence_type',
+                'label' => 'Tipo de evidencia',
+            ],
+            [
+                'name' => 'status',
+                'label' => 'Estado',
+            ],
+        ];
+    }
+
+    protected static function applyContextToQuery(Builder $query): Builder
+    {
+        if (! request()->filled('activity')) {
+            return $query;
+        }
+
+        return $query->where('activity_id', request()->integer('activity'));
     }
 }

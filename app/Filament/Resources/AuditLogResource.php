@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\QualityManagement\QualityManagementCluster;
+use App\Filament\Clusters\AuditManagement\AuditManagementCluster;
 use App\Filament\Resources\AuditLogResource\Pages\ManageAuditLogs;
 use App\Models\AuditLog;
 
 class AuditLogResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $model = AuditLog::class;
 
-    protected static ?string $cluster = QualityManagementCluster::class;
+    protected static ?string $cluster = AuditManagementCluster::class;
 
     protected static ?string $modelLabel = 'Registro de auditoría';
 

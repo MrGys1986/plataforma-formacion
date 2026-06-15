@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function (): void {
             foreach ([
                 'participant',
-                'instructor',
+                'personal',
                 'evaluator',
                 'rh',
                 'quality',

@@ -29,6 +29,11 @@ class SurveyResponse extends Model
         return $this->belongsTo(Enrollment::class);
     }
 
+    public function diplomaProgram(): BelongsTo
+    {
+        return $this->belongsTo(DiplomaProgram::class);
+    }
+
     protected function casts(): array
     {
         return [

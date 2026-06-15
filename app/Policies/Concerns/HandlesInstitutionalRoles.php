@@ -9,8 +9,12 @@ trait HandlesInstitutionalRoles
 {
     public function before(User $user, string $ability): ?bool
     {
-        if (in_array($ability, ['delete', 'deleteAny', 'forceDelete', 'forceDeleteAny'], true)) {
+        if (in_array($ability, ['forceDelete', 'forceDeleteAny'], true)) {
             return false;
+        }
+
+        if (in_array($ability, ['delete', 'deleteAny'], true)) {
+            return null;
         }
 
         return $user->hasRole('Superadministrador') ? true : null;

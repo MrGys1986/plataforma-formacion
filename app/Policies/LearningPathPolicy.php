@@ -51,7 +51,7 @@ class LearningPathPolicy
      */
     public function delete(User $user, LearningPath $learningPath): bool
     {
-        return false;
+        return $user->hasRole('Superadministrador');
     }
 
     /**

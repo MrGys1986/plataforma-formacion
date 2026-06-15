@@ -17,7 +17,7 @@ class RoleSeeder extends Seeder
             'Recursos Humanos',
             'Calidad Academica',
             'Educacion Continua',
-            'Instructor',
+            'Personal',
             'Evaluador',
             'Profesor',
             'Alumno',

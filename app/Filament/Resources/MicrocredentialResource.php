@@ -8,6 +8,8 @@ use App\Models\Microcredential;
 
 class MicrocredentialResource extends InstitutionalResource
 {
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $model = Microcredential::class;
 
     protected static ?string $cluster = CredentialManagementCluster::class;

@@ -14,8 +14,8 @@ class ActivityService
     {
         Gate::authorize('publish', $activity);
         $oldStatus = $activity->status;
-        $activity->update(['status' => 'publicada']);
-        $this->audit->log('actividades', 'publicacion', $activity, ['status' => $oldStatus], ['status' => 'publicada']);
+        $activity->update(['status' => 'publicado']);
+        $this->audit->log('ediciones', 'publicacion', $activity, ['status' => $oldStatus], ['status' => 'publicado']);
 
         return $activity->refresh();
     }
@@ -24,8 +24,8 @@ class ActivityService
     {
         Gate::authorize('update', $activity);
         $oldStatus = $activity->status;
-        $activity->update(['status' => 'archivada']);
-        $this->audit->log('actividades', 'archivo', $activity, ['status' => $oldStatus], ['status' => 'archivada']);
+        $activity->update(['status' => 'archivado']);
+        $this->audit->log('ediciones', 'archivo', $activity, ['status' => $oldStatus], ['status' => 'archivado']);
 
         return $activity->refresh();
     }

@@ -2,15 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\EvidenceManagement\EvidenceManagementCluster;
+use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\EvaluationResultResource\Pages\ManageEvaluationResults;
 use App\Models\EvaluationResult;
 
 class EvaluationResultResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?int $navigationSort = 9;
+
     protected static ?string $model = EvaluationResult::class;
 
-    protected static ?string $cluster = EvidenceManagementCluster::class;
+    protected static ?string $cluster = TrainingManagementCluster::class;
 
     protected static ?string $modelLabel = 'Resultado de evaluación';
 

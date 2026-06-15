@@ -16,7 +16,7 @@ class EvaluationPolicy
     public function viewAny(User $user): bool
     {
         return $user->hasAnyRole([
-            'Instructor', 'Evaluador', 'Recursos Humanos', 'Calidad Academica',
+            'Personal', 'Evaluador', 'Recursos Humanos', 'Calidad Academica',
         ]);
     }
 
@@ -33,7 +33,7 @@ class EvaluationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['Instructor', 'Recursos Humanos']);
+        return $user->hasAnyRole(['Personal', 'Recursos Humanos']);
     }
 
     /**
@@ -41,7 +41,7 @@ class EvaluationPolicy
      */
     public function update(User $user, Evaluation $evaluation): bool
     {
-        return ($user->hasRole('Instructor') && $evaluation->activity?->instructor_id === $user->id)
+        return ($user->hasRole('Personal') && $evaluation->activity?->instructor_id === $user->id)
             || ($user->hasRole('Recursos Humanos') && ! $evaluation->activity?->is_external);
     }
 

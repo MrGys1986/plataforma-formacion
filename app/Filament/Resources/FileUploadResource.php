@@ -2,15 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\EvidenceManagement\EvidenceManagementCluster;
+use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\FileUploadResource\Pages\ManageFileUploads;
 use App\Models\FileUpload;
 
 class FileUploadResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?int $navigationSort = 10;
+
     protected static ?string $model = FileUpload::class;
 
-    protected static ?string $cluster = EvidenceManagementCluster::class;
+    protected static ?string $cluster = TrainingManagementCluster::class;
 
     protected static ?string $modelLabel = 'Archivo';
 

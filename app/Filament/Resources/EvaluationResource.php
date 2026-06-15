@@ -2,15 +2,20 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\EvidenceManagement\EvidenceManagementCluster;
+use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\EvaluationResource\Pages\ManageEvaluations;
 use App\Models\Evaluation;
+use Illuminate\Database\Eloquent\Builder;
 
 class EvaluationResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?int $navigationSort = 8;
+
     protected static ?string $model = Evaluation::class;
 
-    protected static ?string $cluster = EvidenceManagementCluster::class;
+    protected static ?string $cluster = TrainingManagementCluster::class;
 
     protected static ?string $modelLabel = 'Evaluación';
 
@@ -18,54 +23,21 @@ class EvaluationResource extends InstitutionalResource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static array $formFields = [
-        0 => [
-            'name' => 'activity_id',
-            'label' => 'Actividad',
-            'type' => 'relation',
-            'relationship' => 'activity',
-            'required' => true,
-        ],
-        1 => [
-            'name' => 'name',
-            'label' => 'Nombre',
-            'required' => true,
-        ],
-        2 => [
-            'name' => 'description',
-            'label' => 'Descripción',
-            'type' => 'textarea',
-        ],
-        3 => [
-            'name' => 'evaluation_type',
-            'label' => 'Tipo de evaluación',
-        ],
-        4 => [
-            'name' => 'minimum_score',
-            'label' => 'Calificación mínima',
-            'type' => 'number',
-        ],
-        5 => [
-            'name' => 'status',
-            'label' => 'Estado',
-        ],
-    ];
-
     protected static array $tableColumns = [
-        0 => [
+        [
             'name' => 'name',
             'label' => 'Nombre',
             'searchable' => true,
         ],
-        1 => [
+        [
             'name' => 'activity.name',
             'label' => 'Actividad',
         ],
-        2 => [
+        [
             'name' => 'evaluation_type',
             'label' => 'Tipo',
         ],
-        3 => [
+        [
             'name' => 'status',
             'label' => 'Estado',
         ],
@@ -80,5 +52,55 @@ class EvaluationResource extends InstitutionalResource
         return [
             'index' => ManageEvaluations::route('/'),
         ];
+    }
+
+    protected static function getFormFields(): array
+    {
+        return [
+            [
+                'name' => 'activity_id',
+                'label' => 'Actividad',
+                'type' => 'relation',
+                'relationship' => 'activity',
+                'required' => true,
+                'default' => fn (): ?int => request()->filled('activity')
+                    ? request()->integer('activity')
+                    : null,
+                'disabled' => fn (): bool => request()->filled('activity'),
+                'dehydrated' => true,
+            ],
+            [
+                'name' => 'name',
+                'label' => 'Nombre',
+                'required' => true,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Descripción',
+                'type' => 'textarea',
+            ],
+            [
+                'name' => 'evaluation_type',
+                'label' => 'Tipo de evaluación',
+            ],
+            [
+                'name' => 'minimum_score',
+                'label' => 'Calificación mínima',
+                'type' => 'number',
+            ],
+            [
+                'name' => 'status',
+                'label' => 'Estado',
+            ],
+        ];
+    }
+
+    protected static function applyContextToQuery(Builder $query): Builder
+    {
+        if (! request()->filled('activity')) {
+            return $query;
+        }
+
+        return $query->where('activity_id', request()->integer('activity'));
     }
 }

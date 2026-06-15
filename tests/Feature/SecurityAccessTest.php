@@ -29,7 +29,7 @@ class SecurityAccessTest extends TestCase
             'Recursos Humanos',
             'Calidad Academica',
             'Educacion Continua',
-            'Instructor',
+            'Personal',
             'Evaluador',
             'Responsable Area',
             'Profesor',
@@ -77,13 +77,13 @@ class SecurityAccessTest extends TestCase
         $this->assertFalse(Gate::forUser($participant)->allows('view', $evidence));
     }
 
-    public function test_instructor_cannot_view_an_unassigned_course(): void
+    public function test_personal_cannot_view_an_unassigned_course(): void
     {
-        $instructor = $this->userWithRole('Instructor');
+        $personal = $this->userWithRole('Personal');
         $activity = $this->activity(['instructor_id' => null]);
 
-        $this->actingAs($instructor)
-            ->get(route('instructor.courses.show', $activity))
+        $this->actingAs($personal)
+            ->get(route('personal.courses.show', $activity))
             ->assertForbidden();
     }
 
@@ -218,7 +218,7 @@ class SecurityAccessTest extends TestCase
             'name' => 'Actividad '.fake()->unique()->word(),
             'slug' => fake()->unique()->slug(),
             'duration_hours' => 8,
-            'status' => 'publicada',
+            'status' => 'publicado',
         ], $attributes));
     }
 }
