@@ -366,6 +366,124 @@
         color: #94a3b8;
     }
 
+    .fi-sidebar-item.pf-collapsible-users {
+        position: relative;
+    }
+
+    .pf-users-toggle {
+        position: absolute;
+        top: 0.55rem;
+        right: 0.65rem;
+        z-index: 2;
+        display: inline-flex;
+        width: 1.75rem;
+        height: 1.75rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        color: #94a3b8;
+        transition: color 120ms ease, background-color 120ms ease;
+    }
+
+    .pf-users-toggle:hover,
+    .pf-users-toggle:focus-visible {
+        background: rgba(148, 163, 184, 0.12);
+        color: #3b82f6;
+        outline: none;
+    }
+
+    .pf-users-toggle svg {
+        width: 1rem;
+        height: 1rem;
+        transition: transform 160ms ease;
+    }
+
+    .pf-users-toggle[aria-expanded='true'] svg {
+        transform: rotate(180deg);
+    }
+
+    .pf-collapsible-users > .fi-sidebar-item-btn {
+        padding-right: 3rem;
+    }
+
+    .pf-collapsible-users.pf-users-collapsed > .fi-sidebar-sub-group-items {
+        display: none;
+    }
+
+    .pf-management-table.fi-ta-ctn {
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 1.15rem;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    }
+
+    .dark .pf-management-table.fi-ta-ctn {
+        border-color: rgba(148, 163, 184, 0.18);
+        box-shadow: 0 22px 55px rgba(0, 0, 0, 0.24);
+    }
+
+    .pf-management-table .fi-ta-header-toolbar {
+        padding: 1rem 1.15rem;
+        background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 36%),
+            rgba(248, 250, 252, 0.8);
+    }
+
+    .dark .pf-management-table .fi-ta-header-toolbar {
+        background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 36%),
+            rgba(24, 24, 27, 0.92);
+    }
+
+    .pf-management-table .fi-ta-table thead {
+        background: rgba(241, 245, 249, 0.9);
+    }
+
+    .dark .pf-management-table .fi-ta-table thead {
+        background: rgba(39, 39, 42, 0.92);
+    }
+
+    .pf-management-table .fi-ta-header-cell {
+        padding-top: 0.9rem;
+        padding-bottom: 0.9rem;
+    }
+
+    .pf-management-table .fi-ta-row {
+        transition: background-color 140ms ease, transform 140ms ease;
+    }
+
+    .pf-management-table .fi-ta-row:hover {
+        background: rgba(59, 130, 246, 0.055);
+    }
+
+    .dark .pf-management-table .fi-ta-row:hover {
+        background: rgba(59, 130, 246, 0.09);
+    }
+
+    .pf-management-table .fi-ta-text:not(.fi-inline) {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .pf-management-table .fi-badge {
+        border-radius: 999px;
+        padding-inline: 0.65rem;
+        font-weight: 600;
+    }
+
+    .pf-management-table .fi-ta-actions {
+        padding-inline: 0.75rem;
+    }
+
+    .pf-management-table .fi-pagination {
+        padding: 0.9rem 1.15rem;
+        background: rgba(248, 250, 252, 0.72);
+    }
+
+    .dark .pf-management-table .fi-pagination {
+        background: rgba(24, 24, 27, 0.72);
+    }
+
     @keyframes pf-loader-spin {
         to {
             transform: rotate(360deg);

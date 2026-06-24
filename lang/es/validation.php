@@ -1,0 +1,72 @@
+<?php
+
+return [
+    'accepted' => 'Debes aceptar :attribute.',
+    'array' => ':attribute debe contener una lista de valores.',
+    'boolean' => ':attribute debe ser verdadero o falso.',
+    'confirmed' => 'La confirmación de :attribute no coincide.',
+    'date' => 'Ingresa una fecha válida en :attribute.',
+    'date_format' => ':attribute debe tener el formato :format.',
+    'email' => 'Ingresa un correo electrónico válido.',
+    'exists' => 'La opción seleccionada en :attribute no es válida.',
+    'file' => ':attribute debe ser un archivo.',
+    'image' => ':attribute debe ser una imagen.',
+    'in' => 'La opción seleccionada en :attribute no es válida.',
+    'integer' => ':attribute debe ser un número entero.',
+    'max' => [
+        'array' => ':attribute no debe contener más de :max elementos.',
+        'file' => ':attribute no debe superar :max kilobytes.',
+        'numeric' => ':attribute no debe ser mayor que :max.',
+        'string' => ':attribute no debe superar :max caracteres.',
+    ],
+    'mimes' => ':attribute debe ser un archivo de tipo: :values.',
+    'min' => [
+        'array' => ':attribute debe contener al menos :min elementos.',
+        'file' => ':attribute debe pesar al menos :min kilobytes.',
+        'numeric' => ':attribute debe ser al menos :min.',
+        'string' => ':attribute debe tener al menos :min caracteres.',
+    ],
+    'not_in' => 'La opción seleccionada en :attribute no es válida.',
+    'numeric' => ':attribute debe ser un número.',
+    'regex' => 'El formato de :attribute no es válido.',
+    'required' => 'Por favor, completa el campo :attribute.',
+    'required_if' => 'Por favor, completa el campo :attribute.',
+    'required_with' => 'Por favor, completa el campo :attribute.',
+    'required_without' => 'Por favor, completa el campo :attribute.',
+    'same' => ':attribute debe coincidir con :other.',
+    'string' => ':attribute debe ser texto.',
+    'unique' => 'El valor de :attribute ya está registrado.',
+    'uploaded' => 'No se pudo cargar :attribute.',
+    'url' => 'Ingresa una dirección web válida en :attribute.',
+
+    'custom' => [
+        'email' => [
+            'required' => 'Por favor, escribe el correo electrónico.',
+            'email' => 'Escribe un correo electrónico válido.',
+            'unique' => 'Este correo electrónico ya está registrado.',
+        ],
+        'name' => [
+            'required' => 'Por favor, escribe el nombre.',
+        ],
+        'password' => [
+            'required' => 'Por favor, escribe una contraseña.',
+        ],
+    ],
+
+    'attributes' => [
+        'name' => 'nombre',
+        'email' => 'correo electrónico',
+        'password' => 'contraseña',
+        'roles' => 'roles',
+        'user_type' => 'tipo de usuario',
+        'profile_type' => 'perfil',
+        'area_id' => 'área',
+        'curp' => 'CURP',
+        'external_institution' => 'institución de procedencia',
+        'phone' => 'teléfono',
+        'status' => 'estado',
+        'description' => 'descripción',
+        'area_type' => 'tipo de área',
+        'responsible_user_id' => 'responsable',
+    ],
+];

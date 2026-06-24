@@ -37,10 +37,13 @@ class AdminPanelProvider extends PanelProvider
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\Filament\Clusters')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->resources([
-                UserResource::make('administracion')->slug('users/administracion'),
+                UserResource::make('superadministradores')->slug('users/superadministradores'),
                 UserResource::make('personal')->slug('users/personal'),
                 UserResource::make('responsables_area')->slug('users/responsables-area'),
                 UserResource::make('evaluadores')->slug('users/evaluadores'),
+                UserResource::make('recursos_humanos')->slug('users/recursos-humanos'),
+                UserResource::make('calidad_academica')->slug('users/calidad-academica'),
+                UserResource::make('educacion_continua')->slug('users/educacion-continua'),
                 UserResource::make('profesores')->slug('users/profesores'),
                 UserResource::make('alumnos')->slug('users/alumnos'),
                 UserResource::make('externos')->slug('users/externos'),

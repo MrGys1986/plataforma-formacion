@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\EditionControlPage;
+use App\Filament\Resources\AreaResource;
 use App\Filament\Resources\TrainingProgramResource;
 use App\Filament\Resources\UserResource;
 use App\Models\Activity;
@@ -40,7 +41,43 @@ class PlatformStructureTest extends TestCase
         $this->actingAs($user)
             ->get(UserResource::getUrl())
             ->assertOk()
-            ->assertSee('Usuarios');
+            ->assertSee('Usuarios')
+            ->assertSee('Recursos Humanos')
+            ->assertSee('Calidad Académica');
+
+        $this->actingAs($user)
+            ->get(AreaResource::getUrl())
+            ->assertOk()
+            ->assertSee('Áreas');
+    }
+
+    public function test_an_administrator_can_filter_users_from_the_role_navigation(): void
+    {
+        $administrator = User::factory()->create([
+            'name' => 'Administrador autenticado',
+            'status' => 'activo',
+        ]);
+        Role::findOrCreate('Superadministrador');
+        $administrator->assignRole('Superadministrador');
+
+        $otherAdministrator = User::factory()->create([
+            'name' => 'Otro superadministrador',
+            'status' => 'activo',
+        ]);
+        $otherAdministrator->assignRole('Superadministrador');
+
+        $humanResourcesUser = User::factory()->create([
+            'name' => 'Usuario de recursos humanos',
+            'status' => 'activo',
+        ]);
+        Role::findOrCreate('Recursos Humanos');
+        $humanResourcesUser->assignRole('Recursos Humanos');
+
+        $this->actingAs($administrator)
+            ->get('/admin/usuarios-areas/users/recursos-humanos')
+            ->assertOk()
+            ->assertSee('Usuario de recursos humanos')
+            ->assertDontSee('Otro superadministrador');
     }
 
     public function test_an_administrator_can_open_configured_training_views_and_edition_control(): void

@@ -5,7 +5,11 @@ namespace App\Filament\Resources;
 use App\Filament\Clusters\UserManagement\UserManagementCluster;
 use App\Filament\Resources\UserResource\Pages\ManageUsers;
 use App\Models\User;
+use Filament\Actions\EditAction;
 use Filament\Resources\ResourceConfiguration;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends InstitutionalResource
@@ -133,6 +137,81 @@ class UserResource extends InstitutionalResource
 
     protected static bool $readOnly = false;
 
+    protected static function modifyTable(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->label('Usuario')
+                    ->icon(Heroicon::OutlinedUserCircle)
+                    ->iconColor('primary')
+                    ->weight('semibold')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('email')
+                    ->label('Correo electrónico')
+                    ->icon(Heroicon::OutlinedEnvelope)
+                    ->iconColor('gray')
+                    ->copyable()
+                    ->copyMessage('Correo copiado')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('roles.name')
+                    ->label('Rol')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Superadministrador' => 'danger',
+                        'Recursos Humanos' => 'success',
+                        'Calidad Academica' => 'info',
+                        'Educacion Continua' => 'warning',
+                        'Responsable Area' => 'primary',
+                        default => 'gray',
+                    })
+                    ->limitList(2)
+                    ->expandableLimitedList(),
+                TextColumn::make('area.name')
+                    ->label('Área')
+                    ->icon(Heroicon::OutlinedBuildingOffice)
+                    ->iconColor('primary')
+                    ->placeholder('Sin área')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('user_type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => ucfirst($state ?: 'Sin definir'))
+                    ->color(fn (?string $state): string => $state === 'externo' ? 'warning' : 'info'),
+                TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge()
+                    ->icon(fn (?string $state): Heroicon => match ($state) {
+                        'activo' => Heroicon::OutlinedCheckCircle,
+                        'suspendido' => Heroicon::OutlinedShieldCheck,
+                        default => Heroicon::OutlinedIdentification,
+                    })
+                    ->formatStateUsing(fn (?string $state): string => ucfirst($state ?: 'Sin definir'))
+                    ->color(fn (?string $state): string => match ($state) {
+                        'activo' => 'success',
+                        'suspendido' => 'warning',
+                        'inactivo' => 'danger',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+            ])
+            ->recordActions([
+                EditAction::make()
+                    ->iconButton()
+                    ->tooltip('Editar usuario'),
+            ])
+            ->defaultSort('name')
+            ->striped()
+            ->searchPlaceholder('Buscar por nombre o correo')
+            ->paginationPageOptions([10, 25, 50])
+            ->persistSearchInSession()
+            ->persistSortInSession()
+            ->extraAttributes(['class' => 'pf-management-table']);
+    }
+
     public static function getNavigationLabel(): string
     {
         $configuredView = static::getConfiguredView();
@@ -169,15 +248,13 @@ class UserResource extends InstitutionalResource
         $query = parent::getEloquentQuery();
 
         return match (static::getConfiguration()?->getKey()) {
-            'administracion' => static::filterByRoles($query, [
-                'Superadministrador',
-                'Recursos Humanos',
-                'Calidad Academica',
-                'Educacion Continua',
-            ]),
+            'superadministradores' => static::filterByRoles($query, ['Superadministrador']),
             'personal' => static::filterByRoles($query, ['Personal']),
             'responsables_area' => static::filterByRoles($query, ['Responsable Area']),
             'evaluadores' => static::filterByRoles($query, ['Evaluador']),
+            'recursos_humanos' => static::filterByRoles($query, ['Recursos Humanos']),
+            'calidad_academica' => static::filterByRoles($query, ['Calidad Academica']),
+            'educacion_continua' => static::filterByRoles($query, ['Educacion Continua']),
             'profesores' => static::filterByRoles($query, ['Profesor']),
             'alumnos' => static::filterByRoles($query, ['Alumno']),
             'externos' => $query->where(function (Builder $builder): void {
@@ -200,33 +277,45 @@ class UserResource extends InstitutionalResource
     protected static function getConfiguredView(): ?array
     {
         return [
-            'administracion' => [
-                'label' => 'Administración',
+            'superadministradores' => [
+                'label' => 'Superadministrador',
                 'sort' => 1,
             ],
             'personal' => [
-                'label' => 'Personal universitario',
+                'label' => 'Personal',
                 'sort' => 2,
             ],
             'responsables_area' => [
-                'label' => 'Responsables de área',
+                'label' => 'Responsable de área',
                 'sort' => 3,
             ],
             'evaluadores' => [
-                'label' => 'Evaluadores',
+                'label' => 'Evaluador',
                 'sort' => 4,
             ],
-            'profesores' => [
-                'label' => 'Profesores',
+            'recursos_humanos' => [
+                'label' => 'Recursos Humanos',
                 'sort' => 5,
             ],
-            'alumnos' => [
-                'label' => 'Alumnos',
+            'calidad_academica' => [
+                'label' => 'Calidad Académica',
                 'sort' => 6,
             ],
-            'externos' => [
-                'label' => 'Externos',
+            'educacion_continua' => [
+                'label' => 'Educación Continua',
                 'sort' => 7,
+            ],
+            'profesores' => [
+                'label' => 'Profesor',
+                'sort' => 8,
+            ],
+            'alumnos' => [
+                'label' => 'Alumno',
+                'sort' => 9,
+            ],
+            'externos' => [
+                'label' => 'Externo',
+                'sort' => 10,
             ],
         ][static::getConfiguration()?->getKey()] ?? null;
     }
