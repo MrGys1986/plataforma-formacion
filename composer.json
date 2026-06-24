@@ -12,6 +12,7 @@
         "laravel/socialite": "^5.27",
         "laravel/tinker": "^3.0",
         "socialiteproviders/microsoft": "^4.9",
+        "socialiteproviders/microsoft-azure": "^5.2",
         "spatie/laravel-permission": "^8.0"
     },
     "require-dev": {

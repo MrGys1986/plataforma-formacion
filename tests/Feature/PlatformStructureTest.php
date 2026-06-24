@@ -83,6 +83,47 @@ class PlatformStructureTest extends TestCase
             ->assertSee('Control por edición');
     }
 
+    public function test_training_program_normalizes_null_defaults_before_saving(): void
+    {
+        $activityType = ActivityType::create([
+            'name' => 'Curso',
+            'status' => 'activo',
+        ]);
+
+        $program = TrainingProgram::create([
+            'activity_type_id' => $activityType->id,
+            'name' => 'Curso con defaults',
+            'slug' => 'curso-con-defaults',
+            'default_modality' => null,
+            'language' => null,
+            'duration_hours' => null,
+            'default_cost' => null,
+            'is_external' => null,
+            'requires_approval' => null,
+            'requires_payment' => null,
+            'requires_evaluation' => null,
+            'requires_survey' => null,
+            'generates_certificate' => null,
+            'generates_microcredential' => null,
+            'status' => null,
+        ]);
+
+        $program->refresh();
+
+        $this->assertSame('activo', $program->status);
+        $this->assertSame('presencial', $program->default_modality);
+        $this->assertSame('Español', $program->language);
+        $this->assertSame('0.00', $program->duration_hours);
+        $this->assertSame('0.00', $program->default_cost);
+        $this->assertFalse($program->is_external);
+        $this->assertTrue($program->requires_approval);
+        $this->assertFalse($program->requires_payment);
+        $this->assertFalse($program->requires_evaluation);
+        $this->assertTrue($program->requires_survey);
+        $this->assertTrue($program->generates_certificate);
+        $this->assertFalse($program->generates_microcredential);
+    }
+
     public function test_the_microcredential_api_returns_json(): void
     {
         $user = User::factory()->create(['status' => 'activo']);

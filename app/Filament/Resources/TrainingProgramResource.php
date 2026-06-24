@@ -6,8 +6,10 @@ use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\TrainingProgramResource\Pages\ManageTrainingPrograms;
 use App\Models\TrainingProgram;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Resources\ResourceConfiguration;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
 class TrainingProgramResource extends InstitutionalResource
@@ -81,6 +83,8 @@ class TrainingProgramResource extends InstitutionalResource
                 'virtual' => 'Virtual',
                 'hibrida' => 'Híbrida',
             ],
+            'default' => 'presencial',
+            'required' => true,
         ],
         [
             'name' => 'duration_hours',
@@ -92,36 +96,43 @@ class TrainingProgramResource extends InstitutionalResource
             'name' => 'default_cost',
             'label' => 'Costo predeterminado',
             'type' => 'number',
+            'default' => 0,
         ],
         [
             'name' => 'is_external',
             'label' => 'Oferta externa',
             'type' => 'toggle',
+            'default' => false,
         ],
         [
             'name' => 'requires_payment',
             'label' => 'Requiere pago',
             'type' => 'toggle',
+            'default' => false,
         ],
         [
             'name' => 'requires_evaluation',
             'label' => 'Requiere evaluación',
             'type' => 'toggle',
+            'default' => false,
         ],
         [
             'name' => 'requires_survey',
             'label' => 'Requiere encuesta',
             'type' => 'toggle',
+            'default' => true,
         ],
         [
             'name' => 'generates_certificate',
             'label' => 'Genera constancia',
             'type' => 'toggle',
+            'default' => true,
         ],
         [
             'name' => 'generates_microcredential',
             'label' => 'Genera microcredencial',
             'type' => 'toggle',
+            'default' => false,
         ],
         [
             'name' => 'status',
@@ -132,6 +143,8 @@ class TrainingProgramResource extends InstitutionalResource
                 'inactivo' => 'Inactivo',
                 'borrador' => 'Borrador',
             ],
+            'default' => 'activo',
+            'required' => true,
         ],
     ];
 
@@ -182,7 +195,7 @@ class TrainingProgramResource extends InstitutionalResource
         return $configuredType['sort'] ?? parent::getNavigationSort();
     }
 
-    public static function getNavigationIcon(): string|\BackedEnum|\Illuminate\Contracts\Support\Htmlable|null
+    public static function getNavigationIcon(): string|\BackedEnum|Htmlable|null
     {
         return static::getConfiguration()?->getKey() ? null : Heroicon::OutlinedAcademicCap;
     }
@@ -232,7 +245,7 @@ class TrainingProgramResource extends InstitutionalResource
     }
 
     /**
-     * @return array<Action|\Filament\Actions\ActionGroup>
+     * @return array<Action|ActionGroup>
      */
     protected static function getTableRecordActions(): array
     {

@@ -17,6 +17,33 @@ class TrainingProgram extends Model
 
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        static::saving(function (TrainingProgram $program): void {
+            if (blank($program->status)) {
+                $program->status = 'activo';
+            }
+
+            if (blank($program->default_modality)) {
+                $program->default_modality = 'presencial';
+            }
+
+            if (blank($program->language)) {
+                $program->language = 'Español';
+            }
+
+            $program->duration_hours ??= 0;
+            $program->default_cost ??= 0;
+            $program->is_external ??= false;
+            $program->requires_approval ??= true;
+            $program->requires_payment ??= false;
+            $program->requires_evaluation ??= false;
+            $program->requires_survey ??= true;
+            $program->generates_certificate ??= true;
+            $program->generates_microcredential ??= false;
+        });
+    }
+
     public function activityType(): BelongsTo
     {
         return $this->belongsTo(ActivityType::class);
