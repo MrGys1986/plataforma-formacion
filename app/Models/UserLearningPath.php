@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
+use App\Services\LearningPaths\LearningPathProgressService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserLearningPath extends Model
 {
     protected $guarded = [];
+
+    protected static function booted(): void
+    {
+        static::created(function (UserLearningPath $assignment): void {
+            app(LearningPathProgressService::class)->synchronizeAssignment($assignment);
+        });
+    }
 
     public function user(): BelongsTo
     {

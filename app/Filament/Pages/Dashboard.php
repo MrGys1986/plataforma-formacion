@@ -110,7 +110,7 @@ class Dashboard extends BaseDashboard
                 ],
                 [
                     'label' => 'Microcredenciales emitidas',
-                    'count' => Microcredential::query()->where('status', 'emitida')->count(),
+                    'count' => Microcredential::query()->where('status', 'validada')->count(),
                     'url' => MicrocredentialResource::getUrl(),
                 ],
             ],

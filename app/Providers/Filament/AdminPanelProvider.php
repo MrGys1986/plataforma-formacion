@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(fn () => redirect()->route('login'))
             ->brandName('Plataforma Institucional de Formación')
             ->colors([
                 'primary' => Color::Blue,

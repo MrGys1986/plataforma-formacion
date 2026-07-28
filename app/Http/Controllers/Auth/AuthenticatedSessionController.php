@@ -50,18 +50,22 @@ class AuthenticatedSessionController extends Controller
 
         $audit->log('autenticacion', 'login_exitoso', $request->user());
 
-        return redirect()->intended($this->homeFor($request->user()));
+        $request->session()->forget('url.intended');
+
+        return redirect()->to($this->homeFor($request->user()));
     }
 
     public function destroy(Request $request, AuditService $audit): RedirectResponse
     {
+        $redirectToLogin = $request->input('redirect_to') === 'login';
+
         $audit->log('autenticacion', 'logout', $request->user());
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        return redirect()->route($redirectToLogin ? 'login' : 'home');
     }
 
     private function homeFor(User $user): string

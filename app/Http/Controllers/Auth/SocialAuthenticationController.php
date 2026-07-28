@@ -205,7 +205,9 @@ class SocialAuthenticationController extends Controller
         $request->session()->regenerate();
         $audit->log('autenticacion', "login_{$provider}", $user);
 
-        return redirect()->intended($this->homeFor($user));
+        request()->session()->forget('url.intended');
+
+        return redirect()->to($this->homeFor($user));
     }
 
     private function googleEmailIsVerified(SocialUser $socialUser): bool

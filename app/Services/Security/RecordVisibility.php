@@ -85,6 +85,11 @@ class RecordVisibility
         return match (true) {
             $user->hasRole('Recursos Humanos') => $query->where('is_external', false),
             $user->hasRole('Educacion Continua') => $query->where('is_external', true),
+            $user->hasRole('Profesor') => $query->where(function (Builder $builder) use ($user): void {
+                $builder
+                    ->where('instructor_id', $user->id)
+                    ->orWhereIn('status', ['publicado', 'en_inscripcion', 'cupo_lleno', 'en_curso']);
+            }),
             $user->hasRole('Personal') => $query->where('instructor_id', $user->id),
             $user->hasRole('Responsable Area') => $query->where('area_id', $user->area_id),
             $user->hasRole('Calidad Academica') => $query,
@@ -131,6 +136,11 @@ class RecordVisibility
         return match (true) {
             $user->hasRole('Recursos Humanos') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', false)),
             $user->hasRole('Educacion Continua') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', true)),
+            $user->hasRole('Profesor') => $query->where(function (Builder $builder) use ($user): void {
+                $builder
+                    ->where('user_id', $user->id)
+                    ->orWhereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id));
+            }),
             $user->hasRole('Personal') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id)),
             $user->hasRole('Responsable Area') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('area_id', $user->area_id)),
             default => $query->where('user_id', $user->id),
@@ -143,6 +153,11 @@ class RecordVisibility
             $user->hasRole('Calidad Academica') => $query,
             $user->hasRole('Recursos Humanos') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', false)),
             $user->hasRole('Educacion Continua') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', true)),
+            $user->hasRole('Profesor') => $query->where(function (Builder $builder) use ($user): void {
+                $builder
+                    ->where('user_id', $user->id)
+                    ->orWhereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id));
+            }),
             $user->hasRole('Personal') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id)),
             $user->hasRole('Evaluador') => $query->where('assigned_evaluator_id', $user->id),
             $user->hasRole('Responsable Area') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('area_id', $user->area_id)),
@@ -168,6 +183,11 @@ class RecordVisibility
             $user->hasRole('Calidad Academica') => $query,
             $user->hasRole('Recursos Humanos') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', false)),
             $user->hasRole('Educacion Continua') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', true)),
+            $user->hasRole('Profesor') => $query->where(function (Builder $builder) use ($user): void {
+                $builder
+                    ->where('user_id', $user->id)
+                    ->orWhereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id));
+            }),
             $user->hasRole('Personal') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id)),
             $user->hasRole('Evaluador') => $query->whereHas('user', fn (Builder $owner) => $owner
                 ->whereHas('evaluationResults', fn (Builder $results) => $results->where('evaluator_id', $user->id))),
@@ -191,7 +211,7 @@ class RecordVisibility
         return match (true) {
             $user->hasRole('Calidad Academica') => $query,
             $user->hasRole('Recursos Humanos') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', false)),
-            $user->hasRole('Personal') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id)),
+            $user->hasAnyRole(['Profesor', 'Personal']) => $query->whereHas('activity', fn (Builder $activity) => $activity->where('instructor_id', $user->id)),
             $user->hasRole('Evaluador') => $query->whereHas('results', fn (Builder $results) => $results->where('evaluator_id', $user->id)),
             default => $query->whereRaw('1 = 0'),
         };

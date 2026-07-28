@@ -43,7 +43,7 @@ class EvidencePolicy
     public function update(User $user, Evidence $evidence): bool
     {
         return ($evidence->user_id === $user->id && $evidence->status === 'pendiente')
-            || ($user->hasRole('Personal') && $evidence->activity?->instructor_id === $user->id);
+            || ($user->hasAnyRole(['Profesor', 'Personal']) && $evidence->activity?->instructor_id === $user->id);
     }
 
     /**
@@ -73,6 +73,6 @@ class EvidencePolicy
     public function review(User $user, Evidence $evidence): bool
     {
         return ($user->hasRole('Evaluador') && $evidence->assigned_evaluator_id === $user->id)
-            || ($user->hasRole('Personal') && $evidence->activity?->instructor_id === $user->id);
+            || ($user->hasAnyRole(['Profesor', 'Personal']) && $evidence->activity?->instructor_id === $user->id);
     }
 }

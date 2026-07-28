@@ -39,7 +39,7 @@ class ActivityPolicy
      */
     public function update(User $user, Activity $activity): bool
     {
-        return ($user->hasRole('Personal') && $activity->instructor_id === $user->id)
+        return ($user->hasAnyRole(['Profesor', 'Personal']) && $activity->instructor_id === $user->id)
             || ($user->hasRole('Responsable Area') && $activity->area_id === $user->area_id)
             || ($user->hasRole('Recursos Humanos') && ! $activity->is_external)
             || ($user->hasRole('Educacion Continua') && $activity->is_external);

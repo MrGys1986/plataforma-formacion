@@ -41,7 +41,7 @@ class EvaluationPolicy
      */
     public function update(User $user, Evaluation $evaluation): bool
     {
-        return ($user->hasRole('Personal') && $evaluation->activity?->instructor_id === $user->id)
+        return ($user->hasAnyRole(['Profesor', 'Personal']) && $evaluation->activity?->instructor_id === $user->id)
             || ($user->hasRole('Recursos Humanos') && ! $evaluation->activity?->is_external);
     }
 

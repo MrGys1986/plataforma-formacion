@@ -8,6 +8,7 @@ use App\Models\DiplomaProgram;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Models\UserLearningPath;
+use App\Services\LearningPaths\LearningPathProgressService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +30,7 @@ class LearningProgressService
         $completedDiplomas = $this->updateDiplomas($user, $completedPrograms);
         $completedCertifications = $this->updateCertifications($user, $completedDiplomas);
         $completedCompetencies = $this->updateCompetencies($user, $completedCertifications);
-        $this->updateLearningPaths($user, $completedCompetencies);
+        $this->updateLearningPaths($user);
     }
 
     private function updateDiplomas(User $user, Collection $completedPrograms): Collection
@@ -113,33 +114,12 @@ class LearningProgressService
         return $completed;
     }
 
-    private function updateLearningPaths(User $user, Collection $completedCompetencies): void
+    private function updateLearningPaths(User $user): void
     {
         UserLearningPath::query()
             ->where('user_id', $user->id)
-            ->each(function (UserLearningPath $assignment) use ($completedCompetencies): void {
-                $learningPath = $assignment->learningPath()
-                    ->with(['competencyDefinitions' => fn ($query) => $query->where('learning_path_competency.is_required', true)])
-                    ->first();
-
-                if (! $learningPath) {
-                    return;
-                }
-
-                $required = $learningPath->competencyDefinitions->pluck('id');
-                $progress = $this->progress($required, $completedCompetencies);
-                $status = $this->status($required, $completedCompetencies);
-
-                $assignment->update([
-                    'status' => match ($status) {
-                        'completado' => 'completada',
-                        'en_progreso' => 'en_progreso',
-                        default => 'no_iniciada',
-                    },
-                    'progress_percentage' => $progress,
-                    'started_at' => $progress > 0 ? ($assignment->started_at ?? now()) : $assignment->started_at,
-                    'completed_at' => $status === 'completado' ? ($assignment->completed_at ?? now()) : null,
-                ]);
+            ->each(function (UserLearningPath $assignment): void {
+                app(LearningPathProgressService::class)->synchronizeAssignment($assignment);
             });
     }
 

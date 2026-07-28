@@ -8,10 +8,13 @@ use App\Filament\Resources\TrainingProgramResource;
 use App\Filament\Resources\UserResource;
 use App\Models\Activity;
 use App\Models\ActivityType;
+use App\Models\Enrollment;
 use App\Models\Microcredential;
 use App\Models\TrainingProgram;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -29,7 +32,135 @@ class PlatformStructureTest extends TestCase
         $this->actingAs($user)
             ->get(route('participant.dashboard'))
             ->assertOk()
-            ->assertSee('Bienvenido');
+            ->assertSee('Portal del alumno')
+            ->assertSee('Bienvenido')
+            ->assertSee('Cursos inscritos')
+            ->assertSee('En progreso')
+            ->assertSee('Completados')
+            ->assertSee('Constancias');
+    }
+
+    public function test_a_professor_has_separate_learning_and_teaching_contexts(): void
+    {
+        Role::findOrCreate('Profesor');
+
+        $professor = User::factory()->create(['status' => 'activo']);
+        $professor->assignRole('Profesor');
+
+        $otherProfessor = User::factory()->create(['status' => 'activo']);
+        $otherProfessor->assignRole('Profesor');
+
+        $activityType = ActivityType::create([
+            'name' => 'Curso',
+            'status' => 'activo',
+        ]);
+
+        $program = TrainingProgram::create([
+            'activity_type_id' => $activityType->id,
+            'name' => 'Programa activo para profesores',
+            'slug' => 'programa-activo-para-profesores',
+            'duration_hours' => 12,
+            'status' => 'activo',
+        ]);
+
+        $assignedEdition = Activity::create([
+            'training_program_id' => $program->id,
+            'activity_type_id' => $activityType->id,
+            'instructor_id' => $professor->id,
+            'name' => 'Edición asignada al profesor',
+            'slug' => 'edicion-asignada-al-profesor',
+            'edition_number' => 1,
+            'status' => 'en_curso',
+            'duration_hours' => 12,
+        ]);
+
+        $publicEdition = Activity::create([
+            'training_program_id' => $program->id,
+            'activity_type_id' => $activityType->id,
+            'instructor_id' => $otherProfessor->id,
+            'name' => 'Edición de otro profesor',
+            'slug' => 'edicion-de-otro-profesor',
+            'edition_number' => 2,
+            'status' => 'publicado',
+            'duration_hours' => 12,
+        ]);
+
+        $this->actingAs($professor)
+            ->get(route('participant.catalog.index'))
+            ->assertOk()
+            ->assertSee('Edición de otro profesor')
+            ->assertDontSee('Edición asignada al profesor');
+
+        $this->actingAs($professor)
+            ->get(route('participant.professor.teaching.index'))
+            ->assertOk()
+            ->assertSee('Edición asignada al profesor')
+            ->assertDontSee('Edición de otro profesor');
+
+        $this->actingAs($professor)
+            ->post(route('participant.catalog.enroll', $publicEdition))
+            ->assertRedirect(route('participant.my-courses.index'));
+
+        $this->actingAs($professor)
+            ->get(route('participant.my-courses.index'))
+            ->assertOk()
+            ->assertSee('Edición de otro profesor')
+            ->assertDontSee('Edición asignada al profesor');
+
+        $this->actingAs($professor)
+            ->post(route('participant.catalog.enroll', $assignedEdition))
+            ->assertStatus(422);
+    }
+
+    public function test_a_professor_can_upload_evidence_for_a_course_they_take(): void
+    {
+        Storage::fake('local');
+        Role::findOrCreate('Profesor');
+
+        $professor = User::factory()->create(['status' => 'activo']);
+        $professor->assignRole('Profesor');
+
+        $activityType = ActivityType::create([
+            'name' => 'Curso',
+            'status' => 'activo',
+        ]);
+
+        $activity = Activity::create([
+            'activity_type_id' => $activityType->id,
+            'name' => 'Curso tomado por profesor',
+            'slug' => 'curso-tomado-por-profesor',
+            'status' => 'publicado',
+            'duration_hours' => 8,
+        ]);
+
+        $enrollment = Enrollment::create([
+            'user_id' => $professor->id,
+            'activity_id' => $activity->id,
+            'status' => 'aprobada',
+            'completion_status' => 'no_iniciado',
+        ]);
+
+        $this->actingAs($professor)
+            ->post(route('participant.evidences.store', $enrollment), [
+                'title' => 'Evidencia del profesor participante',
+                'evidence_type' => 'producto',
+                'description' => 'Trabajo realizado como participante.',
+                'file' => UploadedFile::fake()->create('evidencia.pdf', 100, 'application/pdf'),
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('evidences', [
+            'user_id' => $professor->id,
+            'activity_id' => $activity->id,
+            'enrollment_id' => $enrollment->id,
+            'title' => 'Evidencia del profesor participante',
+            'status' => 'pendiente',
+        ]);
+
+        $this->actingAs($professor)
+            ->get(route('participant.professor.profile'))
+            ->assertOk()
+            ->assertSee('Evidencia del profesor participante');
     }
 
     public function test_an_administrator_can_open_a_filament_resource(): void

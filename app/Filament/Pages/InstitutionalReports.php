@@ -53,7 +53,7 @@ class InstitutionalReports extends Page
                 'Formaciones completadas' => Enrollment::query()->where('completion_status', 'completado')->count(),
                 'Evidencias pendientes' => Evidence::query()->where('status', 'pendiente')->count(),
                 'Respuestas de encuestas' => SurveyResponse::query()->count(),
-                'Microcredenciales emitidas' => Microcredential::query()->where('status', 'emitida')->count(),
+                'Microcredenciales emitidas' => Microcredential::query()->where('status', 'validada')->count(),
             ],
             'validatedPayments' => Payment::query()->where('status', 'validado')->sum('amount'),
             'completionByProgram' => TrainingProgram::query()

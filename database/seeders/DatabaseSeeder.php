@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             AreaSeeder::class,
             ActivityTypeSeeder::class,
             SurveySeeder::class,
+            LearningPathDemoSeeder::class,
         ]);
 
         $administrator = User::firstOrCreate(

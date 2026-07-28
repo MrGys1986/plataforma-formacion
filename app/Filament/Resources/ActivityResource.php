@@ -102,10 +102,10 @@ class ActivityResource extends InstitutionalResource
             ],
             [
                 'name' => 'instructor_id',
-                'label' => 'Personal responsable',
+                'label' => 'Profesor responsable',
                 'type' => 'relation',
                 'relationship' => 'instructor',
-                'role' => 'Personal',
+                'role' => ['Profesor', 'Personal'],
             ],
             [
                 'name' => 'modality',

@@ -11,7 +11,6 @@
 <body class="min-h-screen bg-slate-950 text-white antialiased">
 
 <div class="relative min-h-screen overflow-hidden">
-
     {{-- Fondo decorativo --}}
     <div class="absolute inset-0 -z-10">
         <div class="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl"></div>
@@ -29,10 +28,13 @@
             >
         </a>
 
-        <a
-            href="{{ route('login') }}"
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <input type="hidden" name="redirect_to" value="login">
+            <button
+            type="submit"
             class="group relative inline-flex shrink-0 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 px-3.5 py-2.5 text-sm font-bold text-slate-950 shadow-[0_0_32px_rgba(56,189,248,0.5)] ring-4 ring-blue-400/15 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_42px_rgba(56,189,248,0.7)] focus:outline-none focus:ring-4 focus:ring-cyan-200/60 sm:gap-3 sm:px-5 sm:py-3"
-        >
+            >
             <span class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full"></span>
             <span class="relative flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-white shadow-sm">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
@@ -45,7 +47,8 @@
             <svg class="relative hidden h-4 w-4 transition-transform group-hover:translate-x-1 sm:block" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/>
             </svg>
-        </a>
+            </button>
+        </form>
     </header>
 
     <main class="mx-auto max-w-7xl px-6 pb-20 pt-0 lg:px-8 lg:pt-2">

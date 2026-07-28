@@ -48,6 +48,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Enrollment::class);
     }
 
+    public function instructedActivities(): HasMany
+    {
+        return $this->hasMany(Activity::class, 'instructor_id');
+    }
+
     public function evidences(): HasMany
     {
         return $this->hasMany(Evidence::class);
