@@ -3,14 +3,15 @@
 @section('portal-name', match (true) {
     auth()->user()?->hasRole('Profesor') => 'Portal del profesor',
     auth()->user()?->hasRole('Alumno') => 'Portal del alumno',
-    default => 'Portal del participante',
+    default => 'Portal del participante externo',
 })
 
 @section('navigation')
     @php
         $isProfessor = auth()->user()?->hasRole('Profesor') ?? false;
         $isStudent = auth()->user()?->hasRole('Alumno') ?? false;
-        $hasAcademicNavigation = $isProfessor || $isStudent;
+        $isExternal = auth()->user()?->hasRole('Externo') ?? false;
+        $hasAcademicNavigation = $isProfessor || $isStudent || $isExternal;
         $navigationClass = static function (bool $active) use ($hasAcademicNavigation): string {
             if (! $hasAcademicNavigation) {
                 return 'block rounded px-3 py-2 hover:bg-slate-100';
@@ -25,7 +26,11 @@
     @if($hasAcademicNavigation)
         <div class="mb-4 border-b border-slate-200 px-3 pb-4">
             <p class="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Menú principal</p>
-            <p class="mt-1 text-xs text-slate-400">{{ $isProfessor ? 'Espacio del profesor' : 'Espacio del alumno' }}</p>
+            <p class="mt-1 text-xs text-slate-400">{{ match (true) {
+                $isProfessor => 'Espacio del profesor',
+                $isStudent => 'Espacio del alumno',
+                default => 'Espacio del participante externo',
+            } }}</p>
         </div>
     @endif
 

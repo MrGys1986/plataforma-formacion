@@ -211,6 +211,30 @@ class PlatformStructureTest extends TestCase
             ->assertDontSee('Otro superadministrador');
     }
 
+    public function test_each_operational_role_can_open_its_dashboard(): void
+    {
+        $dashboards = [
+            'Personal' => [route('personal.dashboard'), 'Panel del personal'],
+            'Responsable Area' => [route('area-manager.dashboard'), 'Panel del responsable de área'],
+            'Evaluador' => [route('evaluator.dashboard'), 'Panel del evaluador'],
+            'Recursos Humanos' => [route('rh.dashboard'), 'Panel de Recursos Humanos'],
+            'Calidad Academica' => [route('quality.dashboard'), 'Panel de Calidad Académica'],
+            'Educacion Continua' => [route('continuing-education.dashboard'), 'Panel de Educación Continua'],
+            'Externo' => [route('participant.dashboard'), 'Pagos pendientes'],
+        ];
+
+        foreach ($dashboards as $role => [$url, $heading]) {
+            Role::findOrCreate($role);
+            $user = User::factory()->create(['status' => 'activo']);
+            $user->assignRole($role);
+
+            $this->actingAs($user)
+                ->get($url)
+                ->assertOk()
+                ->assertSee($heading);
+        }
+    }
+
     public function test_an_administrator_can_open_configured_training_views_and_edition_control(): void
     {
         $user = User::factory()->create(['status' => 'activo']);
@@ -246,9 +270,13 @@ class PlatformStructureTest extends TestCase
             ->assertSee('Cursos');
 
         $this->actingAs($user)
-            ->get(EditionControlPage::getUrl(['record' => $edition->id]))
+            ->get(EditionControlPage::getUrl(['record' => $edition->getKey()]))
             ->assertOk()
             ->assertSee('Control por edición');
+
+        $this->actingAs($user)
+            ->get(EditionControlPage::getUrl(['record' => $edition]))
+            ->assertOk();
     }
 
     public function test_training_program_normalizes_null_defaults_before_saving(): void

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Participant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -66,6 +67,33 @@ class DashboardController extends Controller
             ));
         }
 
-        return view('participant.dashboard');
+        $enrolledCourses = $request->user()->enrollments()->count();
+        $activeCourses = $request->user()
+            ->enrollments()
+            ->where('status', 'aprobada')
+            ->where('completion_status', '!=', 'completado')
+            ->count();
+        $pendingPayments = Payment::query()
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'pendiente')
+            ->count();
+        $issuedCertificates = $request->user()
+            ->certificates()
+            ->where('status', 'emitida')
+            ->count();
+        $recentEnrollments = $request->user()
+            ->enrollments()
+            ->with('activity')
+            ->latest()
+            ->limit(4)
+            ->get();
+
+        return view('participant.dashboard', compact(
+            'enrolledCourses',
+            'activeCourses',
+            'pendingPayments',
+            'issuedCertificates',
+            'recentEnrollments',
+        ));
     }
 }

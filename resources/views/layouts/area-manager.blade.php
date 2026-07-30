@@ -3,10 +3,10 @@
 @section('portal-name', 'Portal del responsable de área')
 
 @section('navigation')
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('area-manager.dashboard') }}">Inicio</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('area-manager.activities.index') }}">Actividades</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('area-manager.participants.index') }}">Participantes</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('area-manager.enrollments.index') }}">Inscripciones</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('area-manager.evidences.index') }}">Evidencias</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('area-manager.reports.index') }}">Reportes</a>
+    <x-portal-nav-link :href="route('area-manager.dashboard')" :active="request()->routeIs('area-manager.dashboard')">Inicio</x-portal-nav-link>
+    <x-portal-nav-link :href="route('area-manager.activities.index')" :active="request()->routeIs('area-manager.activities.*')">Actividades</x-portal-nav-link>
+    <x-portal-nav-link :href="route('area-manager.participants.index')" :active="request()->routeIs('area-manager.participants.*')">Participantes</x-portal-nav-link>
+    <x-portal-nav-link :href="route('area-manager.enrollments.index')" :active="request()->routeIs('area-manager.enrollments.*')">Inscripciones</x-portal-nav-link>
+    <x-portal-nav-link :href="route('area-manager.evidences.index')" :active="request()->routeIs('area-manager.evidences.*')">Evidencias</x-portal-nav-link>
+    <x-portal-nav-link :href="route('area-manager.reports.index')" :active="request()->routeIs('area-manager.reports.*')">Reportes</x-portal-nav-link>
 @endsection

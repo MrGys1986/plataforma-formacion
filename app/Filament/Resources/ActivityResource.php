@@ -188,7 +188,7 @@ class ActivityResource extends InstitutionalResource
                 ->label('Gestionar edición')
                 ->icon(Heroicon::OutlinedArrowRight)
                 ->color('primary')
-                ->url(fn (Activity $record): string => EditionControlPage::getUrl(['record' => $record])),
+                ->url(fn (Activity $record): string => EditionControlPage::getUrl(['record' => $record->getKey()])),
         ];
     }
 }

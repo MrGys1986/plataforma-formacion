@@ -3,9 +3,9 @@
 @section('portal-name', 'Portal del evaluador')
 
 @section('navigation')
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('evaluator.dashboard') }}">Inicio</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('evaluator.evidences.index') }}">Evidencias</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('evaluator.rubrics.index') }}">Rúbricas</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('evaluator.evaluations.index') }}">Evaluaciones</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('evaluator.certifications.index') }}">Certificaciones</a>
+    <x-portal-nav-link :href="route('evaluator.dashboard')" :active="request()->routeIs('evaluator.dashboard')">Inicio</x-portal-nav-link>
+    <x-portal-nav-link :href="route('evaluator.evidences.index')" :active="request()->routeIs('evaluator.evidences.*')">Evidencias</x-portal-nav-link>
+    <x-portal-nav-link :href="route('evaluator.rubrics.index')" :active="request()->routeIs('evaluator.rubrics.*')">Rúbricas</x-portal-nav-link>
+    <x-portal-nav-link :href="route('evaluator.evaluations.index')" :active="request()->routeIs('evaluator.evaluations.*')">Evaluaciones</x-portal-nav-link>
+    <x-portal-nav-link :href="route('evaluator.certifications.index')" :active="request()->routeIs('evaluator.certifications.*')">Certificaciones</x-portal-nav-link>
 @endsection

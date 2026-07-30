@@ -38,7 +38,7 @@ trait HasEditionPageContext
                 ->label('Volver a la edición')
                 ->icon(Heroicon::OutlinedArrowLeft)
                 ->color('gray')
-                ->url(EditionControlPage::getUrl(['record' => $activity])),
+                ->url(EditionControlPage::getUrl(['record' => $activity->getKey()])),
         ];
     }
 }

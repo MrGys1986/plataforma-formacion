@@ -3,9 +3,11 @@
 @section('portal-name', 'Portal de Recursos Humanos')
 
 @section('navigation')
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('rh.dashboard') }}">Inicio</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('rh.training.index') }}">Capacitación</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('rh.staff.index') }}">Personal</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('rh.competencies.index') }}">Competencias</a>
-    <a class="block rounded px-3 py-2 hover:bg-slate-100" href="{{ route('rh.reports.index') }}">Reportes</a>
+    <x-portal-nav-link :href="route('rh.dashboard')" :active="request()->routeIs('rh.dashboard')">Inicio</x-portal-nav-link>
+    <x-portal-nav-link :href="route('rh.training.index')" :active="request()->routeIs('rh.training.*')">Capacitación</x-portal-nav-link>
+    <x-portal-nav-link :href="route('rh.staff.index')" :active="request()->routeIs('rh.staff.*')">Personal</x-portal-nav-link>
+    <x-portal-nav-link :href="route('rh.competencies.index')" :active="request()->routeIs('rh.competencies.*')">Competencias</x-portal-nav-link>
+    <x-portal-nav-link :href="route('rh.evidences.index')" :active="request()->routeIs('rh.evidences.*')">Evidencias</x-portal-nav-link>
+    <x-portal-nav-link :href="route('rh.certificates.index')" :active="request()->routeIs('rh.certificates.*')">Constancias</x-portal-nav-link>
+    <x-portal-nav-link :href="route('rh.reports.index')" :active="request()->routeIs('rh.reports.*')">Reportes</x-portal-nav-link>
 @endsection

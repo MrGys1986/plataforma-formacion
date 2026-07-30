@@ -9,8 +9,13 @@
 <body class="min-h-screen bg-slate-100 text-slate-900">
     @php($isProfessorPortal = auth()->user()?->hasRole('Profesor') ?? false)
     @php($isStudentPortal = auth()->user()?->hasRole('Alumno') ?? false)
-    @php($isAcademicPortal = $isProfessorPortal || $isStudentPortal)
-    @php($academicRole = $isProfessorPortal ? 'Profesor' : 'Alumno')
+    @php($isExternalPortal = auth()->user()?->hasRole('Externo') ?? false)
+    @php($isAcademicPortal = $isProfessorPortal || $isStudentPortal || $isExternalPortal)
+    @php($academicRole = match (true) {
+        $isProfessorPortal => 'Profesor',
+        $isStudentPortal => 'Alumno',
+        default => 'Externo',
+    })
 
     <header class="bg-slate-900 px-6 py-4 text-white">
         <div class="mx-auto flex max-w-7xl items-center justify-between">
@@ -78,7 +83,31 @@
                         </div>
                     </details>
                 @else
-                    <span class="text-sm text-slate-200">{{ auth()->user()->name }}</span>
+                    <details class="group relative">
+                        <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl border border-slate-700 px-3 py-2 transition hover:border-blue-500/60 hover:bg-blue-500/10">
+                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold">
+                                {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
+                            </span>
+                            <span class="hidden text-left sm:block">
+                                <span class="block text-sm font-semibold">{{ auth()->user()->name }}</span>
+                                <span class="block text-xs text-slate-400">{{ auth()->user()->getRoleNames()->first() }}</span>
+                            </span>
+                            <span class="text-slate-400 transition group-open:rotate-180" aria-hidden="true">⌄</span>
+                        </summary>
+                        <div class="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xl">
+                            <div class="border-b border-slate-100 bg-slate-50 px-5 py-4">
+                                <p class="truncate font-semibold text-slate-900">{{ auth()->user()->name }}</p>
+                                <p class="mt-1 truncate text-sm text-slate-500">{{ auth()->user()->email }}</p>
+                                <span class="mt-3 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{{ auth()->user()->getRoleNames()->first() }}</span>
+                            </div>
+                            <form class="p-3" method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button class="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700" type="submit">
+                                    Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
+                    </details>
                 @endif
             @endauth
         </div>

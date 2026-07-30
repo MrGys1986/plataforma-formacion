@@ -33,10 +33,15 @@ class EditionControlPage extends Page
 
     public function mount(int|string $record): void
     {
+        $routeColumn = ctype_digit((string) $record)
+            ? (new Activity)->getKeyName()
+            : (new Activity)->getRouteKeyName();
+
         $this->record = Activity::query()
             ->visibleTo(auth()->user())
             ->with(['trainingProgram.activityType', 'area', 'instructor'])
-            ->findOrFail($record);
+            ->where($routeColumn, $record)
+            ->firstOrFail();
 
         Gate::authorize('view', $this->record);
     }
