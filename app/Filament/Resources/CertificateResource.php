@@ -102,6 +102,13 @@ class CertificateResource extends InstitutionalResource
                 'type' => 'datetime',
             ],
             [
+                'name' => 'file_upload_id',
+                'label' => 'Constancia o certificado',
+                'type' => 'file',
+                'directory' => 'certificates',
+                'accepted_types' => ['application/pdf'],
+            ],
+            [
                 'name' => 'status',
                 'label' => 'Estado',
             ],

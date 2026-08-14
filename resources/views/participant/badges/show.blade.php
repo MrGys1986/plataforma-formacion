@@ -4,9 +4,7 @@
     <x-portal-page :title="$microcredential->name" description="Detalle de tu insignia digital institucional.">
         <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
             <section class="rounded-2xl bg-gradient-to-br from-slate-950 via-blue-950 to-violet-950 p-8 text-center text-white shadow-xl">
-                <div class="mx-auto flex h-36 w-36 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-500 p-3 shadow-2xl">
-                    <div class="flex h-full w-full items-center justify-center rounded-full border-4 border-white/80 text-6xl">★</div>
-                </div>
+                <x-course-badge-emblem :badge="$microcredential" size="lg" />
                 <p class="mt-6 text-xs font-bold uppercase tracking-[0.2em] text-blue-200">Universidad</p>
                 <p class="mt-2 font-semibold">{{ $microcredential->name }}</p>
                 <p class="mt-3 text-xs text-slate-300">ID {{ $microcredential->public_id }}</p>

@@ -1,5 +1,8 @@
 @extends('layouts.continuing-education')
-
 @section('content')
-    <x-portal-page title="Constancias"><p>Constancias externas: {{ $certificates->total() }}</p></x-portal-page>
+<x-portal-page title="Constancias" description="Documentos emitidos para participantes de educación continua.">
+    <div class="grid gap-4 sm:grid-cols-3"><x-quality-stat label="Constancias" :value="$certificates->total()"/><x-quality-stat label="Emitidas" :value="$certificates->getCollection()->where('status','emitida')->count()" detail="En esta página" tone="emerald"/><x-quality-stat label="Descargadas" :value="$certificates->getCollection()->whereNotNull('downloaded_at')->count()" detail="En esta página"/></div>
+    <div class="mt-6 grid gap-4 lg:grid-cols-2">@forelse($certificates as $certificate)<article class="rounded-xl border border-slate-200 p-5"><div class="flex items-start gap-4"><span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-xl text-blue-700">✓</span><div class="min-w-0"><p class="truncate font-semibold">{{ $certificate->user?->name ?? 'Usuario no disponible' }}</p><p class="mt-1 text-sm text-slate-500">{{ $certificate->activity?->name ?? 'Sin actividad' }}</p></div></div><dl class="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-sm"><div><dt class="text-xs text-slate-500">Folio</dt><dd class="mt-1 font-medium">{{ $certificate->folio ?? $certificate->public_id }}</dd></div><div><dt class="text-xs text-slate-500">Emisión</dt><dd class="mt-1 font-medium">{{ $certificate->issued_at?->format('d/m/Y') ?? 'Pendiente' }}</dd></div></dl></article>@empty<div class="rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center text-slate-500 lg:col-span-2">No hay constancias externas emitidas.</div>@endforelse</div>
+    @if($certificates->hasPages())<div class="mt-6">{{ $certificates->links() }}</div>@endif
+</x-portal-page>
 @endsection

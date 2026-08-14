@@ -17,7 +17,7 @@ class DashboardController extends Controller
         return view('personal.dashboard', [
             'stats' => [
                 ['label' => 'Actividades asignadas', 'value' => (clone $activities)->count(), 'description' => 'Total bajo tu responsabilidad'],
-                ['label' => 'En operación', 'value' => (clone $activities)->whereIn('status', ['publicado', 'en_inscripcion', 'en_curso'])->count(), 'description' => 'Ediciones activas'],
+                ['label' => 'En operación', 'value' => (clone $activities)->whereIn('status', ['publicado', 'en_inscripcion', 'en_curso'])->count(), 'description' => 'Actividades vigentes'],
                 ['label' => 'Participantes', 'value' => \App\Models\Enrollment::query()->whereIn('activity_id', $activityIds)->count(), 'description' => 'Inscripciones en tus cursos'],
                 ['label' => 'Evidencias pendientes', 'value' => Evidence::query()->whereIn('activity_id', $activityIds)->where('status', 'pendiente')->count(), 'description' => 'Requieren seguimiento'],
             ],

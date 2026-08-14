@@ -10,7 +10,10 @@ class EvaluationController extends Controller
     public function index(Activity $activity)
     {
         $this->authorize('view', $activity);
-        $evaluations = $activity->evaluations()->withCount('results')->paginate(20);
+        $evaluations = $activity->evaluations()
+            ->with('createdBy')
+            ->withCount('results')
+            ->paginate(20);
 
         return view('personal.evaluations.index', compact('activity', 'evaluations'));
     }

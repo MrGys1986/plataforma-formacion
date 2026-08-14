@@ -10,10 +10,31 @@
     @php($isProfessorPortal = auth()->user()?->hasRole('Profesor') ?? false)
     @php($isStudentPortal = auth()->user()?->hasRole('Alumno') ?? false)
     @php($isExternalPortal = auth()->user()?->hasRole('Externo') ?? false)
-    @php($isAcademicPortal = $isProfessorPortal || $isStudentPortal || $isExternalPortal)
+    @php($isParticipantPortal = $isProfessorPortal || $isStudentPortal || $isExternalPortal)
+    @php($isPersonalPortal = auth()->user()?->hasRole('Personal') ?? false)
+    @php($isAreaManagerPortal = auth()->user()?->hasRole('Responsable Area') ?? false)
+    @php($isEvaluatorPortal = auth()->user()?->hasRole('Evaluador') ?? false)
+    @php($isHumanResourcesPortal = auth()->user()?->hasRole('Recursos Humanos') ?? false)
+    @php($isQualityPortal = auth()->user()?->hasRole('Calidad Academica') ?? false)
+    @php($isContinuingEducationPortal = auth()->user()?->hasRole('Educacion Continua') ?? false)
+    @php($isAcademicPortal = $isProfessorPortal
+        || $isStudentPortal
+        || $isExternalPortal
+        || $isPersonalPortal
+        || $isAreaManagerPortal
+        || $isEvaluatorPortal
+        || $isHumanResourcesPortal
+        || $isQualityPortal
+        || $isContinuingEducationPortal)
     @php($academicRole = match (true) {
         $isProfessorPortal => 'Profesor',
         $isStudentPortal => 'Alumno',
+        $isPersonalPortal => 'Personal',
+        $isAreaManagerPortal => 'Responsable de área',
+        $isEvaluatorPortal => 'Evaluador',
+        $isHumanResourcesPortal => 'Recursos Humanos',
+        $isQualityPortal => 'Calidad Académica',
+        $isContinuingEducationPortal => 'Educación Continua',
         default => 'Externo',
     })
 
@@ -37,9 +58,11 @@
                 @if($isAcademicPortal)
                     <details class="group relative">
                         <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl border border-slate-700 px-3 py-2 transition hover:border-blue-500/60 hover:bg-blue-500/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-lg shadow-blue-950/40">
-                                {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
-                            </span>
+                            @if(auth()->user()->avatarFile)
+                                <img class="h-10 w-10 rounded-full object-cover shadow-lg shadow-blue-950/40 ring-2 ring-white/20" src="{{ auth()->user()->avatarFile->optimizedImageUrl(120, 120) }}" alt="Fotografía de {{ auth()->user()->name }}">
+                            @else
+                                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-lg shadow-blue-950/40">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                            @endif
                             <span class="hidden text-left sm:block">
                                 <span class="block text-sm font-semibold text-white">{{ auth()->user()->name }}</span>
                                 <span class="block text-xs text-slate-400">{{ $academicRole }}</span>
@@ -50,10 +73,13 @@
                         </summary>
 
                         <div class="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xl shadow-slate-950/20">
-                            <div class="border-b border-slate-100 bg-slate-50 px-5 py-4">
-                                <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">Tu perfil</p>
-                                <p class="mt-2 truncate font-semibold text-slate-900">{{ auth()->user()->name }}</p>
-                                <p class="mt-1 truncate text-sm text-slate-500">{{ auth()->user()->email }}</p>
+                            <div class="flex items-center gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4">
+                                @if(auth()->user()->avatarFile)
+                                    <img class="h-12 w-12 shrink-0 rounded-full object-cover" src="{{ auth()->user()->avatarFile->optimizedImageUrl(144, 144) }}" alt="Fotografía de {{ auth()->user()->name }}">
+                                @else
+                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                                @endif
+                                <div class="min-w-0"><p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">Tu perfil</p><p class="mt-1 truncate font-semibold text-slate-900">{{ auth()->user()->name }}</p><p class="truncate text-sm text-slate-500">{{ auth()->user()->email }}</p></div>
                             </div>
 
                             <div class="space-y-3 px-5 py-4 text-sm">
@@ -74,6 +100,16 @@
                                 @endif
                             </div>
 
+                            @if($isParticipantPortal)
+                                <div class="border-t border-slate-100 py-1">
+                                    @if($isProfessorPortal)
+                                        <a class="flex items-center justify-center px-4 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-50" href="{{ route('participant.professor.profile') }}">Ver perfil</a>
+                                    @else
+                                        <a class="flex items-center justify-center px-4 py-3 text-sm font-semibold text-violet-700 transition hover:bg-violet-50" href="{{ route('participant.badges.index') }}">Mis insignias</a>
+                                    @endif
+                                </div>
+                            @endif
+
                             <form class="border-t border-slate-100 p-3" method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button class="flex w-full items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700" type="submit">
@@ -85,9 +121,11 @@
                 @else
                     <details class="group relative">
                         <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl border border-slate-700 px-3 py-2 transition hover:border-blue-500/60 hover:bg-blue-500/10">
-                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold">
-                                {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
-                            </span>
+                            @if(auth()->user()->avatarFile)
+                                <img class="h-9 w-9 rounded-full object-cover ring-2 ring-white/20" src="{{ auth()->user()->avatarFile->optimizedImageUrl(108, 108) }}" alt="Fotografía de {{ auth()->user()->name }}">
+                            @else
+                                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                            @endif
                             <span class="hidden text-left sm:block">
                                 <span class="block text-sm font-semibold">{{ auth()->user()->name }}</span>
                                 <span class="block text-xs text-slate-400">{{ auth()->user()->getRoleNames()->first() }}</span>

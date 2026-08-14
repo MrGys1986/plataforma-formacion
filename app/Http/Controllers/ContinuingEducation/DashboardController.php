@@ -16,7 +16,7 @@ class DashboardController extends Controller
     {
         return view('continuing-education.dashboard', [
             'stats' => [
-                ['label' => 'Oferta externa', 'value' => Activity::query()->visibleTo($request->user())->count(), 'description' => 'Ediciones disponibles'],
+                ['label' => 'Oferta externa', 'value' => Activity::query()->visibleTo($request->user())->count(), 'description' => 'Actividades disponibles'],
                 ['label' => 'Participantes', 'value' => User::query()->visibleTo($request->user())->count(), 'description' => 'Cuentas externas'],
                 ['label' => 'Inscripciones', 'value' => Enrollment::query()->visibleTo($request->user())->count(), 'description' => 'Registros en oferta externa'],
                 ['label' => 'Constancias', 'value' => Certificate::query()->visibleTo($request->user())->count(), 'description' => 'Documentos emitidos'],

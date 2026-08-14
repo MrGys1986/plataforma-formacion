@@ -95,6 +95,13 @@ class DigitalResourceResource extends InstitutionalResource
                 'label' => 'URL externa',
             ],
             [
+                'name' => 'file_upload_id',
+                'label' => 'Archivo del recurso',
+                'type' => 'file',
+                'directory' => 'digital-resources',
+                'accepted_types' => ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png'],
+            ],
+            [
                 'name' => 'visibility',
                 'label' => 'Visibilidad',
             ],

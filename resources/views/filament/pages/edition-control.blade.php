@@ -1,10 +1,10 @@
 <x-filament-panels::page>
     <section class="pf-edition-summary">
         <div class="pf-edition-summary-main">
-            <p class="pf-dashboard-eyebrow">Control por edición</p>
+            <p class="pf-dashboard-eyebrow">Administración de la actividad</p>
             <h2 class="pf-edition-summary-title">{{ $edition->name }}</h2>
             <p class="pf-edition-summary-copy">
-                Concentramos aquí la operación de la edición para manejar inscripciones, asistencia,
+                Concentramos aquí la operación del curso o actividad para manejar inscripciones, asistencia,
                 evidencias, evaluaciones, archivos y constancias sin tenerlas regadas en el menú.
             </p>
         </div>

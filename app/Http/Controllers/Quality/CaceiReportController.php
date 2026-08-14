@@ -8,7 +8,6 @@ class CaceiReportController extends Controller
 {
     public function index()
     {
-        // TODO: incorporar indicadores y criterios CACEI.
         return view('quality.cacei.index');
     }
 }

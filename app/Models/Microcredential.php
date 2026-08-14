@@ -23,6 +23,11 @@ class Microcredential extends Model
         return $this->belongsTo(Activity::class);
     }
 
+    public function learningPath(): BelongsTo
+    {
+        return $this->belongsTo(LearningPath::class);
+    }
+
     public function certificate(): BelongsTo
     {
         return $this->belongsTo(Certificate::class);

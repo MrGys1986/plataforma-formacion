@@ -5,9 +5,9 @@
         <x-role-dashboard
             :stats="$stats"
             :actions="[
-                ['label' => 'Capacitación', 'description' => 'Consulta la oferta y las ediciones internas.', 'url' => route('rh.training.index')],
+                ['label' => 'Capacitación', 'description' => 'Consulta la oferta interna de cursos y actividades.', 'url' => route('rh.training.index')],
                 ['label' => 'Personal', 'description' => 'Consulta expedientes y trayectorias formativas.', 'url' => route('rh.staff.index')],
-                ['label' => 'Competencias', 'description' => 'Revisa el catálogo institucional.', 'url' => route('rh.competencies.index')],
+                ['label' => 'Cursos requeridos', 'description' => 'Consulta la formación necesaria para Recursos Humanos.', 'url' => route('rh.competencies.index')],
                 ['label' => 'Reportes', 'description' => 'Consulta los indicadores de formación.', 'url' => route('rh.reports.index')],
             ]"
             :attention="[

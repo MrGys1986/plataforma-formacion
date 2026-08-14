@@ -12,8 +12,9 @@ class CertificationController extends Controller
     {
         $certificates = Certificate::query()
             ->visibleTo($request->user())
-            ->with(['user', 'activity'])
-            ->latest()
+            ->with(['user', 'activity.activityType', 'enrollment', 'issuedBy'])
+            ->orderByDesc('issued_at')
+            ->orderByDesc('id')
             ->paginate(20);
 
         return view('evaluator.certifications.index', compact('certificates'));

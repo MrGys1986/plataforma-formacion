@@ -23,6 +23,12 @@ class DatabaseSeeder extends Seeder
             SurveySeeder::class,
             LearningPathDemoSeeder::class,
             DemoRoleUserSeeder::class,
+            AreaManagerEnrollmentDemoSeeder::class,
+            AreaManagerEvidenceDemoSeeder::class,
+            RubricDemoSeeder::class,
+            EvaluatorResultDemoSeeder::class,
+            EvaluatorCertificationDemoSeeder::class,
+            CompetencyDemoSeeder::class,
         ]);
 
         $administrator = User::firstOrCreate(

@@ -12,8 +12,15 @@ class TrainingController extends Controller
     {
         $activities = Activity::query()
             ->visibleTo($request->user())
-            ->with('activityType')
-            ->latest()
+            ->with(['activityType', 'area', 'instructor'])
+            ->withCount([
+                'enrollments',
+                'enrollments as approved_enrollments_count' => fn ($query) => $query->where('status', 'aprobada'),
+                'evidences',
+                'certificates',
+            ])
+            ->orderByDesc('start_date')
+            ->orderBy('name')
             ->paginate(20);
 
         return view('rh.training.index', compact('activities'));

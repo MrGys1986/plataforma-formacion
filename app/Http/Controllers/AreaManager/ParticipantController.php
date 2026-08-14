@@ -12,6 +12,8 @@ class ParticipantController extends Controller
     {
         $users = User::query()
             ->visibleTo($request->user())
+            ->with(['area', 'roles'])
+            ->orderBy('name')
             ->paginate(20);
 
         return view('area-manager.participants.index', compact('users'));

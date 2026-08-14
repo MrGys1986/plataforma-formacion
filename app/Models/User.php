@@ -26,6 +26,7 @@ use Spatie\Permission\Traits\HasRoles;
     'user_type',
     'profile_type',
     'area_id',
+    'avatar_file_id',
     'external_institution',
     'phone',
     'status',
@@ -41,6 +42,11 @@ class User extends Authenticatable implements FilamentUser
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
+    }
+
+    public function avatarFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'avatar_file_id');
     }
 
     public function enrollments(): HasMany

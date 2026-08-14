@@ -11,6 +11,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -28,6 +29,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use App\Models\FileUpload as ManagedFile;
+use App\Services\Files\ManagedFileService;
 
 abstract class InstitutionalResource extends Resource
 {
@@ -129,6 +133,44 @@ abstract class InstitutionalResource extends Resource
         $component = match ($type) {
             'date' => DatePicker::make($name),
             'datetime' => DateTimePicker::make($name),
+            'file' => FileUpload::make($name)
+                ->acceptedFileTypes($definition['accepted_types'] ?? null)
+                ->maxSize($definition['max_size'] ?? config('security.upload_max_kilobytes'))
+                ->previewable($definition['public_image'] ?? false)
+                ->openable()
+                ->downloadable()
+                ->saveUploadedFileUsing(function (TemporaryUploadedFile $file) use ($definition): string {
+                    $directory = $definition['directory'] ?? 'managed-files';
+                    $managed = app(ManagedFileService::class)->store(
+                        $file,
+                        $directory,
+                        auth()->id(),
+                        $definition['public_image'] ?? false,
+                    );
+
+                    return (string) $managed->getKey();
+                })
+                ->getUploadedFileUsing(function (string $file): ?array {
+                    $managed = ManagedFile::withTrashed()->find($file);
+                    if (! $managed) {
+                        return null;
+                    }
+
+                    return [
+                        'name' => $managed->original_name,
+                        'size' => $managed->size ?? 0,
+                        'type' => $managed->mime_type,
+                        'url' => $managed->resource_type === 'image'
+                            ? $managed->optimizedImageUrl(600, 338)
+                            : $managed->temporaryDownloadUrl(),
+                    ];
+                })
+                ->deleteUploadedFileUsing(function (string $file): void {
+                    $managed = ManagedFile::find($file);
+                    if ($managed) {
+                        app(ManagedFileService::class)->scheduleDeletion($managed);
+                    }
+                }),
             'json' => KeyValue::make($name),
             'number' => TextInput::make($name)->numeric(),
             'password' => TextInput::make($name)
@@ -190,6 +232,18 @@ abstract class InstitutionalResource extends Resource
 
         if (array_key_exists('dehydrated', $definition)) {
             $component->dehydrated($definition['dehydrated']);
+        }
+
+        if ($component instanceof TextInput && isset($definition['min'])) {
+            $component->minValue($definition['min']);
+        }
+
+        if ($component instanceof TextInput && isset($definition['max'])) {
+            $component->maxValue($definition['max']);
+        }
+
+        if ($component instanceof TextInput && isset($definition['step'])) {
+            $component->step($definition['step']);
         }
 
         return $component

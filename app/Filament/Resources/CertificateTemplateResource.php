@@ -41,6 +41,13 @@ class CertificateTemplateResource extends InstitutionalResource
             'name' => 'status',
             'label' => 'Estado',
         ],
+        4 => [
+            'name' => 'template_file_id',
+            'label' => 'Archivo de plantilla',
+            'type' => 'file',
+            'directory' => 'certificate-templates',
+            'accepted_types' => ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        ],
     ];
 
     protected static array $tableColumns = [

@@ -160,7 +160,8 @@ class PlatformStructureTest extends TestCase
         $this->actingAs($professor)
             ->get(route('participant.professor.profile'))
             ->assertOk()
-            ->assertSee('Evidencia del profesor participante');
+            ->assertSee('Mis insignias')
+            ->assertDontSee('Evidencia del profesor participante');
     }
 
     public function test_an_administrator_can_open_a_filament_resource(): void
@@ -268,6 +269,8 @@ class PlatformStructureTest extends TestCase
             ->get(TrainingProgramResource::getUrl(configuration: 'cursos'))
             ->assertOk()
             ->assertSee('Cursos');
+
+        \Filament\Facades\Filament::setCurrentResourceConfigurationKey(null);
 
         $this->actingAs($user)
             ->get(EditionControlPage::getUrl(['record' => $edition->getKey()]))

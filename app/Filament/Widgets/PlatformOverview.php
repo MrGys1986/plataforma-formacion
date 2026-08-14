@@ -34,7 +34,7 @@ class PlatformOverview extends StatsOverviewWidget
                 ->description('Cuentas habilitadas'),
             Stat::make('Programas formativos', TrainingProgram::query()->where('status', 'activo')->count())
                 ->description('Cursos, minicursos y talleres'),
-            Stat::make('Ediciones en operación', Activity::query()->whereIn('status', ['en_inscripcion', 'publicado', 'en_curso'])->count())
+            Stat::make('Actividades en operación', Activity::query()->whereIn('status', ['en_inscripcion', 'publicado', 'en_curso'])->count())
                 ->description('Abiertas o en curso'),
             Stat::make('Inscripciones pendientes', Enrollment::query()->where('status', 'solicitada')->count())
                 ->description('Requieren atención'),

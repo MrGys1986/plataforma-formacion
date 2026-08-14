@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('evidence_reviews', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('evidence_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('evidence_id')->constrained('evidences')->cascadeOnDelete();
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('previous_status')->nullable();
             $table->string('new_status');

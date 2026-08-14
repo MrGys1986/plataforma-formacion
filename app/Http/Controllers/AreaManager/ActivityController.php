@@ -12,7 +12,10 @@ class ActivityController extends Controller
     {
         $activities = Activity::query()
             ->visibleTo($request->user())
-            ->with('activityType')
+            ->with(['activityType', 'area', 'instructor'])
+            ->withCount('enrollments')
+            ->orderByDesc('start_date')
+            ->orderBy('name')
             ->paginate(20);
 
         return view('area-manager.activities.index', compact('activities'));

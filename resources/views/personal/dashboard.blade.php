@@ -5,7 +5,7 @@
         <x-role-dashboard
             :stats="$stats"
             :actions="[
-                ['label' => 'Mis actividades', 'description' => 'Consulta las ediciones que tienes asignadas.', 'url' => route('personal.courses.index')],
+                ['label' => 'Mis actividades', 'description' => 'Consulta los cursos y actividades que tienes asignados.', 'url' => route('personal.courses.index')],
             ]"
             :attention="[
                 ['label' => 'Evidencias pendientes', 'value' => $pendingEvidences, 'url' => route('personal.courses.index')],

@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TrainingProgramResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $configurationClass = ResourceConfiguration::class;
 
     protected static ?int $navigationSort = 1;
@@ -58,6 +60,15 @@ class TrainingProgramResource extends InstitutionalResource
             'name' => 'description',
             'label' => 'Descripción',
             'type' => 'textarea',
+        ],
+        [
+            'name' => 'cover_file_id',
+            'label' => 'Imagen de portada',
+            'type' => 'file',
+            'directory' => 'course-covers',
+            'public_image' => true,
+            'accepted_types' => ['image/jpeg', 'image/png', 'image/webp'],
+            'max_size' => 5120,
         ],
         [
             'name' => 'general_objective',

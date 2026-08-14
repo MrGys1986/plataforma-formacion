@@ -20,28 +20,12 @@ class ManageActivities extends ManageRecords
         return [
             ...$this->getTrainingProgramContextHeaderActions(),
             CreateAction::make()
-                ->label('Nueva edición'),
+                ->label('Nueva actividad'),
         ];
     }
 
     public function getTabs(): array
     {
-        if ($this->getTrainingProgramContext()) {
-            return [
-                'todas' => Tab::make('Todas'),
-                'en_operacion' => Tab::make('En operación')
-                    ->query(fn (Builder $query): Builder => $query->whereIn(
-                        'status',
-                        ['publicado', 'en_inscripcion', 'cupo_lleno', 'en_curso'],
-                    )),
-                'cerradas' => Tab::make('Cerradas')
-                    ->query(fn (Builder $query): Builder => $query->whereIn(
-                        'status',
-                        ['finalizado', 'cancelado', 'archivado'],
-                    )),
-            ];
-        }
-
         return [
             'todas' => Tab::make('Todas'),
             'cursos' => $this->typeTab('Cursos', 'Curso'),

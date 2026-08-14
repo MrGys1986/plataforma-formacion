@@ -11,6 +11,7 @@ use App\Http\Controllers\Participant\LearningController;
 use App\Http\Controllers\Participant\LearningPathController;
 use App\Http\Controllers\Participant\MyCourseController;
 use App\Http\Controllers\Participant\ProfessorProfileController;
+use App\Http\Controllers\Participant\PaymentController;
 use App\Http\Controllers\Participant\ResourceController;
 use App\Http\Controllers\Participant\SurveyController;
 use App\Http\Controllers\Participant\TeachingCourseController;
@@ -28,6 +29,8 @@ Route::prefix('participant')
         Route::get('/my-courses', [MyCourseController::class, 'index'])->name('my-courses.index');
         Route::get('/my-courses/{enrollment}', [LearningController::class, 'show'])->name('learning.show');
         Route::post('/my-courses/{enrollment}/evidences', [EvidenceController::class, 'store'])->name('evidences.store');
+        Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+        Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
         Route::get('/learning-paths', [LearningPathController::class, 'index'])->name('learning-paths.index');
         Route::get('/learning-paths/{learningPath}', [LearningPathController::class, 'show'])->name('learning-paths.show');
         Route::get('/badges', [BadgeController::class, 'index'])->name('badges.index');
@@ -41,6 +44,11 @@ Route::prefix('participant')
         Route::middleware('role:Profesor')->prefix('professor')->name('professor.')->group(function (): void {
             Route::get('/teaching', [TeachingCourseController::class, 'index'])->name('teaching.index');
             Route::get('/teaching/{activity}', [TeachingCourseController::class, 'show'])->name('teaching.show');
+            Route::patch('/teaching/{activity}/enrollments/{enrollment}', [TeachingCourseController::class, 'updateEnrollment'])->name('teaching.enrollments.update');
+            Route::patch('/teaching/{activity}/enrollments/{enrollment}/review', [TeachingCourseController::class, 'reviewEnrollment'])->name('teaching.enrollments.review');
+            Route::post('/teaching/{activity}/evidences/{evidence}/review', [TeachingCourseController::class, 'reviewEvidence'])->name('teaching.evidences.review');
+            Route::post('/teaching/{activity}/enrollments/{enrollment}/certificate', [TeachingCourseController::class, 'uploadCertificate'])->name('teaching.certificates.store');
             Route::get('/profile', ProfessorProfileController::class)->name('profile');
+            Route::post('/profile/avatar', [ProfessorProfileController::class, 'updateAvatar'])->name('profile.avatar');
         });
     });

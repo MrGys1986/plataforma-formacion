@@ -80,19 +80,46 @@ class EnrollmentResource extends InstitutionalResource
             [
                 'name' => 'status',
                 'label' => 'Estado',
+                'type' => 'select',
+                'required' => true,
+                'options' => [
+                    'solicitada' => 'Pendiente de revisión',
+                    'aprobada' => 'Aprobada',
+                    'rechazada' => 'Rechazada',
+                    'cancelada' => 'Cancelada',
+                ],
             ],
             [
                 'name' => 'payment_status',
                 'label' => 'Estado de pago',
+                'type' => 'select',
+                'required' => true,
+                'options' => [
+                    'no_aplica' => 'No aplica',
+                    'pendiente' => 'Pendiente de validación',
+                    'aprobado' => 'Pago aprobado',
+                    'rechazado' => 'Pago rechazado',
+                ],
             ],
             [
                 'name' => 'completion_status',
                 'label' => 'Estado de finalización',
+                'type' => 'select',
+                'required' => true,
+                'options' => [
+                    'no_iniciado' => 'No iniciado',
+                    'en_progreso' => 'En progreso',
+                    'completado' => 'Completado',
+                    'no_aprobado' => 'No aprobado',
+                ],
             ],
             [
                 'name' => 'final_score',
                 'label' => 'Calificación final',
                 'type' => 'number',
+                'min' => 0,
+                'max' => 100,
+                'step' => 0.01,
             ],
         ];
     }

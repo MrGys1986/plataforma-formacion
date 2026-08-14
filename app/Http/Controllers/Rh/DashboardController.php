@@ -17,7 +17,7 @@ class DashboardController extends Controller
         return view('rh.dashboard', [
             'stats' => [
                 ['label' => 'Personal', 'value' => User::query()->visibleTo($request->user())->count(), 'description' => 'Cuentas institucionales'],
-                ['label' => 'Capacitaciones', 'value' => Activity::query()->visibleTo($request->user())->count(), 'description' => 'Ediciones internas'],
+                ['label' => 'Capacitaciones', 'value' => Activity::query()->visibleTo($request->user())->count(), 'description' => 'Actividades internas'],
                 ['label' => 'Inscripciones', 'value' => Enrollment::query()->visibleTo($request->user())->count(), 'description' => 'Participaciones registradas'],
                 ['label' => 'Constancias', 'value' => Certificate::query()->visibleTo($request->user())->count(), 'description' => 'Documentos institucionales'],
             ],

@@ -60,7 +60,7 @@ class LearningPathFeatureTest extends TestCase
             ->where('activity_id', $first->id)
             ->update([
                 'completion_status' => 'completado',
-                'final_score' => 90,
+                'final_score' => 9,
                 'completed_at' => now(),
             ]);
 

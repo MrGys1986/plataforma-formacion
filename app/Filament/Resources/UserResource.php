@@ -40,6 +40,15 @@ class UserResource extends InstitutionalResource
             'required' => true,
         ],
         [
+            'name' => 'avatar_file_id',
+            'label' => 'Fotografía de perfil',
+            'type' => 'file',
+            'directory' => 'profile-photos',
+            'public_image' => true,
+            'accepted_types' => ['image/jpeg', 'image/png', 'image/webp'],
+            'max_size' => 3072,
+        ],
+        [
             'name' => 'password',
             'label' => 'Contraseña',
             'type' => 'password',

@@ -15,6 +15,10 @@ class InstitutionalReportService
 
         return [
             'total' => (clone $query)->count(),
+            'solicitadas' => (clone $query)->where('status', 'solicitada')->count(),
+            'aprobadas' => (clone $query)->where('status', 'aprobada')->count(),
+            'rechazadas' => (clone $query)->where('status', 'rechazada')->count(),
+            'no_iniciadas' => (clone $query)->where('completion_status', 'no_iniciado')->count(),
             'completadas' => (clone $query)->where('completion_status', 'completado')->count(),
         ];
     }
@@ -27,6 +31,7 @@ class InstitutionalReportService
             'total' => (clone $query)->count(),
             'pendientes' => (clone $query)->where('status', 'pendiente')->count(),
             'validadas' => (clone $query)->where('status', 'validada')->count(),
+            'rechazadas' => (clone $query)->where('status', 'rechazada')->count(),
         ];
     }
 

@@ -1,5 +1,7 @@
 @extends('layouts.quality')
-
 @section('content')
-    <x-portal-page title="Mejora continua" description="Registro de hallazgos y acciones pendiente de configuración." />
+<x-portal-page title="Mejora continua" description="Planes de acción derivados de evaluaciones, auditorías y procesos de acreditación.">
+    <div class="grid gap-4 sm:grid-cols-4"><x-quality-stat label="Acciones" value="9" detail="En el ciclo actual"/><x-quality-stat label="En curso" value="4" detail="Dentro del plazo"/><x-quality-stat label="Completadas" value="3" detail="Con evidencia de cierre" tone="emerald"/><x-quality-stat label="Vencidas" value="2" detail="Requieren atención" tone="rose"/></div>
+    <div class="mt-6 space-y-4">@foreach([['Actualizar mapa curricular','CACEI · Indicador 3.2','Coordinación académica','30/08/2026',65,'En curso'],['Fortalecer resultados de experimentación','ABET · Student Outcome 6','Academia de ingeniería','15/09/2026',40,'En curso'],['Depurar el control documental','ISO · Auditoría interna','Gestión de calidad','31/07/2026',80,'Vencida']] as $action)<article class="rounded-xl border border-slate-200 p-5"><div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"><div><p class="text-xs font-bold uppercase tracking-wide text-blue-600">{{ $action[1] }}</p><h2 class="mt-1 font-semibold">{{ $action[0] }}</h2><p class="mt-2 text-sm text-slate-500">Responsable: {{ $action[2] }} · Fecha compromiso: {{ $action[3] }}</p></div><span class="h-fit rounded-full px-3 py-1 text-xs font-semibold {{ $action[5] === 'Vencida' ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700' }}">{{ $action[5] }}</span></div><div class="mt-5"><x-quality-progress label="Avance de la acción" :value="$action[4]" :tone="$action[5] === 'Vencida' ? 'rose' : 'blue'"/></div></article>@endforeach</div>
+</x-portal-page>
 @endsection

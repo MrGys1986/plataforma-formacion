@@ -12,7 +12,7 @@ class PaymentPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['Educacion Continua', 'Externo']);
+        return $user->hasRole('Educacion Continua') || $this->isExternalParticipant($user);
     }
 
     public function view(User $user, Payment $payment): bool
@@ -22,7 +22,7 @@ class PaymentPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['Educacion Continua', 'Externo']);
+        return $user->hasRole('Educacion Continua') || $this->isExternalParticipant($user);
     }
 
     public function update(User $user, Payment $payment): bool
@@ -43,5 +43,11 @@ class PaymentPolicy
     public function forceDelete(User $user, Payment $payment): bool
     {
         return false;
+    }
+
+    private function isExternalParticipant(User $user): bool
+    {
+        return $user->hasRole('Externo')
+            || ($user->user_type === 'externo' && $user->hasAnyRole(['Profesor', 'Alumno']));
     }
 }

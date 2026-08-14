@@ -8,7 +8,6 @@ class ImprovementController extends Controller
 {
     public function index()
     {
-        // TODO: registrar planes y acciones de mejora.
         return view('quality.improvement.index');
     }
 }

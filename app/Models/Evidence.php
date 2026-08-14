@@ -16,6 +16,30 @@ class Evidence extends Model
 
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        static::updating(function (Evidence $evidence): void {
+            if (! $evidence->isDirty('status')) {
+                return;
+            }
+
+            if ($evidence->status === 'validada') {
+                $evidence->validated_by ??= auth()->id();
+                $evidence->validated_at ??= now();
+                $evidence->rejection_reason = null;
+            }
+
+            if ($evidence->status !== 'validada') {
+                $evidence->validated_by = null;
+                $evidence->validated_at = null;
+            }
+
+            if ($evidence->status !== 'rechazada') {
+                $evidence->rejection_reason = null;
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

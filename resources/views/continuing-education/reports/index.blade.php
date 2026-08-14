@@ -1,5 +1,8 @@
 @extends('layouts.continuing-education')
-
 @section('content')
-    <x-portal-page title="Reportes"><p>Inscripciones: {{ $training['total'] }} · Constancias: {{ $certificates['total'] }}</p></x-portal-page>
+<x-portal-page title="Reportes de educación continua" description="Indicadores consolidados de inscripción, avance y emisión de constancias.">
+    <div class="grid gap-4 sm:grid-cols-4"><x-quality-stat label="Inscripciones" :value="$training['total']"/><x-quality-stat label="Aprobadas" :value="$training['aprobadas']" tone="emerald"/><x-quality-stat label="Completadas" :value="$training['completadas']"/><x-quality-stat label="Constancias" :value="$certificates['total']" tone="slate"/></div>
+    @php($total = max(1,$training['total']))
+    <div class="mt-6 grid gap-6 lg:grid-cols-[1.2fr_1fr]"><section class="rounded-xl border border-slate-200 p-5"><h2 class="font-semibold">Indicadores del periodo</h2><div class="mt-5 space-y-5"><x-quality-progress label="Solicitudes aprobadas" :value="round($training['aprobadas']/$total*100)" :detail="$training['aprobadas'].' inscripciones'" tone="emerald"/><x-quality-progress label="Participantes que completaron" :value="round($training['completadas']/$total*100)" :detail="$training['completadas'].' participantes'"/><x-quality-progress label="Constancias emitidas" :value="round($certificates['emitidas']/$total*100)" :detail="$certificates['emitidas'].' documentos'" tone="emerald"/></div></section><section class="rounded-xl border border-slate-200 bg-slate-50 p-5"><h2 class="font-semibold">Reportes disponibles</h2><div class="mt-4 space-y-3">@foreach(['Inscripciones por actividad','Ingresos y pagos','Finalización y constancias','Participantes por institución'] as $report)<button class="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:border-blue-300" type="button"><span>{{ $report }}</span><span class="text-blue-600">→</span></button>@endforeach</div></section></div>
+</x-portal-page>
 @endsection

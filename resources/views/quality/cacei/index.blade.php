@@ -1,5 +1,10 @@
 @extends('layouts.quality')
-
 @section('content')
-    <x-portal-page title="CACEI" description="Estructura preparada para indicadores y evidencias de acreditación." />
+<x-portal-page title="Acreditación CACEI" description="Seguimiento de categorías, indicadores y evidencias para el proceso de acreditación.">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><x-quality-stat label="Avance global" value="78%" detail="Corte: agosto 2026" tone="emerald"/><x-quality-stat label="Indicadores" value="36 / 44" detail="Con evidencia vinculada"/><x-quality-stat label="Por atender" value="8" detail="Indicadores incompletos" tone="amber"/><x-quality-stat label="Próxima revisión" value="28 ago" detail="Comité de acreditación" tone="slate"/></div>
+    <div class="mt-6 grid gap-6 xl:grid-cols-[1.35fr_1fr]">
+        <section class="rounded-xl border border-slate-200 p-5"><div class="flex items-center justify-between"><h2 class="font-semibold">Avance por categoría</h2><span class="text-xs text-slate-500">Ejemplo de seguimiento</span></div><div class="mt-5 space-y-5"><x-quality-progress label="1. Personal académico" value="92" detail="11 de 12 indicadores completos" tone="emerald"/><x-quality-progress label="2. Estudiantes" value="83" detail="5 de 6 indicadores completos"/><x-quality-progress label="3. Plan de estudios" value="75" detail="6 de 8 indicadores completos" tone="amber"/><x-quality-progress label="4. Evaluación del aprendizaje" value="68" detail="4 de 6 indicadores completos" tone="amber"/><x-quality-progress label="5. Infraestructura" value="88" detail="7 de 8 indicadores completos" tone="emerald"/></div></section>
+        <section class="rounded-xl border border-slate-200 bg-slate-50 p-5"><h2 class="font-semibold">Pendientes prioritarios</h2><div class="mt-4 space-y-3">@foreach([['3.2','Mapa curricular actualizado','Alta'],['4.3','Resultados de aprendizaje','Alta'],['5.1','Inventario de laboratorios','Media']] as $item)<article class="rounded-lg border border-slate-200 bg-white p-4"><div class="flex justify-between gap-3"><div><p class="text-xs font-bold text-blue-600">Indicador {{ $item[0] }}</p><p class="mt-1 text-sm font-semibold">{{ $item[1] }}</p></div><span class="h-fit rounded-full px-2 py-1 text-xs font-semibold {{ $item[2] === 'Alta' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700' }}">{{ $item[2] }}</span></div></article>@endforeach</div></section>
+    </div>
+</x-portal-page>
 @endsection

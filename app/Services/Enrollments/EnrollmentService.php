@@ -18,9 +18,17 @@ class EnrollmentService
 
         $enrollment = Enrollment::firstOrCreate(
             ['user_id' => $user->id, 'activity_id' => $activity->id],
-            ['status' => 'solicitada', 'requested_at' => now()],
+            [
+                'status' => 'solicitada',
+                'requested_at' => $activity->requires_payment ? null : now(),
+                'payment_status' => $activity->requires_payment ? 'pendiente' : 'no_aplica',
+            ],
         );
-        $this->audit->log('inscripciones', 'solicitud', $enrollment);
+        $this->audit->log(
+            'inscripciones',
+            $activity->requires_payment ? 'inicio_pago' : 'solicitud',
+            $enrollment,
+        );
 
         return $enrollment;
     }

@@ -1,7 +1,7 @@
 @extends('layouts.participant')
 
 @section('content')
-    <x-portal-page title="Catálogo de formación" description="Ediciones disponibles para inscripción.">
+    <x-portal-page title="Catálogo de formación" description="Cursos, minicursos y talleres disponibles para inscripción.">
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             @forelse ($activities as $activity)
                 @php
@@ -21,7 +21,7 @@
                     <div class="aspect-[16/7] overflow-hidden bg-slate-100">
                         <img
                             class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                            src="{{ asset('img/courses/'.$courseCover) }}"
+                            src="{{ $activity->coverFile?->optimizedImageUrl(960, 420) ?? $activity->trainingProgram?->coverFile?->optimizedImageUrl(960, 420) ?? asset('img/courses/'.$courseCover) }}"
                             alt="Imagen de referencia del curso {{ $activity->name }}"
                             loading="lazy"
                             decoding="async"
@@ -33,6 +33,11 @@
                         <p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ $activity->description ?: 'Actividad formativa institucional.' }}</p>
                         <div class="mt-auto flex items-center justify-between border-t border-slate-100 pt-4 text-sm">
                             <span class="text-slate-500">{{ $activity->duration_hours }} horas</span>
+                            @if($activity->requires_payment)
+                                <span class="rounded-full bg-amber-50 px-2.5 py-1 font-bold text-amber-700">${{ number_format((float) $activity->cost, 2) }} MXN</span>
+                            @else
+                                <span class="rounded-full bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-700">Sin costo</span>
+                            @endif
                             <span class="font-semibold text-blue-700">Ver curso</span>
                         </div>
                     </div>

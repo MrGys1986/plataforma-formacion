@@ -18,7 +18,7 @@ class DashboardController extends Controller
             'stats' => [
                 ['label' => 'Evidencias asignadas', 'value' => (clone $evidences)->count(), 'description' => 'Expedientes bajo tu revisión'],
                 ['label' => 'Pendientes', 'value' => (clone $evidences)->where('status', 'pendiente')->count(), 'description' => 'Requieren dictamen'],
-                ['label' => 'Revisadas', 'value' => (clone $evidences)->whereIn('status', ['aprobada', 'rechazada'])->count(), 'description' => 'Evidencias dictaminadas'],
+                ['label' => 'Revisadas', 'value' => (clone $evidences)->whereIn('status', ['validada', 'rechazada'])->count(), 'description' => 'Evidencias dictaminadas'],
                 ['label' => 'Evaluaciones', 'value' => (clone $results)->count(), 'description' => 'Resultados registrados'],
             ],
         ]);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Personal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\AttendanceRecord;
 use Illuminate\Http\Request;
 
 class CourseController extends Controller
@@ -21,9 +22,22 @@ class CourseController extends Controller
     public function show(Activity $activity)
     {
         $this->authorize('view', $activity);
-        $activity->load(['activityType', 'area']);
+        $activity
+            ->load(['activityType', 'area'])
+            ->loadCount([
+                'enrollments',
+                'enrollments as approved_enrollments_count' => fn ($query) => $query->where('status', 'aprobada'),
+                'evidences',
+                'evidences as pending_evidences_count' => fn ($query) => $query->where('status', 'pendiente'),
+                'evaluations',
+                'certificates',
+            ]);
 
-        return view('personal.courses.show', compact('activity'));
+        $attendanceRecordsCount = AttendanceRecord::query()
+            ->whereHas('enrollment', fn ($query) => $query->where('activity_id', $activity->id))
+            ->count();
+
+        return view('personal.courses.show', compact('activity', 'attendanceRecordsCount'));
     }
 
     public function participants(Activity $activity)

@@ -26,7 +26,7 @@ class LearningPathController extends Controller
         LearningPathProgressService $progressService,
     ) {
         $this->authorize('view', $learningPath);
-        $learningPath->load('items.activity');
+        $learningPath->load('items.activity.activityType');
 
         $assignment = $learningPath->userLearningPaths()
             ->where('user_id', $request->user()->id)
@@ -35,6 +35,10 @@ class LearningPathController extends Controller
         if ($assignment) {
             $assignment = $progressService->synchronizeAssignment($assignment);
         }
+
+        $progressPercentage = $assignment
+            ? (float) $assignment->progress_percentage
+            : $progressService->calculateProgress($request->user(), $learningPath);
 
         $enrollments = $request->user()
             ->enrollments()
@@ -46,12 +50,15 @@ class LearningPathController extends Controller
         $items = $learningPath->items->map(function ($item) use (
             $enrollments,
             $learningPath,
+            $progressService,
             &$previousRequiredCompleted,
         ) {
             $enrollment = $enrollments->get($item->activity_id);
             $completed = $enrollment?->completion_status === 'completado'
-                && ($item->minimum_score === null
-                    || (float) $enrollment->final_score >= (float) $item->minimum_score);
+                && $progressService->meetsMinimumScore(
+                    $enrollment->final_score,
+                    $item->minimum_score,
+                );
             $unlocked = ! $learningPath->is_sequential || $previousRequiredCompleted;
 
             if ($item->is_required && ! $completed) {
@@ -66,6 +73,11 @@ class LearningPathController extends Controller
             ];
         });
 
-        return view('participant.learning-paths.show', compact('learningPath', 'assignment', 'items'));
+        return view('participant.learning-paths.show', compact(
+            'learningPath',
+            'assignment',
+            'items',
+            'progressPercentage',
+        ));
     }
 }

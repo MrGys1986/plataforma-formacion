@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="C:\Users\ikert\plataforma-formacion\phpunit.xml" tests="1" assertions="3" errors="1" failures="0" skipped="0" time="0.695548">
+    <testsuite name="Feature" tests="1" assertions="3" errors="1" failures="0" skipped="0" time="0.695548">
+      <testsuite name="Tests\Feature\PlatformStructureTest" file="C:\Users\ikert\plataforma-formacion\tests\Feature\PlatformStructureTest.php" tests="1" assertions="3" errors="1" failures="0" skipped="0" time="0.695548">
+        <testcase name="test_an_administrator_can_open_configured_training_views_and_edition_control" file="C:\Users\ikert\plataforma-formacion\tests\Feature\PlatformStructureTest.php" line="238" class="Tests\Feature\PlatformStructureTest" classname="Tests.Feature.PlatformStructureTest" assertions="3" time="0.695548">
+          <error type="Illuminate\Database\Eloquent\ModelNotFoundException">Tests\Feature\PlatformStructureTest::test_an_administrator_can_open_configured_training_views_and_edition_control&#13;
+Illuminate\Database\Eloquent\ModelNotFoundException: No query results for model [App\Models\Activity] 1
+&#13;
+C:\Users\ikert\plataforma-formacion\vendor\livewire\livewire\src\Drawer\ImplicitRouteBinding.php:135
+C:\Users\ikert\plataforma-formacion\vendor\livewire\livewire\src\Drawer\ImplicitRouteBinding.php:86
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Collections\Arr.php:842
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Collections\Collection.php:827
+C:\Users\ikert\plataforma-formacion\vendor\livewire\livewire\src\Drawer\ImplicitRouteBinding.php:83
+C:\Users\ikert\plataforma-formacion\vendor\livewire\livewire\src\Drawer\ImplicitRouteBinding.php:31
+C:\Users\ikert\plataforma-formacion\vendor\livewire\livewire\src\Features\SupportPageComponents\SupportPageComponents.php:220
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Routing\Router.php:982
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php:43
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestForgery.php:104
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Session\Middleware\AuthenticateSession.php:70
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Auth\Middleware\Authenticate.php:63
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\View\Middleware\ShareErrorsFromSession.php:48
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:120
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Session\Middleware\StartSession.php:63
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse.php:36
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Cookie\Middleware\EncryptCookies.php:74
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\filament\filament\src\Http\Middleware\SetUpPanel.php:19
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Routing\Router.php:821
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Routing\Router.php:800
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Routing\Router.php:764
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Routing\Router.php:753
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:200
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:180
+C:\Users\ikert\plataforma-formacion\vendor\livewire\livewire\src\Features\SupportDisablingBackButtonCache\DisableBackButtonCacheMiddleware.php:19
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\app\Http\Middleware\SecurityHeaders.php:13
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php:31
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php:21
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php:51
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php:27
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php:109
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php:61
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php:58
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\InvokeDeferredCallbacks.php:22
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePathEncoding.php:28
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:219
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php:137
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:175
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php:144
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php:607
+C:\Users\ikert\plataforma-formacion\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\MakesHttpRequests.php:368
+C:\Users\ikert\plataforma-formacion\tests\Feature\PlatformStructureTest.php:278</error>
+        </testcase>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

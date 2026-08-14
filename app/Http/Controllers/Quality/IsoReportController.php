@@ -8,7 +8,6 @@ class IsoReportController extends Controller
 {
     public function index()
     {
-        // TODO: incorporar indicadores y criterios ISO.
         return view('quality.iso.index');
     }
 }

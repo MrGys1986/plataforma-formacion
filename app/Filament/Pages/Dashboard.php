@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Resources\AreaResource;
+use App\Filament\Resources\ActivityResource;
 use App\Filament\Resources\EvidenceResource;
 use App\Filament\Resources\MicrocredentialResource;
 use App\Filament\Resources\PaymentResource;
@@ -46,7 +47,7 @@ class Dashboard extends BaseDashboard
                     'value' => TrainingProgram::query()->where('status', 'activo')->count(),
                 ],
                 [
-                    'label' => 'Ediciones en operación',
+                    'label' => 'Actividades en operación',
                     'value' => Activity::query()->whereIn('status', ['publicado', 'en_inscripcion', 'en_curso'])->count(),
                 ],
                 [
@@ -69,20 +70,20 @@ class Dashboard extends BaseDashboard
                 ],
                 [
                     'title' => 'Cursos',
-                    'description' => 'Gestiona cursos y sus ediciones desde un solo flujo.',
-                    'url' => TrainingProgramResource::getUrl(configuration: 'cursos'),
+                    'description' => 'Administra directamente cursos, fechas e inscripciones.',
+                    'url' => ActivityResource::getUrl(parameters: ['activeTab' => 'cursos']),
                     'icon' => Heroicon::OutlinedAcademicCap,
                 ],
                 [
                     'title' => 'Minicursos',
                     'description' => 'Separa la operación corta sin mezclarla con otros formatos.',
-                    'url' => TrainingProgramResource::getUrl(configuration: 'minicursos'),
+                    'url' => ActivityResource::getUrl(parameters: ['activeTab' => 'minicursos']),
                     'icon' => Heroicon::OutlinedBookOpen,
                 ],
                 [
                     'title' => 'Talleres',
-                    'description' => 'Da seguimiento a la oferta práctica por edición.',
-                    'url' => TrainingProgramResource::getUrl(configuration: 'talleres'),
+                    'description' => 'Da seguimiento directo a la oferta práctica.',
+                    'url' => ActivityResource::getUrl(parameters: ['activeTab' => 'talleres']),
                     'icon' => Heroicon::OutlinedWrenchScrewdriver,
                 ],
                 [

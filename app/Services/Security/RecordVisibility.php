@@ -245,6 +245,7 @@ class RecordVisibility
     private function payments(Builder $query, User $user): Builder
     {
         return match (true) {
+            $user->hasRole('Superadministrador') => $query,
             $user->hasRole('Educacion Continua') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', true)),
             default => $query->where('user_id', $user->id),
         };

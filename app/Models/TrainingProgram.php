@@ -59,6 +59,11 @@ class TrainingProgram extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function coverFile(): BelongsTo
+    {
+        return $this->belongsTo(FileUpload::class, 'cover_file_id');
+    }
+
     public function editions(): HasMany
     {
         return $this->hasMany(Activity::class);

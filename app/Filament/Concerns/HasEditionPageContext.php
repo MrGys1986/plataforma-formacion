@@ -16,14 +16,9 @@ trait HasEditionPageContext
             return parent::getSubheading();
         }
 
-        $edition = filled($activity->edition_code)
-            ? $activity->edition_code
-            : 'Edición '.$activity->edition_number;
-
         return collect([
-            "Gestionando {$edition}",
-            $activity->trainingProgram?->name,
-            $activity->trainingProgram?->activityType?->name,
+            'Gestionando '.$activity->name,
+            $activity->activityType?->name,
         ])->filter()->implode(' · ');
     }
 
@@ -34,8 +29,8 @@ trait HasEditionPageContext
         }
 
         return [
-            Action::make('volver_edicion')
-                ->label('Volver a la edición')
+            Action::make('volver_actividad')
+                ->label('Volver a la actividad')
                 ->icon(Heroicon::OutlinedArrowLeft)
                 ->color('gray')
                 ->url(EditionControlPage::getUrl(['record' => $activity->getKey()])),

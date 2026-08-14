@@ -14,6 +14,26 @@ class Enrollment extends Model
 
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        static::updating(function (Enrollment $enrollment): void {
+            if (! $enrollment->isDirty('status')) {
+                return;
+            }
+
+            if ($enrollment->status === 'aprobada') {
+                $enrollment->approved_by ??= auth()->id();
+                $enrollment->approved_at ??= now();
+                $enrollment->rejection_reason = null;
+            }
+
+            if ($enrollment->status !== 'aprobada') {
+                $enrollment->approved_by = null;
+                $enrollment->approved_at = null;
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -42,6 +62,11 @@ class Enrollment extends Model
     public function evaluationResults(): HasMany
     {
         return $this->hasMany(EvaluationResult::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     public function certificates(): HasMany

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ActivityResource extends InstitutionalResource
 {
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
 
     protected static ?int $navigationSort = 2;
 
@@ -20,9 +20,11 @@ class ActivityResource extends InstitutionalResource
 
     protected static ?string $cluster = TrainingManagementCluster::class;
 
-    protected static ?string $modelLabel = 'Edición';
+    protected static ?string $navigationLabel = 'Cursos y actividades';
 
-    protected static ?string $pluralModelLabel = 'Ediciones';
+    protected static ?string $modelLabel = 'Actividad formativa';
+
+    protected static ?string $pluralModelLabel = 'Cursos y actividades';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -30,22 +32,18 @@ class ActivityResource extends InstitutionalResource
 
     protected static array $tableColumns = [
         [
-            'name' => 'trainingProgram.name',
-            'label' => 'Programa',
+            'name' => 'name',
+            'label' => 'Nombre',
             'searchable' => true,
         ],
         [
-            'name' => 'trainingProgram.activityType.name',
+            'name' => 'activityType.name',
             'label' => 'Tipo',
         ],
         [
-            'name' => 'edition_number',
-            'label' => 'Edición',
-        ],
-        [
-            'name' => 'edition_code',
-            'label' => 'Código',
-            'searchable' => true,
+            'name' => 'end_date',
+            'label' => 'Vigente hasta',
+            'type' => 'date',
         ],
         [
             'name' => 'start_date',
@@ -73,26 +71,31 @@ class ActivityResource extends InstitutionalResource
     {
         return [
             [
-                'name' => 'training_program_id',
-                'label' => 'Curso, minicurso o taller',
+                'name' => 'activity_type_id',
+                'label' => 'Tipo de actividad',
                 'type' => 'relation',
-                'relationship' => 'trainingProgram',
+                'relationship' => 'activityType',
                 'required' => true,
-                'default' => fn (): ?int => request()->filled('training_program')
-                    ? request()->integer('training_program')
-                    : null,
-                'disabled' => fn (): bool => request()->filled('training_program'),
-                'dehydrated' => true,
             ],
             [
-                'name' => 'edition_number',
-                'label' => 'Número de edición',
+                'name' => 'name',
+                'label' => 'Nombre',
+                'required' => true,
+            ],
+            [
+                'name' => 'slug',
+                'label' => 'Identificador URL',
+                'required' => true,
+            ],
+            [
+                'name' => 'description',
+                'label' => 'Descripción',
+                'type' => 'textarea',
+            ],
+            [
+                'name' => 'duration_hours',
+                'label' => 'Duración en horas',
                 'type' => 'number',
-                'required' => true,
-            ],
-            [
-                'name' => 'edition_code',
-                'label' => 'Código de edición',
             ],
             [
                 'name' => 'area_id',
@@ -116,6 +119,15 @@ class ActivityResource extends InstitutionalResource
                     'virtual' => 'Virtual',
                     'hibrida' => 'Híbrida',
                 ],
+            ],
+            [
+                'name' => 'cover_file_id',
+                'label' => 'Imagen de portada',
+                'type' => 'file',
+                'directory' => 'course-covers',
+                'public_image' => true,
+                'accepted_types' => ['image/jpeg', 'image/png', 'image/webp'],
+                'max_size' => 5120,
             ],
             [
                 'name' => 'start_date',
@@ -148,7 +160,7 @@ class ActivityResource extends InstitutionalResource
             ],
             [
                 'name' => 'cost',
-                'label' => 'Costo de esta edición',
+                'label' => 'Costo',
                 'type' => 'number',
             ],
             [
@@ -171,11 +183,7 @@ class ActivityResource extends InstitutionalResource
 
     protected static function applyContextToQuery(Builder $query): Builder
     {
-        if (! request()->filled('training_program')) {
-            return $query;
-        }
-
-        return $query->where('training_program_id', request()->integer('training_program'));
+        return $query;
     }
 
     /**
@@ -185,7 +193,7 @@ class ActivityResource extends InstitutionalResource
     {
         return [
             Action::make('control')
-                ->label('Gestionar edición')
+                ->label('Administrar')
                 ->icon(Heroicon::OutlinedArrowRight)
                 ->color('primary')
                 ->url(fn (Activity $record): string => EditionControlPage::getUrl(['record' => $record->getKey()])),

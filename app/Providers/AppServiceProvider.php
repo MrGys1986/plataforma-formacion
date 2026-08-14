@@ -24,6 +24,8 @@ use App\Models\TrainingProgram;
 use App\Models\User;
 use App\Models\Webinar;
 use App\Observers\AuditableObserver;
+use App\Observers\EnrollmentLearningPathObserver;
+use App\Observers\PaymentEnrollmentObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -73,6 +75,9 @@ class AppServiceProvider extends ServiceProvider
         ] as $model) {
             $model::observe(AuditableObserver::class);
         }
+
+        Enrollment::observe(EnrollmentLearningPathObserver::class);
+        Payment::observe(PaymentEnrollmentObserver::class);
 
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('microsoft', Provider::class);

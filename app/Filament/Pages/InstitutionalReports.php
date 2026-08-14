@@ -48,7 +48,7 @@ class InstitutionalReports extends Page
             'metrics' => [
                 'Usuarios activos' => User::query()->where('status', 'activo')->count(),
                 'Programas formativos' => TrainingProgram::query()->count(),
-                'Ediciones abiertas' => Activity::query()->whereIn('status', ['en_inscripcion', 'publicado', 'en_curso'])->count(),
+                'Actividades abiertas' => Activity::query()->whereIn('status', ['en_inscripcion', 'publicado', 'en_curso'])->count(),
                 'Inscripciones' => Enrollment::query()->count(),
                 'Formaciones completadas' => Enrollment::query()->where('completion_status', 'completado')->count(),
                 'Evidencias pendientes' => Evidence::query()->where('status', 'pendiente')->count(),

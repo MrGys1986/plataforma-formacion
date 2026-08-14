@@ -1,5 +1,9 @@
 @extends('layouts.continuing-education')
-
 @section('content')
-    <x-portal-page title="Pagos"><p>Pagos registrados: {{ $payments->total() }}</p></x-portal-page>
+<x-portal-page title="Control de pagos" description="Comprobantes, importes y validación de pagos de participantes externos.">
+    @php($pageTotal = $payments->getCollection()->sum(fn($payment) => (float)$payment->amount))
+    <div class="grid gap-4 sm:grid-cols-4"><x-quality-stat label="Movimientos" :value="$payments->total()"/><x-quality-stat label="Importe en página" :value="'$'.number_format($pageTotal,2)" tone="slate"/><x-quality-stat label="Pendientes" :value="$payments->getCollection()->where('status','pendiente')->count()" tone="amber"/><x-quality-stat label="Validados" :value="$payments->getCollection()->where('status','validado')->count()" tone="emerald"/></div>
+    <div class="mt-6 space-y-4">@forelse($payments as $payment)<article class="rounded-xl border border-slate-200 p-5"><div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between"><div><p class="font-semibold">{{ $payment->user?->name ?? 'Usuario no disponible' }}</p><p class="mt-1 text-sm text-slate-500">{{ $payment->activity?->name ?? 'Sin actividad asociada' }}</p><p class="mt-3 text-xs text-slate-500">Referencia: {{ $payment->payment_reference ?: 'Sin referencia' }} · {{ ucfirst($payment->payment_method ?? 'manual') }}</p></div><div class="text-left md:text-right"><p class="text-2xl font-bold">${{ number_format((float)$payment->amount,2) }} <span class="text-xs font-medium text-slate-500">{{ $payment->currency }}</span></p><span class="mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $payment->status === 'validado' ? 'bg-emerald-100 text-emerald-700' : ($payment->status === 'rechazado' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700') }}">{{ ucfirst($payment->status) }}</span></div></div></article>@empty<div class="rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center text-slate-500">No hay pagos registrados.</div>@endforelse</div>
+    @if($payments->hasPages())<div class="mt-6">{{ $payments->links() }}</div>@endif
+</x-portal-page>
 @endsection

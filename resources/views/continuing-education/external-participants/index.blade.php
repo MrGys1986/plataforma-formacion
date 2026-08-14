@@ -1,5 +1,8 @@
 @extends('layouts.continuing-education')
-
 @section('content')
-    <x-portal-page title="Participantes externos"><p>Participantes registrados: {{ $users->total() }}</p></x-portal-page>
+<x-portal-page title="Participantes externos" description="Directorio de personas vinculadas con la oferta de educación continua.">
+    <div class="grid gap-4 sm:grid-cols-3"><x-quality-stat label="Participantes" :value="$users->total()" detail="Cuentas visibles"/><x-quality-stat label="Activos" :value="$users->getCollection()->where('status','activo')->count()" detail="En esta página" tone="emerald"/><x-quality-stat label="Instituciones" :value="$users->getCollection()->pluck('external_institution')->filter()->unique()->count()" detail="Representadas en esta página" tone="slate"/></div>
+    <div class="mt-6 grid gap-4 lg:grid-cols-2">@forelse($users as $user)<article class="flex items-start gap-4 rounded-xl border border-slate-200 p-5"><span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">{{ mb_strtoupper(mb_substr($user->name,0,1)) }}</span><div class="min-w-0 flex-1"><div class="flex justify-between gap-3"><p class="truncate font-semibold">{{ $user->name }}</p><span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">{{ ucfirst($user->status ?? 'activo') }}</span></div><p class="mt-1 truncate text-sm text-slate-500">{{ $user->email }}</p><p class="mt-3 text-sm text-slate-600">{{ $user->external_institution ?: 'Participante independiente' }}</p>@if($user->phone)<p class="mt-1 text-xs text-slate-500">{{ $user->phone }}</p>@endif</div></article>@empty<div class="rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center text-slate-500 lg:col-span-2">No hay participantes externos registrados.</div>@endforelse</div>
+    @if($users->hasPages())<div class="mt-6">{{ $users->links() }}</div>@endif
+</x-portal-page>
 @endsection

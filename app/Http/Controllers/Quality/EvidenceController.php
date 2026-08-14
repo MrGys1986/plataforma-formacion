@@ -12,7 +12,7 @@ class EvidenceController extends Controller
     {
         $evidences = Evidence::query()
             ->visibleTo($request->user())
-            ->with(['user', 'activity'])
+            ->with(['user', 'activity', 'assignedEvaluator'])
             ->latest()
             ->paginate(20);
 

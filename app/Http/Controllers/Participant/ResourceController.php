@@ -12,7 +12,7 @@ class ResourceController extends Controller
     {
         $resources = DigitalResource::query()
             ->visibleTo($request->user())
-            ->with(['area', 'activity'])
+            ->with(['area', 'activity', 'fileUpload'])
             ->latest()
             ->paginate(12);
 

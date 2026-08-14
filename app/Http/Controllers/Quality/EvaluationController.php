@@ -13,7 +13,10 @@ class EvaluationController extends Controller
         $evaluations = Evaluation::query()
             ->visibleTo($request->user())
             ->with('activity')
-            ->withCount('results')
+            ->withCount([
+                'results',
+                'results as approved_results_count' => fn ($query) => $query->where('result', 'aprobado'),
+            ])
             ->paginate(20);
 
         return view('quality.evaluations.index', compact('evaluations'));

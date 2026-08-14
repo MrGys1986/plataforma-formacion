@@ -25,11 +25,12 @@ class EditionControlPage extends Page
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static ?string $slug = 'edicion';
+    protected static ?string $slug = 'actividad';
 
     protected string $view = 'filament.pages.edition-control';
 
-    public Activity $record;
+    /** @var Activity */
+    public $record;
 
     public function mount(int|string $record): void
     {
@@ -39,7 +40,7 @@ class EditionControlPage extends Page
 
         $this->record = Activity::query()
             ->visibleTo(auth()->user())
-            ->with(['trainingProgram.activityType', 'area', 'instructor'])
+            ->with(['activityType', 'area', 'instructor'])
             ->where($routeColumn, $record)
             ->firstOrFail();
 
@@ -48,21 +49,18 @@ class EditionControlPage extends Page
 
     public static function getRoutePath(Panel $panel): string
     {
-        return '/edicion/{record}';
+        return '/actividad/{record}';
     }
 
     public function getHeading(): string
     {
-        return filled($this->record->edition_code)
-            ? $this->record->edition_code
-            : 'Edición '.$this->record->edition_number;
+        return $this->record->name;
     }
 
     public function getSubheading(): ?string
     {
         return collect([
-            $this->record->trainingProgram?->name,
-            $this->record->trainingProgram?->activityType?->name,
+            $this->record->activityType?->name,
             $this->record->status,
         ])->filter()->implode(' · ');
     }
@@ -70,11 +68,11 @@ class EditionControlPage extends Page
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('volver_ediciones')
-                ->label('Volver a ediciones')
+            Action::make('volver_actividades')
+                ->label('Volver a cursos y actividades')
                 ->icon(Heroicon::OutlinedArrowLeft)
                 ->color('gray')
-                ->url(ActivityResource::getUrl(parameters: ['training_program' => $this->record->training_program_id])),
+                ->url(ActivityResource::getUrl()),
         ];
     }
 
@@ -106,21 +104,21 @@ class EditionControlPage extends Page
                 ],
                 [
                     'title' => 'Evaluaciones',
-                    'description' => 'Instrumentos y evaluaciones asignadas a la edición.',
+                    'description' => 'Instrumentos y evaluaciones asignadas a la actividad.',
                     'count' => $this->record->evaluations()->count(),
                     'url' => EvaluationResource::getUrl(parameters: ['activity' => $this->record->id]),
                     'icon' => Heroicon::OutlinedAcademicCap,
                 ],
                 [
                     'title' => 'Archivos',
-                    'description' => 'Materiales y recursos vinculados a esta edición.',
+                    'description' => 'Materiales y recursos vinculados a la actividad.',
                     'count' => DigitalResource::query()->where('activity_id', $this->record->id)->count(),
                     'url' => DigitalResourceResource::getUrl(parameters: ['activity' => $this->record->id]),
                     'icon' => Heroicon::OutlinedFolderOpen,
                 ],
                 [
                     'title' => 'Constancias',
-                    'description' => 'Emisión y seguimiento de constancias por edición.',
+                    'description' => 'Emisión y seguimiento de constancias de la actividad.',
                     'count' => $this->record->certificates()->count(),
                     'url' => CertificateResource::getUrl(parameters: ['activity' => $this->record->id]),
                     'icon' => Heroicon::OutlinedIdentification,
@@ -133,7 +131,7 @@ class EditionControlPage extends Page
     {
         return [
             TrainingManagementCluster::getUrl() => TrainingManagementCluster::getClusterBreadcrumb(),
-            ActivityResource::getUrl(parameters: ['training_program' => $this->record->training_program_id]) => 'Ediciones',
+            ActivityResource::getUrl() => 'Cursos y actividades',
             $this->getHeading(),
         ];
     }

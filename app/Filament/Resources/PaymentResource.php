@@ -57,6 +57,13 @@ class PaymentResource extends InstitutionalResource
             'name' => 'status',
             'label' => 'Estado',
         ],
+        7 => [
+            'name' => 'proof_file_id',
+            'label' => 'Comprobante de pago',
+            'type' => 'file',
+            'directory' => 'payment-proofs',
+            'accepted_types' => ['application/pdf', 'image/jpeg', 'image/png'],
+        ],
     ];
 
     protected static array $tableColumns = [

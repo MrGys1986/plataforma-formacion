@@ -38,4 +38,11 @@ class Competency extends Model
             ->withPivot(['order_number', 'is_required'])
             ->withTimestamps();
     }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_competencies')
+            ->withPivot(['status', 'progress_percentage', 'unlocked_at', 'completed_at'])
+            ->withTimestamps();
+    }
 }

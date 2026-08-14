@@ -60,6 +60,30 @@ class DemoRoleUserSeeder extends Seeder
                 'profile_type' => 'externo',
                 'external_institution' => 'Institución externa de prueba',
             ],
+            [
+                'name' => 'Ana Martínez López',
+                'email' => 'ana.participante@formacion.test',
+                'role' => 'Alumno',
+                'area_id' => $defaultAreaId,
+                'user_type' => 'interno',
+                'profile_type' => 'alumno',
+            ],
+            [
+                'name' => 'Carlos Hernández Ruiz',
+                'email' => 'carlos.participante@formacion.test',
+                'role' => 'Alumno',
+                'area_id' => $defaultAreaId,
+                'user_type' => 'interno',
+                'profile_type' => 'alumno',
+            ],
+            [
+                'name' => 'Mariana Torres García',
+                'email' => 'mariana.participante@formacion.test',
+                'role' => 'Alumno',
+                'area_id' => $defaultAreaId,
+                'user_type' => 'interno',
+                'profile_type' => 'alumno',
+            ],
         ];
 
         foreach ($accounts as $account) {

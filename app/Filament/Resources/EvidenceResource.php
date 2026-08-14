@@ -99,10 +99,29 @@ class EvidenceResource extends InstitutionalResource
             [
                 'name' => 'evidence_type',
                 'label' => 'Tipo de evidencia',
+                'type' => 'select',
+                'options' => [
+                    'producto' => 'Producto',
+                    'participacion' => 'Participación',
+                    'evaluacion' => 'Evaluación',
+                    'otro' => 'Otro',
+                ],
             ],
             [
                 'name' => 'status',
                 'label' => 'Estado',
+                'type' => 'select',
+                'required' => true,
+                'options' => [
+                    'pendiente' => 'Pendiente de revisión',
+                    'validada' => 'Validada',
+                    'rechazada' => 'Rechazada',
+                ],
+            ],
+            [
+                'name' => 'rejection_reason',
+                'label' => 'Motivo de rechazo',
+                'type' => 'textarea',
             ],
         ];
     }
