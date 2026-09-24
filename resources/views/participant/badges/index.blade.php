@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page title="Mis insignias" description="Reconocimientos digitales obtenidos por tus competencias y logros.">

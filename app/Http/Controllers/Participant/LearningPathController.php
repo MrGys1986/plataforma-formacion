@@ -13,7 +13,7 @@ class LearningPathController extends Controller
     {
         $learningPaths = LearningPath::query()
             ->visibleTo($request->user())
-            ->withCount('items')
+            ->withCount(['items', 'trainingPrograms'])
             ->with(['userLearningPaths' => fn ($query) => $query->where('user_id', $request->user()->id)])
             ->paginate(12);
 
@@ -26,7 +26,11 @@ class LearningPathController extends Controller
         LearningPathProgressService $progressService,
     ) {
         $this->authorize('view', $learningPath);
-        $learningPath->load('items.activity.activityType');
+        $learningPath->load([
+            'trainingPrograms.activityType',
+            'trainingPrograms.activities',
+            'items.activity.activityType',
+        ]);
 
         $assignment = $learningPath->userLearningPaths()
             ->where('user_id', $request->user()->id)
@@ -40,14 +44,16 @@ class LearningPathController extends Controller
             ? (float) $assignment->progress_percentage
             : $progressService->calculateProgress($request->user(), $learningPath);
 
+        $routeItems = $progressService->itemsFor($learningPath);
+
         $enrollments = $request->user()
             ->enrollments()
-            ->whereIn('activity_id', $learningPath->items->pluck('activity_id'))
+            ->whereIn('activity_id', $routeItems->pluck('activity_id')->filter())
             ->get()
             ->keyBy('activity_id');
 
         $previousRequiredCompleted = true;
-        $items = $learningPath->items->map(function ($item) use (
+        $items = $routeItems->map(function ($item) use (
             $enrollments,
             $learningPath,
             $progressService,

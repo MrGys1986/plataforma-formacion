@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CertificationProgramResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 3;
 
     protected static ?string $model = CertificationProgram::class;

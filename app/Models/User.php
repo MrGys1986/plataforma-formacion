@@ -39,6 +39,16 @@ class User extends Authenticatable implements FilamentUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasPublicId, HasRoles, Notifiable, VisibleToUser;
 
+    public const FILAMENT_ROLES = [
+        'Superadministrador',
+        'Recursos Humanos',
+        'Calidad Academica',
+        'Educacion Continua',
+        'Personal',
+        'Evaluador',
+        'Responsable Area',
+    ];
+
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
@@ -107,16 +117,12 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->status === 'activo'
-            && $this->hasAnyRole([
-                'Superadministrador',
-                'Recursos Humanos',
-                'Calidad Academica',
-                'Educacion Continua',
-                'Personal',
-                'Evaluador',
-                'Responsable Area',
-            ]);
+        return $this->status === 'activo' && $this->usesFilamentDashboard();
+    }
+
+    public function usesFilamentDashboard(): bool
+    {
+        return $this->hasAnyRole(self::FILAMENT_ROLES);
     }
 
     /**

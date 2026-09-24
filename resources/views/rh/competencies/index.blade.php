@@ -1,4 +1,4 @@
-@extends('layouts.rh')
+@extends('layouts.portal')
 
 @section('content')
 <x-portal-page title="Cursos requeridos" description="Catálogo de cursos y minicursos que debe realizar el personal de Recursos Humanos.">

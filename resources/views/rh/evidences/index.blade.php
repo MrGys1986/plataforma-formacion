@@ -1,8 +1,8 @@
-@extends('layouts.rh')
+@extends('layouts.portal')
 
 @section('content')
 <x-portal-page title="Evidencias" description="Seguimiento de entregas realizadas en actividades internas de capacitación.">
-    <form class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_200px_auto]" method="GET" action="{{ route('rh.evidences.index') }}">
+    <form class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_200px_auto]" method="GET" action="{{ route('rh.evidences.index') }}" data-auto-filter>
         <input class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm" type="search" name="search" value="{{ request('search') }}" placeholder="Buscar evidencia, participante o actividad">
         <select class="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm" name="status">
             <option value="">Todos los estados</option>
@@ -10,7 +10,7 @@
             <option value="validada" @selected(request('status') === 'validada')>Validadas</option>
             <option value="rechazada" @selected(request('status') === 'rechazada')>Rechazadas</option>
         </select>
-        <div class="flex gap-2"><button class="rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800" type="submit">Filtrar</button>@if(request()->hasAny(['search','status']))<a class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600" href="{{ route('rh.evidences.index') }}">Limpiar</a>@endif</div>
+        <x-auto-filter-actions :reset-url="route('rh.evidences.index')" :active="request()->hasAny(['search','status'])" />
     </form>
 
     <p class="mb-4 text-sm text-slate-500"><span class="font-semibold text-slate-800">{{ $evidences->total() }}</span> evidencias encontradas</p>

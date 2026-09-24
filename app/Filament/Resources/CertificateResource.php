@@ -35,8 +35,8 @@ class CertificateResource extends InstitutionalResource
             'searchable' => true,
         ],
         [
-            'name' => 'activity.name',
-            'label' => 'Actividad',
+            'name' => 'activity.trainingProgram.name',
+            'label' => 'Programa de formación',
         ],
         [
             'name' => 'issued_at',
@@ -66,13 +66,13 @@ class CertificateResource extends InstitutionalResource
             [
                 'name' => 'user_id',
                 'label' => 'Titular',
-                'type' => 'relation',
+                'type' => request()->filled('training_program') ? 'hidden' : 'relation',
                 'relationship' => 'user',
                 'required' => true,
             ],
             [
                 'name' => 'activity_id',
-                'label' => 'Actividad',
+                'label' => 'Programa de formación',
                 'type' => 'relation',
                 'relationship' => 'activity',
                 'default' => fn (): ?int => request()->filled('activity')
@@ -117,6 +117,16 @@ class CertificateResource extends InstitutionalResource
 
     protected static function applyContextToQuery(Builder $query): Builder
     {
+        if (request()->filled('training_program')) {
+            return $query->whereHas(
+                'activity',
+                fn (Builder $activity): Builder => $activity->where(
+                    'training_program_id',
+                    request()->integer('training_program'),
+                ),
+            );
+        }
+
         if (! request()->filled('activity')) {
             return $query;
         }

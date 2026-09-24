@@ -8,6 +8,8 @@ use Filament\Support\Icons\Heroicon;
 
 class SurveyManagementCluster extends Cluster
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 4;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;

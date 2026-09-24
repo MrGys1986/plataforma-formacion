@@ -1,4 +1,4 @@
-@extends('layouts.evaluator')
+@extends('layouts.portal')
 
 @section('content')
 <x-portal-page title="Resultados de evaluación" description="Dictámenes y calificaciones que has registrado como evaluador.">

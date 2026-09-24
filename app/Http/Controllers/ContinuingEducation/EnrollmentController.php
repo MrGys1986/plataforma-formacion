@@ -14,7 +14,7 @@ class EnrollmentController extends Controller
             ->visibleTo($request->user())
             ->with(['user', 'activity'])
             ->latest()
-            ->paginate(20);
+            ->get();
 
         return view('continuing-education.enrollments.index', compact('enrollments'));
     }

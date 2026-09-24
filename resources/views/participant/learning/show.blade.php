@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="$enrollment->activity?->name ?? 'Mi formación'" description="Consulta tu avance y entrega tus propias evidencias.">
@@ -7,23 +7,17 @@
         @endif
 
         <div class="grid gap-4 sm:grid-cols-3">
-            <div class="rounded-lg bg-slate-50 p-4">
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Inscripción</p>
-                <p class="mt-2 font-semibold text-slate-900">{{ ucfirst($enrollment->status) }}</p>
-            </div>
-            <div class="rounded-lg bg-slate-50 p-4">
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Avance</p>
-                <p class="mt-2 font-semibold text-slate-900">{{ ucfirst(str_replace('_', ' ', $enrollment->completion_status)) }}</p>
-            </div>
-            <div class="rounded-lg bg-slate-50 p-4">
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Calificación</p>
-                <p class="mt-2 font-semibold text-slate-900">{{ $enrollment->final_score ?? 'Pendiente' }}</p>
-            </div>
+            <x-quality-stat label="Inscripción" :value="ucfirst($enrollment->status)" detail="Estado actual" />
+            <x-quality-stat label="Avance" :value="ucfirst(str_replace('_', ' ', $enrollment->completion_status))" detail="Progreso del curso" tone="emerald" />
+            <x-quality-stat label="Calificación" :value="$enrollment->final_score ?? 'Pendiente'" detail="Resultado obtenido" tone="slate" />
         </div>
 
         <div class="mt-7 grid gap-6 xl:grid-cols-[1fr_360px]">
-            <section>
-                <h2 class="font-semibold text-slate-900">Mis evidencias</h2>
+            <section class="rounded-2xl border border-brand-100 bg-white p-5 shadow-sm sm:p-6">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><x-portal-nav-icon name="evidence" /></span>
+                    <div><h2 class="font-extrabold text-slate-900">Mis evidencias</h2><p class="mt-0.5 text-sm text-slate-500">Documentos entregados en este curso.</p></div>
+                </div>
                 <div class="mt-4 space-y-3">
                     @forelse($enrollment->evidences as $evidence)
                         <div class="rounded-lg border border-slate-200 p-4">
@@ -45,8 +39,10 @@
 
             </section>
 
-            <section class="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                <h2 class="font-semibold text-slate-900">Subir evidencia</h2>
+            <section class="h-fit rounded-2xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-5 shadow-sm">
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-700 shadow-sm"><x-portal-nav-icon name="evidence" /></span>
+                <h2 class="mt-3 font-extrabold text-slate-900">Subir evidencia</h2>
+                <p class="mt-1 text-sm text-slate-500">Agrega tu archivo y la información necesaria.</p>
                 @if($enrollment->status === 'aprobada')
                     <form class="mt-4 space-y-4" method="POST" action="{{ route('participant.evidences.store', $enrollment) }}" enctype="multipart/form-data">
                         @csrf

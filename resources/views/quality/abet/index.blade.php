@@ -1,4 +1,4 @@
-@extends('layouts.quality')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Acreditación ABET" description="Medición de Student Outcomes y acciones derivadas del ciclo de mejora.">
     <div class="grid gap-4 sm:grid-cols-3"><x-quality-stat label="Outcomes evaluados" value="7 / 7" detail="Ciclo 2025–2026" tone="emerald"/><x-quality-stat label="Meta institucional" value="80%" detail="Nivel de logro esperado"/><x-quality-stat label="Acciones abiertas" value="3" detail="Seguimiento requerido" tone="amber"/></div>

@@ -26,6 +26,10 @@ use App\Models\Webinar;
 use App\Observers\AuditableObserver;
 use App\Observers\EnrollmentLearningPathObserver;
 use App\Observers\PaymentEnrollmentObserver;
+use Filament\Actions\Action as FilamentAction;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -50,6 +54,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        CreateAction::configureUsing(fn (CreateAction $action): CreateAction => $action
+            ->modalCancelActionLabel('Cancelar')
+            ->modalSubmitActionLabel('Guardar')
+            ->modalSubmitAction(fn (FilamentAction $submitAction): FilamentAction => $submitAction
+                ->icon(Heroicon::OutlinedCheck)
+                ->extraAttributes([
+                    'data-pf-confirm-save' => 'true',
+                    'x-on:click.prevent.stop' => '$dispatch("pf-confirm-save", { form: $el.form, submitter: $el })',
+                ])));
+
+        EditAction::configureUsing(fn (EditAction $action): EditAction => $action
+            ->label('Editar')
+            ->icon(Heroicon::OutlinedPencilSquare)
+            ->modalCancelActionLabel('Cancelar')
+            ->modalSubmitActionLabel('Guardar')
+            ->modalSubmitAction(fn (FilamentAction $submitAction): FilamentAction => $submitAction
+                ->icon(Heroicon::OutlinedCheck)
+                ->extraAttributes([
+                    'data-pf-confirm-save' => 'true',
+                    'x-on:click.prevent.stop' => '$dispatch("pf-confirm-save", { form: $el.form, submitter: $el })',
+                ])));
+
         foreach ([
             User::class,
             Area::class,

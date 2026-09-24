@@ -1,4 +1,4 @@
-@extends('layouts.personal')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="'Participantes de '.$activity->name">

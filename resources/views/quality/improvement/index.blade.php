@@ -1,4 +1,4 @@
-@extends('layouts.quality')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Mejora continua" description="Planes de acción derivados de evaluaciones, auditorías y procesos de acreditación.">
     <div class="grid gap-4 sm:grid-cols-4"><x-quality-stat label="Acciones" value="9" detail="En el ciclo actual"/><x-quality-stat label="En curso" value="4" detail="Dentro del plazo"/><x-quality-stat label="Completadas" value="3" detail="Con evidencia de cierre" tone="emerald"/><x-quality-stat label="Vencidas" value="2" detail="Requieren atención" tone="rose"/></div>

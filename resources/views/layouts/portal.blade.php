@@ -3,176 +3,127 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Plataforma Institucional de Formación')</title>
+    <meta name="description" content="Plataforma Institucional de Formación y Microcredenciales de la Universidad Aeronáutica en Querétaro.">
+    <title>@yield('title', 'Plataforma Institucional de Formación y Microcredenciales')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-900">
-    @php($isProfessorPortal = auth()->user()?->hasRole('Profesor') ?? false)
-    @php($isStudentPortal = auth()->user()?->hasRole('Alumno') ?? false)
-    @php($isExternalPortal = auth()->user()?->hasRole('Externo') ?? false)
-    @php($isParticipantPortal = $isProfessorPortal || $isStudentPortal || $isExternalPortal)
-    @php($isPersonalPortal = auth()->user()?->hasRole('Personal') ?? false)
-    @php($isAreaManagerPortal = auth()->user()?->hasRole('Responsable Area') ?? false)
-    @php($isEvaluatorPortal = auth()->user()?->hasRole('Evaluador') ?? false)
-    @php($isHumanResourcesPortal = auth()->user()?->hasRole('Recursos Humanos') ?? false)
-    @php($isQualityPortal = auth()->user()?->hasRole('Calidad Academica') ?? false)
-    @php($isContinuingEducationPortal = auth()->user()?->hasRole('Educacion Continua') ?? false)
-    @php($isAcademicPortal = $isProfessorPortal
-        || $isStudentPortal
-        || $isExternalPortal
-        || $isPersonalPortal
-        || $isAreaManagerPortal
-        || $isEvaluatorPortal
-        || $isHumanResourcesPortal
-        || $isQualityPortal
-        || $isContinuingEducationPortal)
-    @php($academicRole = match (true) {
-        $isProfessorPortal => 'Profesor',
-        $isStudentPortal => 'Alumno',
-        $isPersonalPortal => 'Personal',
-        $isAreaManagerPortal => 'Responsable de área',
-        $isEvaluatorPortal => 'Evaluador',
-        $isHumanResourcesPortal => 'Recursos Humanos',
-        $isQualityPortal => 'Calidad Académica',
-        $isContinuingEducationPortal => 'Educación Continua',
-        default => 'Externo',
-    })
+@php($portal = $portal ?? \App\Support\PortalConfiguration::forUser(auth()->user()))
+@php($isOperationalPortal = auth()->check() && $portal['key'] !== 'unsupported')
+<body class="flex min-h-screen flex-col bg-slate-50 text-slate-900 antialiased">
+    <header class="sticky top-0 z-50 w-full bg-brand-950 text-white shadow-xl shadow-brand-950/10">
+        <div class="mx-auto flex min-h-20 w-full max-w-[100rem] items-center justify-between gap-4 px-4 py-3 sm:min-h-24 sm:px-6">
+            <a class="flex min-w-0 items-center gap-3 sm:gap-4" href="{{ $isOperationalPortal ? route('dashboard') : route('home') }}" aria-label="Ir al inicio">
+                <img
+                    class="h-12 w-auto shrink-0 object-contain sm:h-16"
+                    src="{{ asset('img/LogoUNAQ.webp') }}"
+                    alt="Universidad Aeronáutica en Querétaro"
+                >
+                <span class="hidden h-11 w-px bg-white/20 sm:block"></span>
+                <span class="hidden min-w-0 sm:block">
+                    <span class="block text-xs font-medium leading-5 text-blue-100/75">Plataforma Institucional de Formación y Microcredenciales</span>
+                    <span class="block truncate text-sm font-extrabold text-white">{{ $portal['name'] }}</span>
+                </span>
+            </a>
 
-    <header class="bg-slate-900 px-6 py-4 text-white">
-        <div class="mx-auto flex max-w-7xl items-center justify-between">
-            <div class="flex items-center gap-4">
-                @if($isAcademicPortal)
-                    <img
-                        class="h-14 w-auto object-contain"
-                        src="{{ asset('img/LogoUNAQ.webp') }}"
-                        alt="Logo de la Universidad Aeronáutica en Querétaro"
-                    >
-                @endif
-
-                <div>
-                    <p class="text-xs uppercase tracking-widest text-slate-300">Universidad</p>
-                    <p class="font-semibold">@yield('portal-name', 'Plataforma de Formación')</p>
-                </div>
-            </div>
             @auth
-                @if($isAcademicPortal)
-                    <details class="group relative">
-                        <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl border border-slate-700 px-3 py-2 transition hover:border-blue-500/60 hover:bg-blue-500/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                <details class="group relative">
+                    <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.07] px-2 py-1.5 transition hover:border-white/30 hover:bg-white/15 focus:outline-none focus:ring-4 focus:ring-white/15 sm:gap-3 sm:px-3 sm:py-2">
+                        @if(auth()->user()->avatarFile)
+                            <img class="h-9 w-9 rounded-lg object-cover ring-2 ring-white/20 sm:h-10 sm:w-10 sm:rounded-xl" src="{{ auth()->user()->avatarFile->optimizedImageUrl(120, 120) }}" alt="Fotografía de {{ auth()->user()->name }}">
+                        @else
+                            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-500 text-sm font-extrabold text-white shadow-lg shadow-brand-950/30 sm:h-10 sm:w-10 sm:rounded-xl">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                        @endif
+                        <span class="hidden max-w-44 text-left md:block">
+                            <span class="block truncate text-sm font-bold text-white">{{ auth()->user()->name }}</span>
+                            <span class="block truncate text-xs text-blue-100/70">{{ $portal['role'] }}</span>
+                        </span>
+                        <svg class="h-4 w-4 text-blue-100/70 transition group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                    </summary>
+
+                    <div class="absolute right-0 z-50 mt-3 w-[min(19rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-brand-100 bg-white text-slate-700 shadow-2xl shadow-brand-950/25">
+                        <div class="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-brand-50 to-white px-5 py-4">
                             @if(auth()->user()->avatarFile)
-                                <img class="h-10 w-10 rounded-full object-cover shadow-lg shadow-blue-950/40 ring-2 ring-white/20" src="{{ auth()->user()->avatarFile->optimizedImageUrl(120, 120) }}" alt="Fotografía de {{ auth()->user()->name }}">
+                                <img class="h-12 w-12 shrink-0 rounded-xl object-cover" src="{{ auth()->user()->avatarFile->optimizedImageUrl(144, 144) }}" alt="Fotografía de {{ auth()->user()->name }}">
                             @else
-                                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white shadow-lg shadow-blue-950/40">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-100 font-extrabold text-brand-700">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
                             @endif
-                            <span class="hidden text-left sm:block">
-                                <span class="block text-sm font-semibold text-white">{{ auth()->user()->name }}</span>
-                                <span class="block text-xs text-slate-400">{{ $academicRole }}</span>
-                            </span>
-                            <svg class="h-4 w-4 text-slate-400 transition group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/>
-                            </svg>
-                        </summary>
-
-                        <div class="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xl shadow-slate-950/20">
-                            <div class="flex items-center gap-3 border-b border-slate-100 bg-slate-50 px-5 py-4">
-                                @if(auth()->user()->avatarFile)
-                                    <img class="h-12 w-12 shrink-0 rounded-full object-cover" src="{{ auth()->user()->avatarFile->optimizedImageUrl(144, 144) }}" alt="Fotografía de {{ auth()->user()->name }}">
-                                @else
-                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
-                                @endif
-                                <div class="min-w-0"><p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">Tu perfil</p><p class="mt-1 truncate font-semibold text-slate-900">{{ auth()->user()->name }}</p><p class="truncate text-sm text-slate-500">{{ auth()->user()->email }}</p></div>
+                            <div class="min-w-0">
+                                <p class="truncate font-bold text-slate-900">{{ auth()->user()->name }}</p>
+                                <p class="truncate text-sm text-slate-500">{{ auth()->user()->email }}</p>
+                                <span class="mt-2 inline-flex rounded-full bg-brand-100 px-2.5 py-1 text-xs font-bold text-brand-700">{{ $portal['role'] }}</span>
                             </div>
-
-                            <div class="space-y-3 px-5 py-4 text-sm">
-                                <div class="flex items-center justify-between gap-4">
-                                    <span class="text-slate-500">Rol</span>
-                                    <span class="rounded-full bg-blue-50 px-2.5 py-1 font-semibold text-blue-700">{{ $academicRole }}</span>
-                                </div>
-                                @if($isProfessorPortal)
-                                    <div class="flex items-center justify-between gap-4">
-                                        <span class="text-slate-500">Área</span>
-                                        <span class="truncate font-medium text-slate-700">{{ auth()->user()->area?->name ?? 'Sin área asignada' }}</span>
-                                    </div>
-                                @else
-                                    <div class="flex items-center justify-between gap-4">
-                                        <span class="text-slate-500">Estado</span>
-                                        <span class="font-semibold text-emerald-700">Activo</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            @if($isParticipantPortal)
-                                <div class="border-t border-slate-100 py-1">
-                                    @if($isProfessorPortal)
-                                        <a class="flex items-center justify-center px-4 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-50" href="{{ route('participant.professor.profile') }}">Ver perfil</a>
-                                    @else
-                                        <a class="flex items-center justify-center px-4 py-3 text-sm font-semibold text-violet-700 transition hover:bg-violet-50" href="{{ route('participant.badges.index') }}">Mis insignias</a>
-                                    @endif
-                                </div>
-                            @endif
-
-                            <form class="border-t border-slate-100 p-3" method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button class="flex w-full items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700" type="submit">
-                                    Cerrar sesión
-                                </button>
-                            </form>
                         </div>
-                    </details>
-                @else
-                    <details class="group relative">
-                        <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl border border-slate-700 px-3 py-2 transition hover:border-blue-500/60 hover:bg-blue-500/10">
-                            @if(auth()->user()->avatarFile)
-                                <img class="h-9 w-9 rounded-full object-cover ring-2 ring-white/20" src="{{ auth()->user()->avatarFile->optimizedImageUrl(108, 108) }}" alt="Fotografía de {{ auth()->user()->name }}">
-                            @else
-                                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-bold">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
-                            @endif
-                            <span class="hidden text-left sm:block">
-                                <span class="block text-sm font-semibold">{{ auth()->user()->name }}</span>
-                                <span class="block text-xs text-slate-400">{{ auth()->user()->getRoleNames()->first() }}</span>
-                            </span>
-                            <span class="text-slate-400 transition group-open:rotate-180" aria-hidden="true">⌄</span>
-                        </summary>
-                        <div class="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xl">
-                            <div class="border-b border-slate-100 bg-slate-50 px-5 py-4">
-                                <p class="truncate font-semibold text-slate-900">{{ auth()->user()->name }}</p>
-                                <p class="mt-1 truncate text-sm text-slate-500">{{ auth()->user()->email }}</p>
-                                <span class="mt-3 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{{ auth()->user()->getRoleNames()->first() }}</span>
+
+                        @if(filled($portal['profileRoute'] ?? null))
+                            <div class="border-b border-slate-100 p-2">
+                                <a class="flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-bold text-brand-700 transition hover:bg-brand-50" href="{{ route($portal['profileRoute']) }}">{{ $portal['profileLabel'] }}</a>
                             </div>
-                            <form class="p-3" method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button class="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700" type="submit">
-                                    Cerrar sesión
-                                </button>
-                            </form>
-                        </div>
-                    </details>
-                @endif
+                        @endif
+
+                        <form class="p-3" method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-950 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-100" type="submit">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15"/><path stroke-linecap="round" stroke-linejoin="round" d="m18 15 3-3m0 0-3-3m3 3H9"/></svg>
+                                Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
+                </details>
             @endauth
         </div>
+
+        @if($isOperationalPortal && count($portal['navigation']))
+            <div class="hidden border-t border-white/10 bg-brand-900/70 md:block">
+                <nav class="overflow-x-auto px-4 py-2.5 sm:px-6" aria-label="Navegación principal">
+                    <div class="mx-auto flex w-max min-w-full max-w-[100rem] items-center justify-center gap-1.5">
+                        <x-portal-navigation :items="$portal['navigation']" variant="header" />
+                    </div>
+                </nav>
+            </div>
+        @endif
     </header>
 
-    <div @class([
-        'grid min-h-[calc(100vh-132px)] gap-6 py-6',
-        'mx-auto max-w-7xl px-6 md:grid-cols-[240px_1fr]' => ! $isAcademicPortal,
-        'w-full px-4 md:grid-cols-[260px_1fr]' => $isAcademicPortal,
-    ])>
-        <aside @class([
-            'rounded-xl p-4 shadow-sm',
-            'bg-white' => ! $isAcademicPortal,
-            'border border-slate-200 bg-white p-4 text-slate-700 shadow-lg shadow-slate-200/60' => $isAcademicPortal,
-        ])>
-            <nav class="space-y-2 text-sm">
-                @yield('navigation')
-            </nav>
-        </aside>
+    <div class="relative isolate w-full flex-1 overflow-hidden">
+        <div class="pointer-events-none absolute inset-0 -z-10">
+            <div class="absolute -right-40 top-10 h-96 w-96 rounded-full bg-brand-100/60 blur-3xl"></div>
+            <div class="absolute -left-48 top-80 h-80 w-80 rounded-full bg-blue-100/40 blur-3xl"></div>
+        </div>
 
-        <main>
-            @yield('content')
-        </main>
+        <div class="mx-auto w-full max-w-[100rem] px-4 py-4 sm:px-6 sm:py-7 lg:py-8">
+            @if($isOperationalPortal && count($portal['navigation']))
+                <details class="group mb-4 overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm md:hidden">
+                    <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 font-bold text-brand-950 sm:px-5">
+                        <span class="flex min-w-0 items-center gap-3">
+                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                            </span>
+                            <span class="truncate">Menú · {{ $portal['role'] }}</span>
+                        </span>
+                        <svg class="h-5 w-5 shrink-0 text-brand-600 transition group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                    </summary>
+                    <nav class="max-h-[65vh] space-y-1.5 overflow-y-auto border-t border-slate-100 p-3 text-sm sm:p-4" aria-label="Navegación móvil">
+                        <x-portal-navigation :items="$portal['navigation']" />
+                    </nav>
+                </details>
+            @endif
+
+            <main class="portal-content min-w-0">
+                @yield('content')
+            </main>
+        </div>
     </div>
 
-    <footer class="border-t bg-white px-6 py-4 text-center text-sm text-slate-500">
-        Plataforma Institucional de Formación, Evidencias y Microcredenciales
+    <footer class="mt-auto w-full border-t border-brand-800 bg-brand-950 text-white">
+        <div class="mx-auto flex w-full max-w-[100rem] flex-col items-center justify-between gap-3 px-4 py-5 text-center sm:px-6 md:flex-row md:text-left">
+            <div class="flex items-center gap-3">
+                <img class="h-9 w-auto" src="{{ asset('img/LogoUNAQ.webp') }}" alt="Universidad Aeronáutica en Querétaro">
+                <div>
+                    <p class="text-xs font-bold text-white">Plataforma Institucional de Formación y Microcredenciales</p>
+                    <p class="mt-0.5 text-xs text-blue-100/60">{{ $portal['name'] }}</p>
+                </div>
+            </div>
+            <p class="text-xs text-blue-100/60">© {{ date('Y') }} Universidad Aeronáutica en Querétaro</p>
+        </div>
     </footer>
 </body>
 </html>

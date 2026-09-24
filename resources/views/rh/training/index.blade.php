@@ -1,4 +1,4 @@
-@extends('layouts.rh')
+@extends('layouts.portal')
 
 @section('content')
 <x-portal-page title="Capacitación" description="Oferta interna de formación y seguimiento de participación institucional.">

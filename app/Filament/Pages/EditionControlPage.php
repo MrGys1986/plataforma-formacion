@@ -10,12 +10,14 @@ use App\Filament\Resources\DigitalResourceResource;
 use App\Filament\Resources\EnrollmentResource;
 use App\Filament\Resources\EvaluationResource;
 use App\Filament\Resources\EvidenceResource;
+use App\Filament\Resources\SurveyResponseResource;
 use App\Models\Activity;
 use App\Models\AttendanceRecord;
 use App\Models\DigitalResource;
+use App\Models\SurveyResponse;
 use Filament\Actions\Action;
-use Filament\Panel;
 use Filament\Pages\Page;
+use Filament\Panel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Gate;
 
@@ -108,6 +110,13 @@ class EditionControlPage extends Page
                     'count' => $this->record->evaluations()->count(),
                     'url' => EvaluationResource::getUrl(parameters: ['activity' => $this->record->id]),
                     'icon' => Heroicon::OutlinedAcademicCap,
+                ],
+                [
+                    'title' => 'Encuesta de satisfacción',
+                    'description' => 'Respuestas y seguimiento de satisfacción de este curso.',
+                    'count' => SurveyResponse::query()->where('activity_id', $this->record->id)->count(),
+                    'url' => SurveyResponseResource::getUrl(parameters: ['activity' => $this->record->id]),
+                    'icon' => Heroicon::OutlinedChatBubbleLeftRight,
                 ],
                 [
                     'title' => 'Archivos',

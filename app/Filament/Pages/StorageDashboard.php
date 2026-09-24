@@ -7,9 +7,16 @@ use App\Models\FileUpload;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
-class StorageDashboard extends Page
+class StorageDashboard extends Page implements HasTable
 {
+    use InteractsWithTable;
+
     protected static ?int $navigationSort = 20;
     protected static ?string $cluster = ResourceManagementCluster::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCircleStack;
@@ -21,6 +28,64 @@ class StorageDashboard extends Page
     public static function canAccess(): bool
     {
         return auth()->user()?->hasAnyRole(['Superadministrador', 'Calidad Academica']) ?? false;
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->query(FileUpload::query()->with('uploadedBy'))
+            ->columns([
+                TextColumn::make('original_name')
+                    ->label('Archivo')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('semibold'),
+                TextColumn::make('disk')
+                    ->label('Ubicación')
+                    ->badge()
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('mime_type')
+                    ->label('Tipo')
+                    ->placeholder('Sin tipo')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('uploadedBy.name')
+                    ->label('Usuario')
+                    ->placeholder('Sistema')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Fecha')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
+            ])
+            ->filters([
+                SelectFilter::make('disk')
+                    ->label('Ubicación')
+                    ->options(fn (): array => FileUpload::query()
+                        ->whereNotNull('disk')
+                        ->distinct()
+                        ->orderBy('disk')
+                        ->pluck('disk', 'disk')
+                        ->all()),
+                SelectFilter::make('mime_type')
+                    ->label('Tipo de archivo')
+                    ->options(fn (): array => FileUpload::query()
+                        ->whereNotNull('mime_type')
+                        ->distinct()
+                        ->orderBy('mime_type')
+                        ->pluck('mime_type', 'mime_type')
+                        ->all()),
+            ])
+            ->deferFilters(false)
+            ->defaultSort('created_at', 'desc')
+            ->searchDebounce('400ms')
+            ->searchPlaceholder('Buscar archivo, ubicación, tipo o usuario')
+            ->paginationPageOptions([10, 25, 50, 100])
+            ->persistSearchInSession()
+            ->persistFiltersInSession()
+            ->extraAttributes(['class' => 'pf-management-table']);
     }
 
     protected function getViewData(): array
@@ -40,7 +105,6 @@ class StorageDashboard extends Page
                 'En retención' => FileUpload::onlyTrashed()->count(),
             ],
             'byType' => (clone $active)->selectRaw("COALESCE(mime_type, 'Sin tipo') as type, COUNT(*) as total, COALESCE(SUM(size), 0) as bytes")->groupBy('mime_type')->orderByDesc('total')->get(),
-            'recent' => (clone $active)->with('uploadedBy')->latest()->limit(10)->get(),
             'orphans' => $orphans->take(10),
         ];
     }

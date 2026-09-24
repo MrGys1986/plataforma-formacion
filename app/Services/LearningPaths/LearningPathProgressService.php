@@ -7,21 +7,22 @@ use App\Models\LearningPath;
 use App\Models\User;
 use App\Models\UserLearningPath;
 use App\Services\Microcredentials\LearningPathBadgeService;
+use App\Services\Training\TrainingProgramOperationService;
+use Illuminate\Support\Collection;
 
 class LearningPathProgressService
 {
     public function calculateProgress(User $user, LearningPath $learningPath): float
     {
-        $requiredItems = $learningPath->items()
-            ->where('is_required', true)
-            ->get(['activity_id', 'minimum_score']);
+        $requiredItems = $this->itemsFor($learningPath)
+            ->where('is_required', true);
 
         if ($requiredItems->isEmpty()) {
             return 0.0;
         }
 
         $enrollments = $user->enrollments()
-            ->whereIn('activity_id', $requiredItems->pluck('activity_id'))
+            ->whereIn('activity_id', $requiredItems->pluck('activity_id')->filter())
             ->where('completion_status', 'completado')
             ->get()
             ->keyBy('activity_id');
@@ -59,9 +60,11 @@ class LearningPathProgressService
 
     public function synchronizeAssignment(UserLearningPath $assignment): UserLearningPath
     {
-        $assignment->loadMissing(['user', 'learningPath.items']);
+        $assignment->loadMissing(['user', 'learningPath']);
 
-        foreach ($assignment->learningPath->items as $item) {
+        $items = $this->itemsFor($assignment->learningPath, ensureActivities: true);
+
+        foreach ($items->whereNotNull('activity_id') as $item) {
             Enrollment::firstOrCreate(
                 [
                     'user_id' => $assignment->user_id,
@@ -94,5 +97,60 @@ class LearningPathProgressService
         app(LearningPathBadgeService::class)->issueIfCompleted($assignment);
 
         return $assignment;
+    }
+
+    /**
+     * Returns both the current program-based structure and any legacy activities
+     * that have not yet been associated with a program.
+     *
+     * @return Collection<int, object>
+     */
+    public function itemsFor(LearningPath $learningPath, bool $ensureActivities = false): Collection
+    {
+        $learningPath->loadMissing([
+            'trainingPrograms.activityType',
+            'trainingPrograms.activities',
+            'items.activity.activityType',
+            'items.activity.trainingProgram',
+        ]);
+
+        $programIds = $learningPath->trainingPrograms->pluck('id');
+
+        $programItems = $learningPath->trainingPrograms
+            ->map(function ($program) use ($ensureActivities): object {
+                $activity = $ensureActivities
+                    ? app(TrainingProgramOperationService::class)->resolve($program)
+                    : $program->activities->sortByDesc('id')->first();
+
+                if ($activity && $ensureActivities && ! $program->activities->contains('id', $activity->id)) {
+                    $program->setRelation('activities', $program->activities->push($activity));
+                }
+
+                return (object) [
+                    'activity_id' => $activity?->id,
+                    'activity' => $activity,
+                    'trainingProgram' => $program,
+                    'order_number' => (int) $program->pivot->order_number,
+                    'is_required' => (bool) $program->pivot->is_required,
+                    'minimum_score' => $program->pivot->minimum_score,
+                ];
+            });
+
+        $legacyItems = $learningPath->items
+            ->reject(fn ($item): bool => $item->activity?->training_program_id
+                && $programIds->contains($item->activity->training_program_id))
+            ->map(fn ($item): object => (object) [
+                'activity_id' => $item->activity_id,
+                'activity' => $item->activity,
+                'trainingProgram' => $item->activity?->trainingProgram,
+                'order_number' => (int) $item->order_number,
+                'is_required' => (bool) $item->is_required,
+                'minimum_score' => $item->minimum_score,
+            ]);
+
+        return $programItems
+            ->concat($legacyItems)
+            ->sortBy('order_number')
+            ->values();
     }
 }

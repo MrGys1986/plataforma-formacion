@@ -28,9 +28,28 @@ class LoginRedirectTest extends TestCase
                 'email' => 'profesor@prueba.mx',
                 'password' => '12345678',
             ])
-            ->assertRedirect(route('participant.dashboard'));
+            ->assertRedirect(route('dashboard'));
 
         $this->assertAuthenticatedAs($professor);
         $this->assertNull(session('url.intended'));
+    }
+
+    public function test_an_administrative_role_is_sent_directly_to_filament_after_login(): void
+    {
+        Role::findOrCreate('Recursos Humanos');
+
+        $administrator = User::factory()->create([
+            'email' => 'rh@prueba.mx',
+            'password' => Hash::make('12345678'),
+            'status' => 'activo',
+        ]);
+        $administrator->assignRole('Recursos Humanos');
+
+        $this->post(route('login.store'), [
+            'email' => 'rh@prueba.mx',
+            'password' => '12345678',
+        ])->assertRedirect(route('filament.admin.pages.dashboard'));
+
+        $this->assertAuthenticatedAs($administrator);
     }
 }

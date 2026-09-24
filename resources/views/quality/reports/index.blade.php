@@ -1,4 +1,4 @@
-@extends('layouts.quality')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Reportes de calidad" description="Concentrado institucional para consulta y preparación de informes.">
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><x-quality-stat label="Evidencias" :value="$evidences['total']" detail="Expedientes registrados"/><x-quality-stat label="Validadas" :value="$evidences['validadas']" detail="Listas para reporte" tone="emerald"/><x-quality-stat label="Pendientes" :value="$evidences['pendientes']" detail="En proceso de revisión" tone="amber"/><x-quality-stat label="Constancias" :value="$certificates['total']" detail="Resultados documentados" tone="slate"/></div>

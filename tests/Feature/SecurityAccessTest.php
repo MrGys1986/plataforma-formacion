@@ -53,7 +53,10 @@ class SecurityAccessTest extends TestCase
         $this->assertNotNull($activity->public_id);
         $this->assertSame('public_id', $activity->getRouteKeyName());
         $this->assertStringContainsString($activity->public_id, route('participant.catalog.show', $activity));
-        $this->assertStringNotContainsString('/'.$activity->id, route('participant.catalog.show', $activity));
+        $this->assertSame(
+            $activity->public_id,
+            basename((string) parse_url(route('participant.catalog.show', $activity), PHP_URL_PATH)),
+        );
     }
 
     public function test_participant_cannot_view_other_users_certificate_or_evidence(): void

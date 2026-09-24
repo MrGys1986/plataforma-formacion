@@ -1,4 +1,4 @@
-@extends('layouts.quality')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Acreditación CACEI" description="Seguimiento de categorías, indicadores y evidencias para el proceso de acreditación.">
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><x-quality-stat label="Avance global" value="78%" detail="Corte: agosto 2026" tone="emerald"/><x-quality-stat label="Indicadores" value="36 / 44" detail="Con evidencia vinculada"/><x-quality-stat label="Por atender" value="8" detail="Indicadores incompletos" tone="amber"/><x-quality-stat label="Próxima revisión" value="28 ago" detail="Comité de acreditación" tone="slate"/></div>

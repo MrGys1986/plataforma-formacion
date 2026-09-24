@@ -30,8 +30,8 @@ class AttendanceRecordResource extends InstitutionalResource
             'searchable' => true,
         ],
         [
-            'name' => 'activity.name',
-            'label' => 'Actividad',
+            'name' => 'activity.trainingProgram.name',
+            'label' => 'Programa de formación',
         ],
         [
             'name' => 'session_date',
@@ -66,14 +66,22 @@ class AttendanceRecordResource extends InstitutionalResource
                 'relationship' => 'enrollment',
                 'title' => 'id',
                 'required' => true,
-                'modify_query_using' => fn (Builder $query): Builder => request()->filled('activity')
-                    ? $query->where('activity_id', request()->integer('activity'))
-                    : $query,
+                'modify_query_using' => fn (Builder $query): Builder => request()->filled('training_program')
+                    ? $query->whereHas(
+                        'activity',
+                        fn (Builder $activity): Builder => $activity->where(
+                            'training_program_id',
+                            request()->integer('training_program'),
+                        ),
+                    )
+                    : (request()->filled('activity')
+                        ? $query->where('activity_id', request()->integer('activity'))
+                        : $query),
             ],
             [
                 'name' => 'activity_id',
-                'label' => 'Actividad',
-                'type' => 'relation',
+                'label' => 'Programa de formación',
+                'type' => request()->filled('training_program') ? 'hidden' : 'relation',
                 'relationship' => 'activity',
                 'required' => true,
                 'default' => fn (): ?int => request()->filled('activity')
@@ -110,6 +118,16 @@ class AttendanceRecordResource extends InstitutionalResource
 
     protected static function applyContextToQuery(Builder $query): Builder
     {
+        if (request()->filled('training_program')) {
+            return $query->whereHas(
+                'activity',
+                fn (Builder $activity): Builder => $activity->where(
+                    'training_program_id',
+                    request()->integer('training_program'),
+                ),
+            );
+        }
+
         if (! request()->filled('activity')) {
             return $query;
         }

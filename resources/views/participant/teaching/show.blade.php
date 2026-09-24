@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="$activity->name" description="Seguimiento, evaluación y constancias de los participantes inscritos.">
@@ -14,13 +14,10 @@
             </div>
         @endif
 
-        <form class="mb-6 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row" method="GET">
+        <form class="mb-6 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-end" method="GET" data-auto-filter>
             <label class="sr-only" for="student-search">Buscar alumno</label>
             <input class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500" id="student-search" name="q" value="{{ $search }}" placeholder="Buscar alumno por nombre o correo…">
-            <button class="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-600" type="submit">Buscar</button>
-            @if($search !== '')
-                <a class="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-center text-sm font-semibold text-slate-700 hover:bg-slate-100" href="{{ route('participant.professor.teaching.show', $activity) }}">Limpiar</a>
-            @endif
+            <x-auto-filter-actions :reset-url="route('participant.professor.teaching.show', $activity)" :active="$search !== ''" />
         </form>
 
         <section class="mb-8">

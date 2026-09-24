@@ -1,4 +1,4 @@
-@extends('layouts.quality')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page title="Evaluaciones" description="Seguimiento de instrumentos, aplicaciones y resultados académicos.">

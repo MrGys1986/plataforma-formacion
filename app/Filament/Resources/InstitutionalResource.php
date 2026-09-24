@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\FileUpload as ManagedFile;
+use App\Services\Files\ManagedFileService;
 use BackedEnum;
 use Closure;
 use Filament\Actions\Action;
@@ -12,6 +14,7 @@ use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -30,8 +33,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use App\Models\FileUpload as ManagedFile;
-use App\Services\Files\ManagedFileService;
 
 abstract class InstitutionalResource extends Resource
 {
@@ -86,8 +87,14 @@ abstract class InstitutionalResource extends Resource
             $table
                 ->columns(array_map(static::makeTableColumn(...), static::getTableColumns()))
                 ->filters($filters)
+                ->deferFilters(false)
                 ->recordActions($recordActions)
-                ->toolbarActions([]),
+                ->toolbarActions([])
+                ->searchDebounce('400ms')
+                ->paginationPageOptions([10, 25, 50, 100])
+                ->persistSearchInSession()
+                ->persistFiltersInSession()
+                ->extraAttributes(['class' => 'pf-management-table']),
         );
     }
 
@@ -171,6 +178,7 @@ abstract class InstitutionalResource extends Resource
                         app(ManagedFileService::class)->scheduleDeletion($managed);
                     }
                 }),
+            'hidden' => Hidden::make($name),
             'json' => KeyValue::make($name),
             'number' => TextInput::make($name)->numeric(),
             'password' => TextInput::make($name)

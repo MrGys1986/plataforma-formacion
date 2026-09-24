@@ -1,4 +1,4 @@
-# Plataforma Institucional de Formación, Evidencias y Microcredenciales
+# Plataforma Institucional de Formación y Microcredenciales
 
 Aplicación web institucional para administrar formación interna y externa, rutas de aprendizaje, inscripciones, evidencias, evaluaciones, encuestas, constancias, microcredenciales, webinars, recursos digitales, pagos y reportes de auditoría.
 
@@ -37,6 +37,18 @@ Centralizar la gestión del ciclo completo de formación institucional:
 8. Administración de oferta externa, participantes y pagos.
 9. Consulta de indicadores para Recursos Humanos, Calidad Académica y responsables de área.
 10. Auditoría de acciones críticas.
+
+### Flujo administrativo escalonado
+
+La administración de la formación sigue una jerarquía dentro del panel Filament. Primero se selecciona el programa y después una actividad o edición. La página de control de la edición concentra sus inscripciones, asistencia, evidencias, evaluaciones, archivos y constancias:
+
+1. **Programa de formación:** define el tipo (curso, minicurso o taller), área, modalidad, duración y reglas generales.
+2. **Actividad o edición:** se crea a partir de un programa y hereda su configuración; agrega fechas, responsable, cupo, horario y enlace de Google Classroom.
+3. **Participantes:** concentra inscripciones, aprobación, asistencia, avance y calificación final.
+4. **Seguimiento documental:** reúne evidencias personales y permite adjuntar listas de asistencia o evidencias administrativas al expediente de la actividad.
+5. **Constancia:** solo puede emitirse cuando la inscripción se encuentra marcada como completada y la actividad está configurada para generar constancia.
+
+Los roles administrativos ingresan a `/admin`; la navegación, las tablas, los filtros y las acciones se resuelven con componentes nativos de Filament y se ajustan a sus Policies. Los perfiles de aprendizaje —Profesor, Alumno y Externo— permanecen en `/dashboard` con su portal orientado a cursos.
 
 ## Estado actual
 
@@ -298,6 +310,14 @@ Su configuración principal se encuentra en:
 app/Providers/Filament/AdminPanelProvider.php
 ```
 
+El diseño global del panel se concentra en un único tema compilado por Vite:
+
+```text
+resources/css/filament/admin/theme.css
+```
+
+Las personalizaciones generales de tipografía, navegación, tablas, formularios, botones y responsividad deben realizarse en ese tema para mantener consistencia entre todos los Resources y Pages de Filament.
+
 Los recursos están agrupados en Clusters:
 
 | Cluster | Propósito |
@@ -538,14 +558,22 @@ Los seeders crean:
 - Áreas iniciales.
 - Tipos de actividad.
 - Encuesta general de satisfacción.
-- Usuario de administración para desarrollo.
+- Una cuenta activa de desarrollo por cada rol de la plataforma.
 
-Credenciales iniciales de desarrollo:
+Todas las cuentas de desarrollo usan la contraseña `Formacion2026!`:
 
-```text
-Correo: test@example.com
-Contraseña: password
-```
+| Rol | Correo | Acceso inicial |
+| --- | --- | --- |
+| Superadministrador | `admin@formacion.test` | `/admin` |
+| Recursos Humanos | `rh@formacion.test` | `/admin` |
+| Calidad Académica | `calidad@formacion.test` | `/admin` |
+| Educación Continua | `educacion.continua@formacion.test` | `/admin` |
+| Personal | `personal@formacion.test` | `/admin` |
+| Evaluador | `evaluador@formacion.test` | `/admin` |
+| Profesor | `profesor@formacion.test` | `/dashboard` |
+| Alumno | `alumno@formacion.test` | `/dashboard` |
+| Externo | `externo@formacion.test` | `/dashboard` |
+| Responsable de Área | `responsable.area@formacion.test` | `/admin` |
 
 Estas credenciales deben cambiarse o eliminarse antes de publicar el sistema.
 
@@ -637,7 +665,7 @@ php artisan queue:work
 Variables principales:
 
 ```dotenv
-APP_NAME="Plataforma Institucional de Formación"
+APP_NAME="Plataforma Institucional de Formación y Microcredenciales"
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost
@@ -662,28 +690,9 @@ APP_DEBUG=false
 SESSION_SECURE_COOKIE=true
 ```
 
-### Configuración de Google OAuth
+### Acceso con Google
 
-Crear un cliente OAuth 2.0 de tipo aplicación web en Google Cloud Console y registrar como URI de redirección:
-
-```text
-http://127.0.0.1:8000/auth/google/callback
-```
-
-En producción debe utilizarse la URL HTTPS real. Configurar:
-
-```dotenv
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI="${APP_URL}/auth/google/callback"
-```
-
-El registro de participantes externos:
-
-- Sólo utiliza Google.
-- Exige un correo verificado terminado en `@gmail.com`.
-- Rechaza cuentas institucionales y Google Workspace.
-- Asigna automáticamente `user_type=externo`, `profile_type=externo` y rol `Externo`.
+El inicio de sesión y el registro externo mediante Google se encuentran desactivados temporalmente. Las cuentas de todos los roles se dan de alta desde la plataforma y pueden entrar con correo electrónico y contraseña.
 
 ### Configuración de Microsoft OAuth
 
@@ -704,7 +713,7 @@ MICROSOFT_TENANT_ID=organizations
 
 `organizations` limita el acceso a cuentas de trabajo o escuela. Para restringir el sistema a una sola institución, sustituirlo por el ID del tenant de Microsoft Entra.
 
-Microsoft y Google no crean cuentas institucionales automáticamente: sólo permiten entrar a usuarios previamente registrados y vinculan el identificador del proveedor después de validar el correo.
+Microsoft no crea cuentas institucionales automáticamente: sólo permite entrar a usuarios previamente registrados y vincula el identificador del proveedor después de validar el correo.
 
 ## Pruebas y calidad
 

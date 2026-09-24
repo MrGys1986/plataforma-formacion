@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page title="Mis pagos" description="Consulta tus pagos, comprobantes y el estado de validación de cada movimiento.">

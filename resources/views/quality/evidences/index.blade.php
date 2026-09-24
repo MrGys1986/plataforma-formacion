@@ -1,23 +1,17 @@
-@extends('layouts.quality')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page title="Evidencias" description="Expedientes académicos y avance de su proceso de validación.">
         @php
-            $pagePending = $evidences->getCollection()->where('status', 'pendiente')->count();
-            $pageValidated = $evidences->getCollection()->where('status', 'validada')->count();
-            $pageRejected = $evidences->getCollection()->where('status', 'rechazada')->count();
+            $pagePending = $evidences->where('status', 'pendiente')->count();
+            $pageValidated = $evidences->where('status', 'validada')->count();
+            $pageRejected = $evidences->where('status', 'rechazada')->count();
         @endphp
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <x-quality-stat label="Total de evidencias" :value="$evidences->total()" detail="Expedientes visibles" />
+            <x-quality-stat label="Total de evidencias" :value="$evidences->count()" detail="Expedientes visibles" />
             <x-quality-stat label="Pendientes" :value="$pagePending" detail="En esta página" tone="amber" />
             <x-quality-stat label="Validadas" :value="$pageValidated" detail="En esta página" tone="emerald" />
             <x-quality-stat label="Con observaciones" :value="$pageRejected" detail="En esta página" tone="rose" />
-        </div>
-
-        <div class="mt-6 flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-center">
-            <label class="flex-1"><span class="sr-only">Buscar evidencia</span><input class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm" placeholder="Buscar por participante, actividad o evidencia" type="search"></label>
-            <select class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm" aria-label="Filtrar por estado"><option>Todos los estados</option><option>Pendiente</option><option>Validada</option><option>Rechazada</option></select>
-            <button class="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white" type="button">Aplicar filtros</button>
         </div>
 
         <div class="mt-5 overflow-hidden rounded-xl border border-slate-200">
@@ -34,6 +28,5 @@
                 </table>
             </div>
         </div>
-        @if($evidences->hasPages())<div class="mt-6">{{ $evidences->links() }}</div>@endif
     </x-portal-page>
 @endsection

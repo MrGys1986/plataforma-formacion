@@ -3,15 +3,27 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Clusters\LearningPathManagement\LearningPathManagementCluster;
+use App\Filament\Pages\LearningPathControlPage;
+use App\Filament\Resources\LearningPathResource\Pages\EditLearningPath;
 use App\Filament\Resources\LearningPathResource\Pages\ManageLearningPaths;
+use App\Filament\Resources\LearningPathResource\RelationManagers\CompetencyDefinitionsRelationManager;
+use App\Filament\Resources\LearningPathResource\RelationManagers\TrainingProgramsRelationManager;
+use App\Filament\Resources\LearningPathResource\RelationManagers\UserLearningPathsRelationManager;
 use App\Models\LearningPath;
-use Filament\Forms\Components\Repeater;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
@@ -31,206 +43,222 @@ class LearningPathResource extends InstitutionalResource
 
     protected static bool $softDeletes = true;
 
-    protected static array $formFields = [
-        0 => [
-            'name' => 'area_id',
-            'label' => 'Área',
-            'type' => 'relation',
-            'relationship' => 'area',
-        ],
-        1 => [
-            'name' => 'name',
-            'label' => 'Nombre',
-            'required' => true,
-        ],
-        2 => [
-            'name' => 'slug',
-            'label' => 'Identificador',
-            'required' => true,
-        ],
-        3 => [
-            'name' => 'description',
-            'label' => 'Descripción',
-            'type' => 'textarea',
-        ],
-        4 => [
-            'name' => 'total_hours',
-            'label' => 'Total de horas',
-            'type' => 'number',
-        ],
-        5 => [
-            'name' => 'competencyDefinitions',
-            'label' => 'Competencias de la ruta',
-            'type' => 'relation',
-            'relationship' => 'competencyDefinitions',
-            'multiple' => true,
-        ],
-        6 => [
-            'name' => 'status',
-            'label' => 'Estado',
-            'type' => 'select',
-            'options' => [
-                'borrador' => 'Borrador',
-                'publicada' => 'Publicada',
-                'inactiva' => 'Inactiva',
-                'archivada' => 'Archivada',
-            ],
-        ],
-    ];
+    protected static array $formFields = [];
 
-    protected static array $tableColumns = [
-        0 => [
-            'name' => 'name',
-            'label' => 'Nombre',
-            'searchable' => true,
-        ],
-        1 => [
-            'name' => 'area.name',
-            'label' => 'Área',
-        ],
-        2 => [
-            'name' => 'total_hours',
-            'label' => 'Horas',
-        ],
-        3 => [
-            'name' => 'competency_definitions_count',
-            'label' => 'Competencias',
-        ],
-        4 => [
-            'name' => 'status',
-            'label' => 'Estado',
-        ],
-    ];
-
-    protected static ?string $statusColumn = 'status';
-
-    protected static bool $readOnly = false;
+    protected static array $tableColumns = [];
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
-            Section::make('Información general')
-                ->schema([
-                    Select::make('area_id')
-                        ->label('Área')
-                        ->relationship('area', 'name')
-                        ->searchable()
-                        ->preload(),
-                    TextInput::make('name')
-                        ->label('Nombre')
-                        ->required()
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
-                    TextInput::make('slug')
-                        ->label('Identificador')
-                        ->required()
-                        ->unique(ignoreRecord: true),
-                    Select::make('status')
-                        ->label('Estado')
-                        ->options([
-                            'borrador' => 'Borrador',
-                            'publicada' => 'Publicada',
-                            'inactiva' => 'Inactiva',
-                            'archivada' => 'Archivada',
-                        ])
-                        ->default('borrador')
-                        ->required(),
-                    Textarea::make('description')
-                        ->label('Descripción')
-                        ->columnSpanFull(),
-                    Textarea::make('objective')
-                        ->label('Objetivo')
-                        ->columnSpanFull(),
-                    Textarea::make('target_audience')
-                        ->label('Dirigido a')
-                        ->columnSpanFull(),
-                    TextInput::make('total_hours')
-                        ->label('Total de horas')
-                        ->numeric()
-                        ->default(0),
-                    Toggle::make('is_sequential')
-                        ->label('Exigir el orden de las actividades'),
-                    Toggle::make('generates_diploma')
-                        ->label('Genera diploma')
-                        ->default(true),
-                    Toggle::make('generates_microcredential')
-                        ->label('Genera microcredencial'),
-                ])
-                ->columns(2),
-            Section::make('Actividades de la ruta')
-                ->description('Arrastra las actividades para definir el orden de avance.')
-                ->schema([
-                    Repeater::make('items')
-                        ->label('Actividades')
-                        ->relationship()
-                        ->schema([
-                            Select::make('activity_id')
-                                ->label('Actividad')
-                                ->relationship('activity', 'name')
-                                ->searchable()
-                                ->preload()
-                                ->required()
-                                ->distinct(),
-                            Toggle::make('is_required')
-                                ->label('Obligatoria')
-                                ->default(true),
-                            TextInput::make('minimum_score')
-                                ->label('Calificación mínima')
-                                ->numeric()
-                                ->minValue(0)
-                                ->maxValue(100),
-                        ])
-                        ->orderColumn('order_number')
-                        ->reorderable()
-                        ->columns(3)
-                        ->columnSpanFull(),
-                ]),
-            Section::make('Participantes asignados')
-                ->description('Al asignar una persona se crean automáticamente sus inscripciones a las actividades.')
-                ->schema([
-                    Repeater::make('userLearningPaths')
-                        ->label('Participantes')
-                        ->relationship()
-                        ->schema([
-                            Select::make('user_id')
-                                ->label('Participante')
-                                ->relationship('user', 'name')
-                                ->searchable(['name', 'email'])
-                                ->preload()
-                                ->required()
-                                ->distinct(),
-                            Select::make('status')
-                                ->label('Estado')
-                                ->options([
-                                    'no_iniciada' => 'No iniciada',
-                                    'en_progreso' => 'En progreso',
-                                    'completada' => 'Completada',
-                                ])
-                                ->default('no_iniciada')
-                                ->disabled()
-                                ->dehydrated(),
-                            TextInput::make('progress_percentage')
-                                ->label('Avance (%)')
-                                ->numeric()
-                                ->default(0)
-                                ->disabled()
-                                ->dehydrated(),
-                        ])
-                        ->columns(3)
-                        ->columnSpanFull(),
-                ]),
-        ]);
+        return $schema
+            ->components([
+                Section::make('Información de la ruta')
+                    ->description('Define el tipo de reconocimiento, el alcance y la forma de avance.')
+                    ->icon(Heroicon::OutlinedMap)
+                    ->schema([
+                        Select::make('path_type')
+                            ->label('Tipo de ruta')
+                            ->options([
+                                'certificacion' => 'Certificación',
+                                'diplomado' => 'Diplomado',
+                                'microcredencial' => 'Microcredencial',
+                            ])
+                            ->default('certificacion')
+                            ->native(false)
+                            ->required(),
+                        Select::make('area_id')
+                            ->label('Área responsable')
+                            ->relationship('area', 'name')
+                            ->searchable()
+                            ->preload(),
+                        TextInput::make('name')
+                            ->label('Nombre')
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
+                        TextInput::make('slug')
+                            ->label('Identificador')
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                        Select::make('status')
+                            ->label('Estado')
+                            ->options([
+                                'borrador' => 'Borrador',
+                                'publicada' => 'Publicada',
+                                'inactiva' => 'Inactiva',
+                                'archivada' => 'Archivada',
+                            ])
+                            ->default('borrador')
+                            ->native(false)
+                            ->required(),
+                        TextInput::make('total_hours')
+                            ->label('Total de horas')
+                            ->numeric()
+                            ->minValue(0)
+                            ->default(0),
+                        Textarea::make('description')
+                            ->label('Descripción')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Textarea::make('objective')
+                            ->label('Objetivo')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Textarea::make('target_audience')
+                            ->label('Dirigido a')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Toggle::make('is_sequential')
+                            ->label('Avance secuencial')
+                            ->helperText('Los programas deberán completarse en el orden establecido.'),
+                    ])
+                    ->columns([
+                        'default' => 1,
+                        'md' => 2,
+                    ]),
+            ]);
     }
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->withCount('competencyDefinitions');
+        return parent::getEloquentQuery()
+            ->withCount(['competencyDefinitions', 'trainingPrograms', 'userLearningPaths']);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            CompetencyDefinitionsRelationManager::class,
+            TrainingProgramsRelationManager::class,
+            UserLearningPathsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ManageLearningPaths::route('/'),
+            'edit' => EditLearningPath::route('/{record}/editar'),
+        ];
+    }
+
+    protected static function modifyTable(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->label('Ruta de aprendizaje')
+                    ->icon(Heroicon::OutlinedMap)
+                    ->weight('semibold')
+                    ->searchable()
+                    ->sortable()
+                    ->wrap(),
+                TextColumn::make('path_type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'certificacion' => 'Certificación',
+                        'diplomado' => 'Diplomado',
+                        'microcredencial' => 'Microcredencial',
+                        default => 'Sin definir',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'certificacion' => 'info',
+                        'diplomado' => 'warning',
+                        'microcredencial' => 'success',
+                        default => 'gray',
+                    }),
+                TextColumn::make('competency_definitions_count')
+                    ->label('Competencias')
+                    ->badge()
+                    ->color('gray'),
+                TextColumn::make('training_programs_count')
+                    ->label('Programas')
+                    ->badge()
+                    ->color('primary'),
+                TextColumn::make('total_hours')
+                    ->label('Duración')
+                    ->suffix(' h')
+                    ->numeric(decimalPlaces: 0)
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => ucfirst($state ?: 'Sin definir'))
+                    ->color(fn (?string $state): string => match ($state) {
+                        'publicada' => 'success',
+                        'borrador' => 'warning',
+                        'inactiva', 'archivada' => 'danger',
+                        default => 'gray',
+                    }),
+            ])
+            ->heading(view('filament.partials.table-heading', [
+                'icon' => Heroicon::OutlinedMap,
+                'label' => 'Rutas de aprendizaje',
+            ]))
+            ->description('Construye certificaciones, diplomados y microcredenciales con competencias y programas reutilizables.')
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Nueva ruta')
+                    ->icon(Heroicon::OutlinedPlus)
+                    ->modalHeading('Crear ruta de aprendizaje')
+                    ->modalDescription('Registra primero la información general; después podrás añadir competencias y programas.')
+                    ->modalIcon(Heroicon::OutlinedMap)
+                    ->modalWidth(Width::FiveExtraLarge)
+                    ->modalSubmitActionLabel('Guardar')
+                    ->createAnother(false)
+                    ->successNotificationTitle('Ruta creada correctamente'),
+            ])
+            ->filters([
+                SelectFilter::make('path_type')
+                    ->label('Tipo de ruta')
+                    ->placeholder('Todos los tipos')
+                    ->options([
+                        'certificacion' => 'Certificación',
+                        'diplomado' => 'Diplomado',
+                        'microcredencial' => 'Microcredencial',
+                    ]),
+                SelectFilter::make('area_id')
+                    ->label('Área responsable')
+                    ->placeholder('Todas las áreas')
+                    ->relationship('area', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->placeholder('Todos los estados')
+                    ->options([
+                        'borrador' => 'Borrador',
+                        'publicada' => 'Publicada',
+                        'inactiva' => 'Inactiva',
+                        'archivada' => 'Archivada',
+                    ]),
+            ], FiltersLayout::AboveContent)
+            ->filtersFormColumns([
+                'default' => 1,
+                'md' => 3,
+            ])
+            ->deferFilters(false)
+            ->searchPlaceholder('Buscar ruta de aprendizaje')
+            ->defaultPaginationPageOption(25)
+            ->persistSearchInSession(false)
+            ->persistFiltersInSession(false)
+            ->emptyStateIcon(Heroicon::OutlinedMap)
+            ->emptyStateHeading('No se encontraron rutas')
+            ->emptyStateDescription('Ajusta los filtros o registra la primera ruta de aprendizaje.')
+            ->extraAttributes(['class' => 'pf-management-table pf-learning-path-table']);
+    }
+
+    protected static function getTableRecordActions(): array
+    {
+        return [
+            Action::make('administrar')
+                ->label('Administrar')
+                ->icon(Heroicon::OutlinedArrowRight)
+                ->button()
+                ->color('primary')
+                ->url(fn (LearningPath $record): string => LearningPathControlPage::getUrl([
+                    'record' => $record->getKey(),
+                ])),
         ];
     }
 }

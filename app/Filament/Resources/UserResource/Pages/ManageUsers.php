@@ -2,28 +2,30 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
-use App\Filament\Clusters\UserManagement\UserManagementCluster;
 use App\Filament\Resources\UserResource;
-use Filament\Actions\CreateAction;
-use Filament\Navigation\NavigationItem;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ManageUsers extends ManageRecords
 {
     protected static string $resource = UserResource::class;
 
-    protected function getHeaderActions(): array
+    public function getHeading(): string|Htmlable|null
     {
-        return [
-            CreateAction::make(),
-        ];
+        return view('filament.partials.resource-heading', [
+            'icon' => Heroicon::OutlinedUsers,
+            'label' => 'Usuarios',
+        ]);
     }
 
-    /**
-     * @return array<NavigationItem>
-     */
-    public function getSubNavigation(): array
+    public function getSubheading(): string|Htmlable|null
     {
-        return UserManagementCluster::appendRoleNavigationItems(parent::getSubNavigation());
+        return 'Administra cuentas, roles, perfiles y adscripción institucional desde un solo lugar.';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [];
     }
 }

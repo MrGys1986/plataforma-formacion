@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class DiplomaProgramResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 4;
 
     protected static ?string $model = DiplomaProgram::class;

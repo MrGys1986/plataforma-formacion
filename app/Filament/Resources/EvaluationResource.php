@@ -30,8 +30,8 @@ class EvaluationResource extends InstitutionalResource
             'searchable' => true,
         ],
         [
-            'name' => 'activity.name',
-            'label' => 'Actividad',
+            'name' => 'activity.trainingProgram.name',
+            'label' => 'Programa de formación',
         ],
         [
             'name' => 'evaluation_type',
@@ -59,8 +59,8 @@ class EvaluationResource extends InstitutionalResource
         return [
             [
                 'name' => 'activity_id',
-                'label' => 'Actividad',
-                'type' => 'relation',
+                'label' => 'Programa de formación',
+                'type' => request()->filled('training_program') ? 'hidden' : 'relation',
                 'relationship' => 'activity',
                 'required' => true,
                 'default' => fn (): ?int => request()->filled('activity')
@@ -97,6 +97,16 @@ class EvaluationResource extends InstitutionalResource
 
     protected static function applyContextToQuery(Builder $query): Builder
     {
+        if (request()->filled('training_program')) {
+            return $query->whereHas(
+                'activity',
+                fn (Builder $activity): Builder => $activity->where(
+                    'training_program_id',
+                    request()->integer('training_program'),
+                ),
+            );
+        }
+
         if (! request()->filled('activity')) {
             return $query;
         }

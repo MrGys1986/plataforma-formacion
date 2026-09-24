@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page title="Evaluaciones" description="Resultados registrados en tus actividades.">

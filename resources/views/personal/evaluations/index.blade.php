@@ -1,8 +1,8 @@
-@extends('layouts.personal')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="'Evaluaciones de '.$activity->name" description="Instrumentos y resultados vinculados con esta actividad.">
-        @include('personal.courses._management-nav')
+        @include('personal.courses.partials.management-nav')
         <div class="grid gap-4 lg:grid-cols-2">
             @forelse ($evaluations as $evaluation)
                 <article class="rounded-xl border border-slate-200 p-5">

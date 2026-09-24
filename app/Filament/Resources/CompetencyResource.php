@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CompetencyResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 2;
 
     protected static ?string $model = Competency::class;

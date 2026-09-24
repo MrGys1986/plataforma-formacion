@@ -1,4 +1,4 @@
-@extends('layouts.continuing-education')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Participantes externos" description="Directorio de personas vinculadas con la oferta de educación continua.">
     <div class="grid gap-4 sm:grid-cols-3"><x-quality-stat label="Participantes" :value="$users->total()" detail="Cuentas visibles"/><x-quality-stat label="Activos" :value="$users->getCollection()->where('status','activo')->count()" detail="En esta página" tone="emerald"/><x-quality-stat label="Instituciones" :value="$users->getCollection()->pluck('external_institution')->filter()->unique()->count()" detail="Representadas en esta página" tone="slate"/></div>

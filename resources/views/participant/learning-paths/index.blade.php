@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -48,6 +48,7 @@
                     @php
                         $assignment = $learningPath->userLearningPaths->first();
                         $progress = $assignment ? min(100, (float) $assignment->progress_percentage) : 0;
+                        $contentCount = $learningPath->training_programs_count ?: $learningPath->items_count;
                     @endphp
 
                     <a class="group relative flex min-h-64 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg hover:shadow-slate-200/70"
@@ -88,8 +89,8 @@
                         <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
                             <span class="inline-flex items-center gap-2">
                                 <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
-                                <strong class="font-semibold text-slate-800">{{ $learningPath->items_count }}</strong>
-                                {{ $learningPath->items_count === 1 ? 'actividad' : 'actividades' }}
+                                <strong class="font-semibold text-slate-800">{{ $contentCount }}</strong>
+                                {{ $contentCount === 1 ? 'programa' : 'programas' }}
                             </span>
                             @if ($learningPath->total_hours)
                                 <span class="inline-flex items-center gap-2">

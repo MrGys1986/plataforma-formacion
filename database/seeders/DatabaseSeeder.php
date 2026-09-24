@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,18 +28,5 @@ class DatabaseSeeder extends Seeder
             EvaluatorCertificationDemoSeeder::class,
             CompetencyDemoSeeder::class,
         ]);
-
-        $administrator = User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Administrador de prueba',
-                'password' => Hash::make('password'),
-                'status' => 'activo',
-            ],
-        );
-
-        if (! $administrator->hasRole('Superadministrador')) {
-            $administrator->assignRole('Superadministrador');
-        }
     }
 }

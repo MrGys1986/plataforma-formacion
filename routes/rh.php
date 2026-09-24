@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Rh\CertificateController;
 use App\Http\Controllers\Rh\CompetencyController;
-use App\Http\Controllers\Rh\DashboardController;
 use App\Http\Controllers\Rh\EvidenceController;
 use App\Http\Controllers\Rh\ReportController;
 use App\Http\Controllers\Rh\StaffController;

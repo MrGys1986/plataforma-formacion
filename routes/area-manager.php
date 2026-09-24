@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\AreaManager\ActivityController;
-use App\Http\Controllers\AreaManager\DashboardController;
 use App\Http\Controllers\AreaManager\EnrollmentController;
 use App\Http\Controllers\AreaManager\EvidenceController;
 use App\Http\Controllers\AreaManager\ParticipantController;
 use App\Http\Controllers\AreaManager\ReportController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('area-manager')

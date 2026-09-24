@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Personal\AttendanceController;
 use App\Http\Controllers\Personal\CertificateController;
 use App\Http\Controllers\Personal\CourseController;
-use App\Http\Controllers\Personal\DashboardController;
 use App\Http\Controllers\Personal\EvaluationController;
 use App\Http\Controllers\Personal\EvidenceController;
 use Illuminate\Support\Facades\Route;

@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\ContinuingEducation\CertificateController;
-use App\Http\Controllers\ContinuingEducation\DashboardController;
 use App\Http\Controllers\ContinuingEducation\EnrollmentController;
 use App\Http\Controllers\ContinuingEducation\ExternalParticipantController;
 use App\Http\Controllers\ContinuingEducation\OfferController;
 use App\Http\Controllers\ContinuingEducation\PaymentController;
 use App\Http\Controllers\ContinuingEducation\ReportController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('continuing-education')

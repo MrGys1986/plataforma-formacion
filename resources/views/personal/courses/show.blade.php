@@ -1,4 +1,4 @@
-@extends('layouts.personal')
+@extends('layouts.portal')
 
 @section('content')
     <div class="space-y-6">

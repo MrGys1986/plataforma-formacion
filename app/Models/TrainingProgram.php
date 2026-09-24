@@ -69,6 +69,11 @@ class TrainingProgram extends Model
         return $this->hasMany(Activity::class);
     }
 
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class);
+    }
+
     public function enrollments(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -84,6 +89,14 @@ class TrainingProgram extends Model
         return $this->belongsToMany(DiplomaProgram::class, 'diploma_training_program')
             ->withPivot(['order_number', 'is_required', 'minimum_score'])
             ->withTimestamps();
+    }
+
+    public function learningPaths(): BelongsToMany
+    {
+        return $this->belongsToMany(LearningPath::class, 'learning_path_training_program')
+            ->withPivot(['order_number', 'is_required', 'minimum_score'])
+            ->withTimestamps()
+            ->orderByPivot('order_number');
     }
 
     public function surveys(): BelongsToMany

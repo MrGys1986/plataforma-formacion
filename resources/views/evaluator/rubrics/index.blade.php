@@ -1,4 +1,4 @@
-@extends('layouts.evaluator')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Rúbrica institucional" description="Una misma base de evaluación para todas las actividades y participantes.">
     <div class="mb-5 rounded-xl border border-blue-100 bg-blue-50 px-5 py-4">

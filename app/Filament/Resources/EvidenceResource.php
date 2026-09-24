@@ -34,8 +34,8 @@ class EvidenceResource extends InstitutionalResource
             'label' => 'Participante',
         ],
         [
-            'name' => 'activity.name',
-            'label' => 'Actividad',
+            'name' => 'activity.trainingProgram.name',
+            'label' => 'Programa de formación',
         ],
         [
             'name' => 'assignedEvaluator.name',
@@ -64,13 +64,13 @@ class EvidenceResource extends InstitutionalResource
             [
                 'name' => 'user_id',
                 'label' => 'Participante',
-                'type' => 'relation',
+                'type' => request()->filled('training_program') ? 'hidden' : 'relation',
                 'relationship' => 'user',
                 'required' => true,
             ],
             [
                 'name' => 'activity_id',
-                'label' => 'Actividad',
+                'label' => 'Programa de formación',
                 'type' => 'relation',
                 'relationship' => 'activity',
                 'default' => fn (): ?int => request()->filled('activity')
@@ -128,6 +128,16 @@ class EvidenceResource extends InstitutionalResource
 
     protected static function applyContextToQuery(Builder $query): Builder
     {
+        if (request()->filled('training_program')) {
+            return $query->whereHas(
+                'activity',
+                fn (Builder $activity): Builder => $activity->where(
+                    'training_program_id',
+                    request()->integer('training_program'),
+                ),
+            );
+        }
+
         if (! request()->filled('activity')) {
             return $query;
         }

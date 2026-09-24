@@ -1,17 +1,17 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Participant\BadgeController;
 use App\Http\Controllers\Participant\CatalogController;
 use App\Http\Controllers\Participant\CertificateController;
-use App\Http\Controllers\Participant\DashboardController;
 use App\Http\Controllers\Participant\EnrollmentController;
 use App\Http\Controllers\Participant\EvaluationController;
 use App\Http\Controllers\Participant\EvidenceController;
 use App\Http\Controllers\Participant\LearningController;
 use App\Http\Controllers\Participant\LearningPathController;
 use App\Http\Controllers\Participant\MyCourseController;
-use App\Http\Controllers\Participant\ProfessorProfileController;
 use App\Http\Controllers\Participant\PaymentController;
+use App\Http\Controllers\Participant\ProfessorProfileController;
 use App\Http\Controllers\Participant\ResourceController;
 use App\Http\Controllers\Participant\SurveyController;
 use App\Http\Controllers\Participant\TeachingCourseController;

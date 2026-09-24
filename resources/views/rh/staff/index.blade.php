@@ -1,8 +1,8 @@
-@extends('layouts.rh')
+@extends('layouts.portal')
 
 @section('content')
 <x-portal-page title="Personal" description="Directorio y seguimiento de formación del personal institucional.">
-    <form class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_220px_180px_auto]" method="GET" action="{{ route('rh.staff.index') }}">
+    <form class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_220px_180px_auto]" method="GET" action="{{ route('rh.staff.index') }}" data-auto-filter>
         <label>
             <span class="sr-only">Buscar personal</span>
             <input class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" type="search" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o correo">
@@ -22,10 +22,7 @@
                 <option value="inactivo" @selected(request('status') === 'inactivo')>Inactivo</option>
             </select>
         </label>
-        <div class="flex gap-2">
-            <button class="rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800" type="submit">Filtrar</button>
-            @if(request()->hasAny(['search','area','status']))<a class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100" href="{{ route('rh.staff.index') }}">Limpiar</a>@endif
-        </div>
+        <x-auto-filter-actions :reset-url="route('rh.staff.index')" :active="request()->hasAny(['search','area','status'])" />
     </form>
 
     <div class="mb-4 flex items-center justify-between gap-4">

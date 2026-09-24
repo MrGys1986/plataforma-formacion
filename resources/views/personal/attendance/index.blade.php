@@ -1,8 +1,8 @@
-@extends('layouts.personal')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="'Asistencia de '.$activity->name" description="Consulta el historial de asistencia de cada participante inscrito.">
-        @include('personal.courses._management-nav')
+        @include('personal.courses.partials.management-nav')
 
         <div class="space-y-4">
             @forelse ($attendanceRecords as $enrollment)

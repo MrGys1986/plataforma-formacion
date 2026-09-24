@@ -3,49 +3,29 @@
 namespace App\Filament\Resources\TrainingProgramResource\Pages;
 
 use App\Filament\Resources\TrainingProgramResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
-use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ManageTrainingPrograms extends ManageRecords
 {
     protected static string $resource = TrainingProgramResource::class;
 
+    public function getHeading(): string|Htmlable|null
+    {
+        return view('filament.partials.resource-heading', [
+            'icon' => Heroicon::OutlinedAcademicCap,
+            'label' => 'Gestión de formación',
+        ]);
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        return 'Administra en un solo catálogo los cursos, minicursos y talleres institucionales.';
+    }
+
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
-    }
-
-    public function getTabs(): array
-    {
-        if (TrainingProgramResource::getConfiguration()?->getKey()) {
-            return [
-                'activos' => Tab::make('Activos')
-                    ->query(fn (Builder $query): Builder => $query->where('status', 'activo')),
-                'inactivos' => Tab::make('Inactivos')
-                    ->query(fn (Builder $query): Builder => $query->where('status', 'inactivo')),
-            ];
-        }
-
-        return [
-            'todos' => Tab::make('Todos'),
-            'cursos' => $this->typeTab('Cursos', 'Curso'),
-            'minicursos' => $this->typeTab('Minicursos', 'Minicurso'),
-            'talleres' => $this->typeTab('Talleres', 'Taller'),
-            'inactivos' => Tab::make('Inactivos')
-                ->query(fn (Builder $query): Builder => $query->where('status', 'inactivo')),
-        ];
-    }
-
-    private function typeTab(string $label, string $type): Tab
-    {
-        return Tab::make($label)
-            ->query(fn (Builder $query): Builder => $query->whereHas(
-                'activityType',
-                fn (Builder $activityTypes): Builder => $activityTypes->where('name', $type),
-            ));
+        return [];
     }
 }

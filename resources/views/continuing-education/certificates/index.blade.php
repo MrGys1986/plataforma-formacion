@@ -1,4 +1,4 @@
-@extends('layouts.continuing-education')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Constancias" description="Documentos emitidos para participantes de educación continua.">
     <div class="grid gap-4 sm:grid-cols-3"><x-quality-stat label="Constancias" :value="$certificates->total()"/><x-quality-stat label="Emitidas" :value="$certificates->getCollection()->where('status','emitida')->count()" detail="En esta página" tone="emerald"/><x-quality-stat label="Descargadas" :value="$certificates->getCollection()->whereNotNull('downloaded_at')->count()" detail="En esta página"/></div>

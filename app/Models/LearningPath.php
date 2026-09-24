@@ -16,6 +16,22 @@ class LearningPath extends Model
 
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        static::saving(function (LearningPath $learningPath): void {
+            if (blank($learningPath->path_type)) {
+                $learningPath->path_type = match (true) {
+                    (bool) $learningPath->generates_microcredential => 'microcredencial',
+                    (bool) $learningPath->generates_diploma => 'diplomado',
+                    default => 'certificacion',
+                };
+            }
+
+            $learningPath->generates_diploma = $learningPath->path_type === 'diplomado';
+            $learningPath->generates_microcredential = $learningPath->path_type === 'microcredencial';
+        });
+    }
+
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
@@ -39,6 +55,14 @@ class LearningPath extends Model
     public function activities(): BelongsToMany
     {
         return $this->belongsToMany(Activity::class, 'learning_path_items')
+            ->withPivot(['order_number', 'is_required', 'minimum_score'])
+            ->withTimestamps()
+            ->orderByPivot('order_number');
+    }
+
+    public function trainingPrograms(): BelongsToMany
+    {
+        return $this->belongsToMany(TrainingProgram::class, 'learning_path_training_program')
             ->withPivot(['order_number', 'is_required', 'minimum_score'])
             ->withTimestamps()
             ->orderByPivot('order_number');

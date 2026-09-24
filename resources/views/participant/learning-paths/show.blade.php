@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     @php
@@ -86,7 +86,10 @@
                         @php
                             $item = $state->item;
                             $activity = $item->activity;
-                            $typeName = $activity?->activityType?->name ?? 'Actividad';
+                            $program = $item->trainingProgram ?? $activity?->trainingProgram;
+                            $typeName = $program?->activityType?->name ?? $activity?->activityType?->name ?? 'Programa';
+                            $itemName = $program?->name ?? $activity?->name;
+                            $duration = $program?->duration_hours ?? $activity?->duration_hours ?? 0;
                         @endphp
 
                         <article class="group relative rounded-xl border bg-white p-5 transition duration-200 hover:border-blue-300 hover:shadow-md sm:pl-20 {{ $state->completed ? 'border-emerald-200' : 'border-slate-200' }}">
@@ -108,11 +111,11 @@
                                             <span class="text-xs font-semibold text-slate-400">Opcional</span>
                                         @endif
                                     </div>
-                                    <h3 class="mt-2 text-lg font-bold text-slate-950">{{ $activity?->name }}</h3>
+                                    <h3 class="mt-2 text-lg font-bold text-slate-950">{{ $itemName }}</h3>
                                     <div class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-500">
                                         <span class="inline-flex items-center gap-1.5">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m5-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                                            {{ number_format((float) ($activity?->duration_hours ?? 0), 0) }} horas
+                                            {{ number_format((float) $duration, 0) }} horas
                                         </span>
                                         @if ($item->minimum_score !== null)
                                             <span>Calificación mínima: <strong class="font-semibold text-slate-700">{{ number_format((float) $item->minimum_score, 0) }}</strong></span>

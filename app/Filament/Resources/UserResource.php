@@ -5,17 +5,20 @@ namespace App\Filament\Resources;
 use App\Filament\Clusters\UserManagement\UserManagementCluster;
 use App\Filament\Resources\UserResource\Pages\ManageUsers;
 use App\Models\User;
+use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
-use Filament\Resources\ResourceConfiguration;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends InstitutionalResource
 {
-    protected static ?string $configurationClass = ResourceConfiguration::class;
-
     protected static ?int $navigationSort = 1;
 
     protected static ?string $model = User::class;
@@ -146,9 +149,37 @@ class UserResource extends InstitutionalResource
 
     protected static bool $readOnly = false;
 
+    public static function form(Schema $schema): Schema
+    {
+        return parent::form($schema)
+            ->columns([
+                'default' => 1,
+                'md' => 2,
+            ]);
+    }
+
     protected static function modifyTable(Table $table): Table
     {
         return $table
+            ->heading(view('filament.partials.table-heading', [
+                'icon' => Heroicon::OutlinedUsers,
+                'label' => 'Directorio de usuarios',
+            ]))
+            ->description('Selecciona el rol que deseas consultar y utiliza los filtros para localizar cuentas específicas.')
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Nuevo usuario')
+                    ->icon(Heroicon::OutlinedUserPlus)
+                    ->color('primary')
+                    ->modalHeading('Registrar usuario')
+                    ->modalDescription('Completa los datos de acceso, perfil y adscripción del usuario.')
+                    ->modalIcon(Heroicon::OutlinedUserPlus)
+                    ->modalIconColor('primary')
+                    ->modalWidth(Width::TwoExtraLarge)
+                    ->modalSubmitActionLabel('Guardar')
+                    ->createAnother(false)
+                    ->successNotificationTitle('Usuario registrado correctamente'),
+            ])
             ->columns([
                 TextColumn::make('name')
                     ->label('Usuario')
@@ -207,73 +238,85 @@ class UserResource extends InstitutionalResource
                     })
                     ->sortable(),
             ])
+            ->filters([
+                SelectFilter::make('role')
+                    ->label('Rol')
+                    ->placeholder('Selecciona el rol a consultar')
+                    ->options(fn (): array => Role::query()
+                        ->where('guard_name', 'web')
+                        ->orderBy('name')
+                        ->pluck('name', 'name')
+                        ->all())
+                    ->searchable()
+                    ->preload()
+                    ->query(fn (Builder $query, array $data): Builder => $query->when(
+                        filled($data['value'] ?? null),
+                        fn (Builder $users): Builder => $users->whereHas(
+                            'roles',
+                            fn (Builder $roles): Builder => $roles->where('name', $data['value']),
+                        ),
+                    )),
+                SelectFilter::make('user_type')
+                    ->label('Tipo de usuario')
+                    ->placeholder('Todos los tipos')
+                    ->options([
+                        'interno' => 'Interno',
+                        'externo' => 'Externo',
+                    ]),
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->placeholder('Todos los estados')
+                    ->options([
+                        'activo' => 'Activo',
+                        'inactivo' => 'Inactivo',
+                        'suspendido' => 'Suspendido',
+                    ]),
+            ], FiltersLayout::AboveContent)
+            ->filtersFormColumns([
+                'default' => 1,
+                'md' => 3,
+            ])
+            ->deferFilters(false)
+            ->modifyQueryUsing(function (Builder $query, ManageUsers $livewire): Builder {
+                $selectedRole = data_get($livewire->getTableFilterState('role'), 'value');
+
+                if (filled($selectedRole) || $livewire->hasTableSearch()) {
+                    return $query;
+                }
+
+                return $query->whereRaw('1 = 0');
+            })
             ->recordActions([
                 EditAction::make()
-                    ->iconButton()
-                    ->tooltip('Editar usuario'),
+                    ->button()
+                    ->label('Editar')
+                    ->icon(Heroicon::OutlinedPencilSquare)
+                    ->color('primary')
+                    ->tooltip('Editar usuario')
+                    ->modalHeading(fn (User $record): string => "Editar a {$record->name}")
+                    ->modalDescription('Actualiza los datos necesarios y confirma para guardar los cambios.')
+                    ->modalIcon(Heroicon::OutlinedPencilSquare)
+                    ->modalIconColor('primary')
+                    ->modalWidth(Width::TwoExtraLarge)
+                    ->modalSubmitActionLabel('Guardar')
+                    ->successNotificationTitle('Usuario actualizado correctamente'),
             ])
             ->defaultSort('name')
             ->striped()
             ->searchPlaceholder('Buscar por nombre o correo')
             ->paginationPageOptions([10, 25, 50])
-            ->persistSearchInSession()
+            ->defaultPaginationPageOption(25)
+            ->persistSearchInSession(false)
+            ->persistFiltersInSession(false)
             ->persistSortInSession()
-            ->extraAttributes(['class' => 'pf-management-table']);
-    }
-
-    public static function getNavigationLabel(): string
-    {
-        $configuredView = static::getConfiguredView();
-
-        return $configuredView['label'] ?? 'Usuarios';
-    }
-
-    public static function getNavigationParentItem(): ?string
-    {
-        return static::getConfiguration()?->getKey() ? 'Usuarios' : null;
-    }
-
-    public static function getNavigationSort(): ?int
-    {
-        $configuredView = static::getConfiguredView();
-
-        return $configuredView['sort'] ?? parent::getNavigationSort();
-    }
-
-    public static function getNavigationIcon(): string|\BackedEnum|\Illuminate\Contracts\Support\Htmlable|null
-    {
-        return static::getConfiguration()?->getKey() ? null : parent::getNavigationIcon();
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        $configuredView = static::getConfiguredView();
-
-        return $configuredView['label'] ?? 'Usuarios';
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        $query = parent::getEloquentQuery();
-
-        return match (static::getConfiguration()?->getKey()) {
-            'superadministradores' => static::filterByRoles($query, ['Superadministrador']),
-            'personal' => static::filterByRoles($query, ['Personal']),
-            'responsables_area' => static::filterByRoles($query, ['Responsable Area']),
-            'evaluadores' => static::filterByRoles($query, ['Evaluador']),
-            'recursos_humanos' => static::filterByRoles($query, ['Recursos Humanos']),
-            'calidad_academica' => static::filterByRoles($query, ['Calidad Academica']),
-            'educacion_continua' => static::filterByRoles($query, ['Educacion Continua']),
-            'profesores' => static::filterByRoles($query, ['Profesor']),
-            'alumnos' => static::filterByRoles($query, ['Alumno']),
-            'externos' => $query->where(function (Builder $builder): void {
-                $builder
-                    ->where('user_type', 'externo')
-                    ->orWhere('profile_type', 'externo')
-                    ->orWhereHas('roles', fn (Builder $roles): Builder => $roles->where('name', 'Externo'));
-            }),
-            default => $query,
-        };
+            ->emptyStateIcon(Heroicon::OutlinedFunnel)
+            ->emptyStateHeading(fn (ManageUsers $livewire): string => $livewire->hasTableSearch()
+                ? 'No se encontraron usuarios'
+                : 'Selecciona un rol para consultar usuarios')
+            ->emptyStateDescription(fn (ManageUsers $livewire): string => $livewire->hasTableSearch()
+                ? 'Prueba con otro nombre o correo electrónico.'
+                : 'La tabla permanece vacía hasta elegir un rol. También puedes buscar directamente por nombre o correo.')
+            ->extraAttributes(['class' => 'pf-management-table pf-user-table']);
     }
 
     public static function getPages(): array
@@ -281,59 +324,5 @@ class UserResource extends InstitutionalResource
         return [
             'index' => ManageUsers::route('/'),
         ];
-    }
-
-    protected static function getConfiguredView(): ?array
-    {
-        return [
-            'superadministradores' => [
-                'label' => 'Superadministrador',
-                'sort' => 1,
-            ],
-            'personal' => [
-                'label' => 'Personal',
-                'sort' => 2,
-            ],
-            'responsables_area' => [
-                'label' => 'Responsable de área',
-                'sort' => 3,
-            ],
-            'evaluadores' => [
-                'label' => 'Evaluador',
-                'sort' => 4,
-            ],
-            'recursos_humanos' => [
-                'label' => 'Recursos Humanos',
-                'sort' => 5,
-            ],
-            'calidad_academica' => [
-                'label' => 'Calidad Académica',
-                'sort' => 6,
-            ],
-            'educacion_continua' => [
-                'label' => 'Educación Continua',
-                'sort' => 7,
-            ],
-            'profesores' => [
-                'label' => 'Profesor',
-                'sort' => 8,
-            ],
-            'alumnos' => [
-                'label' => 'Alumno',
-                'sort' => 9,
-            ],
-            'externos' => [
-                'label' => 'Externo',
-                'sort' => 10,
-            ],
-        ][static::getConfiguration()?->getKey()] ?? null;
-    }
-
-    protected static function filterByRoles(Builder $query, array $roles): Builder
-    {
-        return $query->whereHas(
-            'roles',
-            fn (Builder $builder): Builder => $builder->whereIn('name', $roles),
-        );
     }
 }

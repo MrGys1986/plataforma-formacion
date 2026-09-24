@@ -8,6 +8,8 @@ use App\Models\Survey;
 
 class SurveyResource extends InstitutionalResource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 1;
 
     protected static ?string $model = Survey::class;

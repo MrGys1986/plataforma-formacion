@@ -1,14 +1,14 @@
-@extends('layouts.rh')
+@extends('layouts.portal')
 
 @section('content')
 <x-portal-page title="Constancias" description="Constancias y certificaciones generadas mediante capacitación interna.">
-    <form class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_210px_auto]" method="GET" action="{{ route('rh.certificates.index') }}">
+    <form class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,1fr)_210px_auto]" method="GET" action="{{ route('rh.certificates.index') }}" data-auto-filter>
         <input class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm" type="search" name="search" value="{{ request('search') }}" placeholder="Buscar participante, folio o actividad">
         <select class="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm" name="status">
             <option value="">Todos los estados</option>
             @foreach(['disponible' => 'Disponible','descargada' => 'Descargada','pendiente' => 'Pendiente','bloqueada' => 'Bloqueada','reemitida' => 'Reemitida','cancelada' => 'Cancelada'] as $value => $label)<option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>@endforeach
         </select>
-        <div class="flex gap-2"><button class="rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800" type="submit">Filtrar</button>@if(request()->hasAny(['search','status']))<a class="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600" href="{{ route('rh.certificates.index') }}">Limpiar</a>@endif</div>
+        <x-auto-filter-actions :reset-url="route('rh.certificates.index')" :active="request()->hasAny(['search','status'])" />
     </form>
 
     <p class="mb-4 text-sm text-slate-500"><span class="font-semibold text-slate-800">{{ $certificates->total() }}</span> constancias encontradas</p>

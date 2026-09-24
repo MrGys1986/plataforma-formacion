@@ -17,7 +17,7 @@ trait HasTrainingProgramPageContext
         }
 
         return collect([
-            'Ediciones del programa seleccionado',
+            'Actividades vinculadas al programa seleccionado',
             $program->name,
             $program->activityType?->name,
         ])->filter()->implode(' · ');
@@ -34,7 +34,7 @@ trait HasTrainingProgramPageContext
                 ->label('Volver a programas')
                 ->icon(Heroicon::OutlinedArrowLeft)
                 ->color('gray')
-                ->url(TrainingProgramResource::getBrowseUrlForProgram($program)),
+                ->url(TrainingProgramResource::getUrl()),
         ];
     }
 }

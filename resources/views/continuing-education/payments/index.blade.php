@@ -1,4 +1,4 @@
-@extends('layouts.continuing-education')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Control de pagos" description="Comprobantes, importes y validación de pagos de participantes externos.">
     @php($pageTotal = $payments->getCollection()->sum(fn($payment) => (float)$payment->amount))

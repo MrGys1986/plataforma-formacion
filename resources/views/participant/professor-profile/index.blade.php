@@ -1,4 +1,4 @@
-@extends('layouts.participant')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page title="Perfil docente" description="Administra tu información y consulta tus reconocimientos.">

@@ -1,4 +1,4 @@
-@extends('layouts.quality')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Sistema de Gestión ISO" description="Control de procesos, auditorías, hallazgos y acciones del sistema de calidad.">
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><x-quality-stat label="Procesos vigentes" value="12" detail="Mapa institucional"/><x-quality-stat label="Conformidad" value="94%" detail="Última auditoría" tone="emerald"/><x-quality-stat label="Hallazgos abiertos" value="4" detail="2 vencen este mes" tone="amber"/><x-quality-stat label="Documentos por revisar" value="3" detail="Próximos 30 días" tone="rose"/></div>

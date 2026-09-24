@@ -1,3 +1,4 @@
+@import 'simple-datatables/dist/style.css' layer(vendor);
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,4 +7,387 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-brand-50: #eff8ff;
+    --color-brand-100: #dceefe;
+    --color-brand-200: #b9ddfb;
+    --color-brand-300: #83c4f5;
+    --color-brand-400: #45a7eb;
+    --color-brand-500: #1d88d8;
+    --color-brand-600: #106bb8;
+    --color-brand-700: #0d5595;
+    --color-brand-800: #104879;
+    --color-brand-900: #103d65;
+    --color-brand-950: #072640;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: var(--color-brand-50);
+    }
+
+    ::selection {
+        background-color: var(--color-brand-200);
+        color: var(--color-brand-950);
+    }
+}
+
+@layer components {
+    .portal-content form:not(.portal-auto-filter) {
+        color: #334155;
+    }
+
+    .portal-content label {
+        color: #334155;
+        font-weight: 600;
+    }
+
+    .portal-content :is(input:not([type='checkbox'], [type='radio'], [type='hidden']), select, textarea),
+    .portal-auto-filter :is(input, select) {
+        width: 100%;
+        min-height: 2.75rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.8rem;
+        background-color: #fff;
+        padding: 0.65rem 0.85rem;
+        color: #0f172a;
+        font-size: 0.9rem;
+        line-height: 1.35rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }
+
+    .portal-content textarea {
+        min-height: 7rem;
+        resize: vertical;
+    }
+
+    .portal-content :is(input, select, textarea):focus {
+        border-color: #1d88d8;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(29, 136, 216, 0.14);
+    }
+
+    .portal-content :is(input, textarea)::placeholder {
+        color: #94a3b8;
+    }
+
+    .portal-content input[type='file'] {
+        padding: 0.35rem;
+    }
+
+    .portal-content input[type='file']::file-selector-button {
+        margin-right: 0.75rem;
+        border: 0;
+        border-radius: 0.6rem;
+        background: #e0f2fe;
+        padding: 0.55rem 0.75rem;
+        color: #075985;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .portal-content button,
+    .portal-content a {
+        transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease,
+            transform 150ms ease;
+    }
+
+    .portal-content button:active,
+    .portal-content a:active {
+        transform: translateY(1px);
+    }
+
+    [data-auto-filter],
+    .portal-auto-filter {
+        position: relative;
+        border-color: #dbeafe !important;
+        border-radius: 1rem !important;
+        background: linear-gradient(135deg, rgba(239, 248, 255, 0.95), rgba(255, 255, 255, 0.98)) !important;
+        box-shadow: 0 10px 30px rgba(16, 107, 184, 0.07);
+    }
+
+    .portal-auto-filter.is-loading {
+        opacity: 0.82;
+    }
+
+    .portal-auto-filter.is-loading {
+        pointer-events: none;
+    }
+
+    [data-auto-filter-status] {
+        white-space: nowrap;
+    }
+
+    .js .portal-auto-filter button[type='submit'] {
+        display: none;
+    }
+
+    .portal-datatable-host {
+        overflow: visible !important;
+    }
+
+    .portal-datatable-host .datatable-wrapper {
+        color: #334155;
+    }
+
+    .portal-datatable-host .datatable-top,
+    .portal-datatable-host .datatable-bottom {
+        display: grid;
+        align-items: center;
+        gap: 0.85rem 1rem;
+        padding: 0 0 1.1rem;
+    }
+
+    .portal-datatable-host .datatable-top {
+        grid-template-areas:
+            'length search'
+            'filters filters';
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .portal-datatable-host .datatable-bottom {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 1rem 0 0;
+    }
+
+    .portal-datatable-host .datatable-dropdown {
+        grid-area: length;
+        justify-self: start;
+    }
+
+    .portal-datatable-host .datatable-search {
+        grid-area: search;
+        justify-self: end;
+    }
+
+    .portal-datatable-host .datatable-dropdown label {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .datatable-container {
+        max-width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.9rem;
+    }
+
+    .portal-datatable-host .datatable-input,
+    .portal-datatable-host .datatable-selector,
+    .portal-datatable-filter select {
+        box-sizing: border-box;
+        height: 2.65rem;
+        min-height: 2.65rem !important;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.7rem !important;
+        background-color: #fff;
+        color: #334155;
+        font-size: 0.84rem !important;
+        line-height: 1.2rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .portal-datatable-host .datatable-input:focus,
+    .portal-datatable-host .datatable-selector:focus,
+    .portal-datatable-filter select:focus {
+        border-color: #1d88d8;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(29, 136, 216, 0.13);
+    }
+
+    .portal-datatable-host .datatable-input {
+        width: min(20rem, 42vw);
+        padding: 0.65rem 0.85rem;
+    }
+
+    .portal-datatable-host .datatable-selector {
+        width: 5rem;
+        padding: 0.55rem 0.65rem;
+    }
+
+    .portal-datatable-filters {
+        display: grid;
+        grid-area: filters;
+        grid-template-columns: repeat(auto-fit, minmax(10.5rem, 14rem));
+        gap: 0.75rem;
+        align-items: end;
+        padding-top: 0.15rem;
+    }
+
+    .portal-datatable-filter {
+        display: flex;
+        min-width: 0;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.35rem;
+        color: #475569;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .portal-datatable-filter select {
+        width: 100% !important;
+        padding: 0.55rem 2rem 0.55rem 0.75rem !important;
+    }
+
+    .portal-data-table tbody tr:nth-child(even) {
+        background-color: #fbfdff;
+    }
+
+    .portal-data-table tbody tr:hover {
+        background-color: #eff8ff;
+    }
+
+    .portal-datatable-host .datatable-table > thead > tr > th {
+        border-bottom: 1px solid #cbd5e1;
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 0.85rem 1rem;
+        color: #475569;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.055em;
+        text-transform: uppercase;
+        vertical-align: middle;
+    }
+
+    .portal-datatable-host .datatable-table > tbody > tr > td {
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0.95rem 1rem;
+        color: #334155;
+        font-size: 0.875rem;
+        line-height: 1.35rem;
+        vertical-align: middle;
+    }
+
+    .portal-datatable-host .datatable-table > tbody > tr:last-child > td {
+        border-bottom: 0;
+    }
+
+    .portal-datatable-host .datatable-sorter {
+        padding-right: 1.25rem;
+    }
+
+    .portal-datatable-host .datatable-pagination ul {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .portal-datatable-host .datatable-pagination a,
+    .portal-datatable-host .datatable-pagination button {
+        display: inline-flex;
+        min-width: 2.65rem;
+        height: 2.65rem;
+        min-height: 2.65rem;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.6rem;
+        background-color: #fff;
+        padding: 0.4rem 0.7rem;
+        color: #475569;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .portal-datatable-host .datatable-pagination a:hover,
+    .portal-datatable-host .datatable-pagination button:hover {
+        border-color: #83c4f5;
+        background-color: #eff8ff;
+        color: #0d5595;
+    }
+
+    .portal-datatable-host .datatable-pagination .datatable-active a,
+    .portal-datatable-host .datatable-pagination .datatable-active button {
+        border-color: #0d5595;
+        background-color: #0d5595;
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(13, 85, 149, 0.2);
+    }
+
+    .portal-datatable-host .datatable-pagination :is(a, button):focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(29, 136, 216, 0.16);
+    }
+
+    .portal-datatable-host .datatable-info {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .portal-content [role='dialog'] {
+        overflow: hidden;
+        border: 1px solid #dbeafe;
+        border-radius: 1.25rem;
+        background: #fff;
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.2);
+    }
+}
+
+@media (max-width: 640px) {
+    [data-auto-filter-actions] {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    [data-auto-filter-status] {
+        justify-content: center;
+    }
+
+    .portal-datatable-host .datatable-top,
+    .portal-datatable-host .datatable-bottom {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .portal-datatable-host .datatable-top {
+        grid-template-areas:
+            'search'
+            'length'
+            'filters';
+    }
+
+    .portal-datatable-host .datatable-search,
+    .portal-datatable-host .datatable-input,
+    .portal-datatable-host .datatable-dropdown,
+    .portal-datatable-host .datatable-dropdown label {
+        justify-self: stretch;
+        width: 100%;
+    }
+
+    .portal-datatable-host .datatable-selector {
+        width: 5rem;
+    }
+
+    .portal-datatable-filters {
+        grid-template-columns: minmax(0, 1fr);
+        width: 100%;
+    }
+
+    .portal-datatable-filter {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .portal-datatable-filter select {
+        width: 100% !important;
+    }
+
+    .portal-datatable-host .datatable-pagination ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 }

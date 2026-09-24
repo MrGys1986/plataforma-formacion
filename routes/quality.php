@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Quality\AbetReportController;
 use App\Http\Controllers\Quality\CaceiReportController;
-use App\Http\Controllers\Quality\DashboardController;
 use App\Http\Controllers\Quality\EvaluationController;
 use App\Http\Controllers\Quality\EvidenceController;
 use App\Http\Controllers\Quality\ImprovementController;

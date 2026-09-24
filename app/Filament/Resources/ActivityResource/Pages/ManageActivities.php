@@ -4,10 +4,9 @@ namespace App\Filament\Resources\ActivityResource\Pages;
 
 use App\Filament\Concerns\HasTrainingProgramPageContext;
 use App\Filament\Resources\ActivityResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
-use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ManageActivities extends ManageRecords
 {
@@ -15,41 +14,29 @@ class ManageActivities extends ManageRecords
 
     protected static string $resource = ActivityResource::class;
 
+    public function getHeading(): string|Htmlable|null
+    {
+        return view('filament.partials.resource-heading', [
+            'icon' => Heroicon::OutlinedRectangleStack,
+            'label' => 'Cursos y ediciones',
+        ]);
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        if ($program = $this->getTrainingProgramContext()) {
+            return collect([
+                'Ediciones del programa seleccionado',
+                $program->name,
+                $program->activityType?->name,
+            ])->filter()->implode(' · ');
+        }
+
+        return 'Consulta la operación de cursos, minicursos y talleres desde una sola tabla.';
+    }
+
     protected function getHeaderActions(): array
     {
-        return [
-            ...$this->getTrainingProgramContextHeaderActions(),
-            CreateAction::make()
-                ->label('Nueva actividad'),
-        ];
-    }
-
-    public function getTabs(): array
-    {
-        return [
-            'todas' => Tab::make('Todas'),
-            'cursos' => $this->typeTab('Cursos', 'Curso'),
-            'minicursos' => $this->typeTab('Minicursos', 'Minicurso'),
-            'talleres' => $this->typeTab('Talleres', 'Taller'),
-            'en_operacion' => Tab::make('En operación')
-                ->query(fn (Builder $query): Builder => $query->whereIn(
-                    'status',
-                    ['publicado', 'en_inscripcion', 'cupo_lleno', 'en_curso'],
-                )),
-            'cerradas' => Tab::make('Cerradas')
-                ->query(fn (Builder $query): Builder => $query->whereIn(
-                    'status',
-                    ['finalizado', 'cancelado', 'archivado'],
-                )),
-        ];
-    }
-
-    private function typeTab(string $label, string $type): Tab
-    {
-        return Tab::make($label)
-            ->query(fn (Builder $query): Builder => $query->whereHas(
-                'activityType',
-                fn (Builder $activityTypes): Builder => $activityTypes->where('name', $type),
-            ));
+        return $this->getTrainingProgramContextHeaderActions();
     }
 }

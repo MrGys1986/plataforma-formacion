@@ -1,8 +1,8 @@
-@extends('layouts.personal')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="'Constancias de '.$activity->name" description="Constancias generadas para participantes de la actividad.">
-        @include('personal.courses._management-nav')
+        @include('personal.courses.partials.management-nav')
         <div class="space-y-4">
             @forelse ($certificates as $certificate)
                 <article class="flex flex-col gap-4 rounded-xl border border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">

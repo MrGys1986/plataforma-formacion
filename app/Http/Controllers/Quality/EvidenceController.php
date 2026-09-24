@@ -14,7 +14,7 @@ class EvidenceController extends Controller
             ->visibleTo($request->user())
             ->with(['user', 'activity', 'assignedEvaluator'])
             ->latest()
-            ->paginate(20);
+            ->get();
 
         return view('quality.evidences.index', compact('evidences'));
     }

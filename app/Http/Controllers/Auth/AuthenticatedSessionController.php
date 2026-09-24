@@ -71,14 +71,8 @@ class AuthenticatedSessionController extends Controller
     private function homeFor(User $user): string
     {
         return match (true) {
-            $user->hasRole('Personal') => route('personal.dashboard'),
-            $user->hasRole('Evaluador') => route('evaluator.dashboard'),
-            $user->hasRole('Recursos Humanos') => route('rh.dashboard'),
-            $user->hasRole('Calidad Academica') => route('quality.dashboard'),
-            $user->hasRole('Educacion Continua') => route('continuing-education.dashboard'),
-            $user->hasRole('Responsable Area') => route('area-manager.dashboard'),
-            $user->hasAnyRole(['Profesor', 'Alumno', 'Externo']) => route('participant.dashboard'),
-            default => route('filament.admin.pages.dashboard'),
+            $user->usesFilamentDashboard() => route('filament.admin.pages.dashboard'),
+            default => route('dashboard'),
         };
     }
 }

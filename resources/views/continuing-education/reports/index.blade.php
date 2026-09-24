@@ -1,4 +1,4 @@
-@extends('layouts.continuing-education')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Reportes de educación continua" description="Indicadores consolidados de inscripción, avance y emisión de constancias.">
     <div class="grid gap-4 sm:grid-cols-4"><x-quality-stat label="Inscripciones" :value="$training['total']"/><x-quality-stat label="Aprobadas" :value="$training['aprobadas']" tone="emerald"/><x-quality-stat label="Completadas" :value="$training['completadas']"/><x-quality-stat label="Constancias" :value="$certificates['total']" tone="slate"/></div>

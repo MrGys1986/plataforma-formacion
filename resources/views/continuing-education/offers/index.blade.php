@@ -1,4 +1,4 @@
-@extends('layouts.continuing-education')
+@extends('layouts.portal')
 @section('content')
 <x-portal-page title="Oferta de educación continua" description="Cursos, talleres y diplomados disponibles para participantes externos.">
     <div class="grid gap-4 sm:grid-cols-3"><x-quality-stat label="Actividades" :value="$activities->total()" detail="Oferta registrada"/><x-quality-stat label="Publicadas" :value="$activities->getCollection()->where('status', 'publicado')->count()" detail="En esta página" tone="emerald"/><x-quality-stat label="Con costo" :value="$activities->getCollection()->filter(fn($item) => (float) $item->cost > 0)->count()" detail="En esta página" tone="amber"/></div>

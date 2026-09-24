@@ -1,14 +1,21 @@
 <footer class="pf-panel-footer">
-    <div class="pf-panel-footer-card">
-        <div>
-            <p class="pf-panel-footer-title">Plataforma Institucional de Formación</p>
-            <p class="pf-panel-footer-copy">
-                Gestión centralizada de usuarios, oferta formativa, seguimiento académico y control documental.
-            </p>
+    <div class="pf-panel-footer-main">
+        <div class="pf-panel-footer-brand">
+            <img class="pf-panel-footer-logo" src="{{ asset('img/LogoUNAQ.webp') }}" alt="Universidad Aeronáutica en Querétaro">
+            <p class="pf-panel-footer-copy">Administra usuarios, formación y seguimiento institucional desde un solo lugar.</p>
         </div>
-
-        <p class="pf-panel-footer-meta">
-            Panel operativo · {{ now()->format('Y') }}
-        </p>
+        <div>
+            <p class="pf-panel-footer-label">Tu portal</p>
+            <p class="pf-panel-footer-title">Panel de Superadministración</p>
+            <p class="pf-panel-footer-copy">Control general de la plataforma.</p>
+        </div>
+        <div>
+            <p class="pf-panel-footer-label">Plataforma</p>
+            <a class="pf-panel-footer-link" href="{{ route('home') }}">Página principal <span aria-hidden="true">→</span></a>
+        </div>
+    </div>
+    <div class="pf-panel-footer-bottom">
+        <p>© {{ now()->format('Y') }} Universidad Aeronáutica en Querétaro.</p>
+        <p>Plataforma Institucional de Formación y Microcredenciales</p>
     </div>
 </footer>

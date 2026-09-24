@@ -12,8 +12,31 @@
             safetyTimer: null,
             awaitingFormRequest: false,
         }
+        const confirmedSaveForms = new WeakSet()
+        let pendingSaveSubmission = null
 
         const getLoader = () => document.getElementById('pf-global-loader')
+
+        const setLoaderContent = (mode = 'loading') => {
+            const loader = getLoader()
+
+            if (! loader) {
+                return
+            }
+
+            const title = loader.querySelector('.pf-global-loader-title')
+            const copy = loader.querySelector('.pf-global-loader-copy')
+
+            if (mode === 'saving') {
+                title.textContent = 'Guardando información'
+                copy.textContent = 'Estamos procesando la operación. Espera un momento.'
+
+                return
+            }
+
+            title.textContent = 'Cargando información'
+            copy.textContent = 'Estamos preparando la vista para que sigas trabajando.'
+        }
 
         const paint = () => {
             const loader = getLoader()
@@ -41,8 +64,54 @@
             clearTimeout(state.safetyTimer)
 
             if (state.pending === 0) {
-                requestAnimationFrame(() => paint())
+                requestAnimationFrame(() => {
+                    paint()
+                    setLoaderContent()
+                })
             }
+        }
+
+        const openSaveConfirmation = (form, submitter) => {
+            const dialog = document.getElementById('pf-save-confirmation')
+
+            if (! (dialog instanceof HTMLDialogElement) || typeof dialog.showModal !== 'function') {
+                return false
+            }
+
+            pendingSaveSubmission = { form, submitter }
+            dialog.returnValue = ''
+
+            if (! dialog.open) {
+                dialog.showModal()
+            }
+
+            return true
+        }
+
+        const resolveSaveConfirmation = (confirmed) => {
+            const dialog = document.getElementById('pf-save-confirmation')
+            const submission = pendingSaveSubmission
+            pendingSaveSubmission = null
+
+            if (dialog instanceof HTMLDialogElement && dialog.open) {
+                dialog.close(confirmed ? 'confirm' : 'cancel')
+            }
+
+            if (! confirmed || ! submission?.form?.isConnected) {
+                return
+            }
+
+            confirmedSaveForms.add(submission.form)
+
+            queueMicrotask(() => {
+                if (submission.submitter?.isConnected) {
+                    submission.form.requestSubmit(submission.submitter)
+
+                    return
+                }
+
+                submission.form.requestSubmit()
+            })
         }
 
         const beginFormSubmission = () => {
@@ -60,8 +129,44 @@
             }, 15000)
         }
 
-        document.addEventListener('livewire:navigate', () => begin(120))
+        document.addEventListener('livewire:navigate', () => {
+            setLoaderContent()
+            begin(120)
+        })
         document.addEventListener('livewire:navigated', end)
+        window.addEventListener('pf-confirm-save', (event) => {
+            const form = event.detail?.form
+            const submitter = event.detail?.submitter
+
+            if (! (form instanceof HTMLFormElement)) {
+                return
+            }
+
+            if (openSaveConfirmation(form, submitter)) {
+                return
+            }
+
+            if (window.confirm('¿Estás seguro de guardar los cambios?')) {
+                confirmedSaveForms.add(form)
+                form.requestSubmit(submitter)
+            }
+        })
+        document.addEventListener('click', (event) => {
+            const choice = event.target instanceof Element
+                ? event.target.closest('[data-pf-confirm-choice]')?.dataset.pfConfirmChoice
+                : null
+
+            if (! choice) {
+                return
+            }
+
+            resolveSaveConfirmation(choice === 'confirm')
+        })
+        document.addEventListener('cancel', (event) => {
+            if (event.target?.id === 'pf-save-confirmation') {
+                pendingSaveSubmission = null
+            }
+        }, true)
         document.addEventListener('submit', (event) => {
             const form = event.target
 
@@ -74,6 +179,18 @@
             )
 
             if (isLivewireForm) {
+                const saveSubmitter = event.submitter ?? form.querySelector('[data-pf-confirm-save="true"]')
+                const shouldConfirmSave = saveSubmitter?.matches('[data-pf-confirm-save="true"]')
+
+                if (shouldConfirmSave && ! confirmedSaveForms.has(form) && openSaveConfirmation(form, saveSubmitter)) {
+                    event.preventDefault()
+                    event.stopImmediatePropagation()
+
+                    return
+                }
+
+                confirmedSaveForms.delete(form)
+                setLoaderContent('saving')
                 beginFormSubmission()
             }
         }, true)
@@ -104,49 +221,5 @@
                 fail(finalize)
             })
         })
-    })()
-</script>
-
-<script data-navigate-once>
-    (() => {
-        const initializeUsersRoleToggle = () => {
-            document.querySelectorAll('.fi-sidebar-item').forEach((item) => {
-                const directLink = item.querySelector(':scope > .fi-sidebar-item-btn')
-                const directLabel = directLink?.querySelector('.fi-sidebar-item-label')
-                const roleList = item.querySelector(':scope > .fi-sidebar-sub-group-items')
-
-                if (directLabel?.textContent.trim() !== 'Usuarios' || ! roleList) {
-                    return
-                }
-
-                item.classList.add('pf-collapsible-users')
-
-                if (item.querySelector(':scope > .pf-users-toggle')) {
-                    return
-                }
-
-                const toggle = document.createElement('button')
-                toggle.type = 'button'
-                toggle.className = 'pf-users-toggle'
-                toggle.setAttribute('aria-label', 'Mostrar u ocultar roles de usuarios')
-                toggle.setAttribute('aria-expanded', 'true')
-                toggle.innerHTML = `
-                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M5.22 7.22a.75.75 0 0 1 1.06 0L10 10.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 8.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
-                    </svg>
-                `
-
-                toggle.addEventListener('click', () => {
-                    const isCollapsed = item.classList.toggle('pf-users-collapsed')
-                    toggle.setAttribute('aria-expanded', String(! isCollapsed))
-                })
-
-                directLink.insertAdjacentElement('afterend', toggle)
-            })
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeUsersRoleToggle)
-        document.addEventListener('livewire:navigated', initializeUsersRoleToggle)
-        initializeUsersRoleToggle()
     })()
 </script>

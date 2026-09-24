@@ -1,4 +1,4 @@
-@extends('layouts.area-manager')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page

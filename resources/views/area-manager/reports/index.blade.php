@@ -1,4 +1,4 @@
-@extends('layouts.area-manager')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page title="Reportes del área" description="Resumen actualizado de formación, participación y evidencias de tu área.">

@@ -10,8 +10,8 @@
     ];
 @endphp
 
-<article class="rounded-xl p-5 ring-1 {{ $tones[$tone] ?? $tones['blue'] }}">
-    <p class="text-sm font-medium opacity-80">{{ $label }}</p>
-    <p class="mt-2 text-3xl font-bold text-slate-900">{{ $value }}</p>
-    @if ($detail)<p class="mt-2 text-xs opacity-70">{{ $detail }}</p>@endif
+<article class="flex min-h-36 flex-col items-center justify-center rounded-2xl p-5 text-center shadow-sm ring-1 transition duration-200 hover:-translate-y-0.5 hover:shadow-md {{ $tones[$tone] ?? $tones['blue'] }}">
+    <p class="text-sm font-semibold opacity-80">{{ $label }}</p>
+    <p class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">{{ $value }}</p>
+    @if ($detail)<p class="mt-2 text-xs font-medium opacity-70">{{ $detail }}</p>@endif
 </article>

@@ -1,4 +1,4 @@
-@extends('layouts.evaluator')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="$evidence->title" :description="$evidence->description">

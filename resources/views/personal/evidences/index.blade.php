@@ -1,8 +1,8 @@
-@extends('layouts.personal')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="'Evidencias de '.$activity->name" description="Entregas realizadas por los participantes de la actividad.">
-        @include('personal.courses._management-nav')
+        @include('personal.courses.partials.management-nav')
         <div class="grid gap-4 lg:grid-cols-2">
             @forelse ($evidences as $evidence)
                 <article class="rounded-xl border border-slate-200 p-5">

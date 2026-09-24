@@ -1,4 +1,4 @@
-@extends('layouts.rh')
+@extends('layouts.portal')
 
 @section('content')
     <x-portal-page :title="$user->name" :description="$user->email">

@@ -3,19 +3,32 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\EditionControlPage;
+use App\Filament\Pages\ProgramControlPage;
+use App\Filament\Resources\ActivityResource;
 use App\Filament\Resources\AreaResource;
+use App\Filament\Resources\AreaResource\Pages\ManageAreas;
+use App\Filament\Resources\EnrollmentResource;
+use App\Filament\Resources\SurveyQuestionResource;
+use App\Filament\Resources\SurveyQuestionResource\Pages\ManageSurveyQuestions;
+use App\Filament\Resources\SurveyResponseResource;
 use App\Filament\Resources\TrainingProgramResource;
+use App\Filament\Resources\TrainingProgramResource\Pages\ManageTrainingPrograms;
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\UserResource\Pages\ManageUsers;
 use App\Models\Activity;
 use App\Models\ActivityType;
 use App\Models\Enrollment;
 use App\Models\Microcredential;
+use App\Models\Survey;
 use App\Models\TrainingProgram;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -30,7 +43,7 @@ class PlatformStructureTest extends TestCase
         $user->assignRole('Alumno');
 
         $this->actingAs($user)
-            ->get(route('participant.dashboard'))
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Portal del alumno')
             ->assertSee('Bienvenido')
@@ -174,16 +187,25 @@ class PlatformStructureTest extends TestCase
             ->get(UserResource::getUrl())
             ->assertOk()
             ->assertSee('Usuarios')
-            ->assertSee('Recursos Humanos')
-            ->assertSee('Calidad Académica');
+            ->assertSee('Administra cuentas, roles, perfiles y adscripción institucional')
+            ->assertSee('Directorio de usuarios')
+            ->assertSee('Selecciona un rol para consultar usuarios')
+            ->assertSee('Tipo de usuario')
+            ->assertSee('Estado')
+            ->assertSee('pf-save-confirmation', false);
 
         $this->actingAs($user)
             ->get(AreaResource::getUrl())
             ->assertOk()
-            ->assertSee('Áreas');
+            ->assertSee('Áreas')
+            ->assertSee('Organiza las áreas institucionales')
+            ->assertSee('Catálogo de áreas')
+            ->assertSee('Tipo de área')
+            ->assertSee('Responsable')
+            ->assertSee('Estado');
     }
 
-    public function test_an_administrator_can_filter_users_from_the_role_navigation(): void
+    public function test_the_users_table_starts_empty_and_can_filter_or_search_all_users(): void
     {
         $administrator = User::factory()->create([
             'name' => 'Administrador autenticado',
@@ -205,35 +227,61 @@ class PlatformStructureTest extends TestCase
         Role::findOrCreate('Recursos Humanos');
         $humanResourcesUser->assignRole('Recursos Humanos');
 
-        $this->actingAs($administrator)
-            ->get('/admin/usuarios-areas/users/recursos-humanos')
-            ->assertOk()
-            ->assertSee('Usuario de recursos humanos')
-            ->assertDontSee('Otro superadministrador');
+        $this->actingAs($administrator);
+
+        Livewire::test(ManageUsers::class)
+            ->assertTableFilterExists('role')
+            ->assertTableFilterExists('user_type')
+            ->assertTableFilterExists('status')
+            ->assertCanNotSeeTableRecords([$administrator, $otherAdministrator, $humanResourcesUser])
+            ->filterTable('role', 'Recursos Humanos')
+            ->assertCanSeeTableRecords([$humanResourcesUser])
+            ->assertCanNotSeeTableRecords([$administrator, $otherAdministrator])
+            ->assertTableActionHasLabel('edit', 'Editar', $humanResourcesUser)
+            ->assertTableActionHasIcon('edit', Heroicon::OutlinedPencilSquare, $humanResourcesUser)
+            ->resetTableFilters()
+            ->searchTable('Otro superadministrador')
+            ->assertCanSeeTableRecords([$otherAdministrator])
+            ->assertCanNotSeeTableRecords([$administrator, $humanResourcesUser]);
+
+        Livewire::test(ManageUsers::class)
+            ->assertTableActionHasLabel('create', 'Nuevo usuario')
+            ->assertTableActionHasIcon('create', Heroicon::OutlinedUserPlus)
+            ->assertTableActionExists('create', fn (Action $action): bool => $action->getModalSubmitActionLabel() === 'Guardar'
+                && $action->getModalSubmitAction()?->getIcon() === Heroicon::OutlinedCheck
+                && $action->getModalSubmitAction()?->getExtraAttributeBag()->get('data-pf-confirm-save') === 'true'
+                && filled($action->getModalSubmitAction()?->getExtraAttributeBag()->get('x-on:click.prevent.stop')));
+
+        Livewire::test(ManageAreas::class)
+            ->assertTableActionHasLabel('create', 'Nueva área')
+            ->assertTableActionHasIcon('create', Heroicon::OutlinedBuildingOffice2);
     }
 
     public function test_each_operational_role_can_open_its_dashboard(): void
     {
-        $dashboards = [
-            'Personal' => [route('personal.dashboard'), 'Panel del personal'],
-            'Responsable Area' => [route('area-manager.dashboard'), 'Panel del responsable de área'],
-            'Evaluador' => [route('evaluator.dashboard'), 'Panel del evaluador'],
-            'Recursos Humanos' => [route('rh.dashboard'), 'Panel de Recursos Humanos'],
-            'Calidad Academica' => [route('quality.dashboard'), 'Panel de Calidad Académica'],
-            'Educacion Continua' => [route('continuing-education.dashboard'), 'Panel de Educación Continua'],
-            'Externo' => [route('participant.dashboard'), 'Pagos pendientes'],
-        ];
-
-        foreach ($dashboards as $role => [$url, $heading]) {
+        foreach (User::FILAMENT_ROLES as $role) {
             Role::findOrCreate($role);
             $user = User::factory()->create(['status' => 'activo']);
             $user->assignRole($role);
 
             $this->actingAs($user)
-                ->get($url)
+                ->get(route('dashboard'))
+                ->assertRedirect(route('filament.admin.pages.dashboard'));
+
+            $this->actingAs($user)
+                ->get(route('filament.admin.pages.dashboard'))
                 ->assertOk()
-                ->assertSee($heading);
+                ->assertSee($role);
         }
+
+        Role::findOrCreate('Externo');
+        $external = User::factory()->create(['status' => 'activo']);
+        $external->assignRole('Externo');
+
+        $this->actingAs($external)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Pagos pendientes');
     }
 
     public function test_an_administrator_can_open_configured_training_views_and_edition_control(): void
@@ -266,16 +314,123 @@ class PlatformStructureTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get(TrainingProgramResource::getUrl(configuration: 'cursos'))
+            ->get(TrainingProgramResource::getUrl())
             ->assertOk()
-            ->assertSee('Cursos');
+            ->assertSee('Gestión de formación')
+            ->assertSee('Programas de formación')
+            ->assertDontSee('Rúbricas')
+            ->assertDontSee('Encuestas')
+            ->assertDontSee('Cursos y actividades')
+            ->assertDontSee('Ediciones');
 
-        \Filament\Facades\Filament::setCurrentResourceConfigurationKey(null);
+        $this->assertFalse(ActivityResource::shouldRegisterNavigation());
+
+        $this->actingAs($user)
+            ->get(route('filament.admin.pages.dashboard'))
+            ->assertOk()
+            ->assertDontSee('Cursos y actividades');
+
+        Livewire::test(ManageTrainingPrograms::class)
+            ->assertTableFilterExists('activity_type_id')
+            ->assertTableFilterExists('area_id')
+            ->assertTableFilterExists('default_modality')
+            ->assertTableFilterExists('status')
+            ->assertTableActionHasLabel('create', 'Nuevo programa')
+            ->assertTableActionHasIcon('create', Heroicon::OutlinedPlus)
+            ->assertTableActionHasLabel('administrar', 'Administrar', $program)
+            ->assertTableActionHasIcon('administrar', Heroicon::OutlinedArrowRight, $program)
+            ->assertTableActionDoesNotExist('ediciones');
+
+        $this->actingAs($user)
+            ->get(ProgramControlPage::getUrl(['record' => $program->getKey()]))
+            ->assertOk()
+            ->assertSee('pf-program-breadcrumbs', false)
+            ->assertSee('Gestión de formación')
+            ->assertSee('Programas de formación')
+            ->assertSee('Control del programa')
+            ->assertSee('Volver a programas')
+            ->assertSee('pf-program-back', false)
+            ->assertDontSee('fi-header-heading', false)
+            ->assertSee('Inscripciones')
+            ->assertSee('Asistencia')
+            ->assertSee('Evidencias')
+            ->assertSee('Evaluaciones')
+            ->assertSee('Encuesta de satisfacción')
+            ->assertSee('Archivos')
+            ->assertSee('Constancias')
+            ->assertDontSee('Edición')
+            ->assertDontSee('fi-page-sub-navigation-tabs', false);
+
+        $this->actingAs($user)
+            ->get(EnrollmentResource::getUrl(parameters: [
+                'activity' => $edition->id,
+                'training_program' => $program->id,
+            ]))
+            ->assertOk()
+            ->assertSee('Gestionando '.$program->name)
+            ->assertSee('Volver al programa')
+            ->assertSee('Programa de formación')
+            ->assertDontSee('fi-page-sub-navigation-tabs', false);
+
+        $programWithoutOperation = TrainingProgram::create([
+            'activity_type_id' => $activityType->id,
+            'name' => 'Programa sin nivel intermedio',
+            'slug' => 'programa-sin-nivel-intermedio',
+            'duration_hours' => 6,
+            'status' => 'activo',
+        ]);
+
+        $this->assertDatabaseMissing('activities', [
+            'training_program_id' => $programWithoutOperation->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get(ProgramControlPage::getUrl(['record' => $programWithoutOperation->getKey()]))
+            ->assertOk()
+            ->assertSee('Control del programa');
+
+        $this->assertDatabaseHas('activities', [
+            'training_program_id' => $programWithoutOperation->id,
+            'name' => $programWithoutOperation->name,
+        ]);
+
+        $this->actingAs($user)
+            ->get(SurveyQuestionResource::getUrl())
+            ->assertOk()
+            ->assertSee('Preguntas de satisfacción')
+            ->assertSee('todos los cursos');
+
+        Livewire::test(ManageSurveyQuestions::class)
+            ->assertTableFilterExists('question_type')
+            ->assertTableFilterExists('is_required')
+            ->assertTableActionHasLabel('create', 'Nueva pregunta')
+            ->callTableAction('create', data: [
+                'question_text' => '¿Recomendarías este curso?',
+                'question_type' => 'escala',
+                'options' => ['1' => '1', '5' => '5'],
+                'is_required' => true,
+                'order_number' => 20,
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $generalSurvey = Survey::query()->where('is_general', true)->firstOrFail();
+
+        $this->assertDatabaseHas('survey_questions', [
+            'survey_id' => $generalSurvey->id,
+            'question_text' => '¿Recomendarías este curso?',
+        ]);
 
         $this->actingAs($user)
             ->get(EditionControlPage::getUrl(['record' => $edition->getKey()]))
             ->assertOk()
-            ->assertSee('Control por edición');
+            ->assertSee('Control por edición')
+            ->assertSee('Encuesta de satisfacción');
+
+        $this->actingAs($user)
+            ->get(SurveyResponseResource::getUrl(parameters: ['activity' => $edition->id]))
+            ->assertOk()
+            ->assertSee('Encuesta de satisfacción')
+            ->assertSee('Aún no hay respuestas');
 
         $this->actingAs($user)
             ->get(EditionControlPage::getUrl(['record' => $edition]))

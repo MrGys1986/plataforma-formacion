@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Evaluator\CertificationController;
-use App\Http\Controllers\Evaluator\DashboardController;
 use App\Http\Controllers\Evaluator\EvaluationResultController;
 use App\Http\Controllers\Evaluator\EvidenceReviewController;
 use App\Http\Controllers\Evaluator\RubricController;

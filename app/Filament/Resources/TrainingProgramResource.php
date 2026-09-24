@@ -3,26 +3,32 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
+use App\Filament\Pages\ProgramControlPage;
 use App\Filament\Resources\TrainingProgramResource\Pages\ManageTrainingPrograms;
 use App\Models\TrainingProgram;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Resources\ResourceConfiguration;
+use Filament\Actions\CreateAction;
+use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class TrainingProgramResource extends InstitutionalResource
 {
-    protected static bool $shouldRegisterNavigation = false;
-
-    protected static ?string $configurationClass = ResourceConfiguration::class;
+    protected static bool $shouldRegisterNavigation = true;
 
     protected static ?int $navigationSort = 1;
 
     protected static ?string $model = TrainingProgram::class;
 
     protected static ?string $cluster = TrainingManagementCluster::class;
+
+    protected static ?string $navigationLabel = 'Programas de formación';
 
     protected static ?string $modelLabel = 'Programa formativo';
 
@@ -178,59 +184,18 @@ class TrainingProgramResource extends InstitutionalResource
             'label' => 'Horas',
         ],
         [
-            'name' => 'editions_count',
-            'label' => 'Ediciones',
-        ],
-        [
             'name' => 'status',
             'label' => 'Estado',
         ],
     ];
 
-    public static function getNavigationLabel(): string
+    public static function form(Schema $schema): Schema
     {
-        $configuredType = static::getConfiguredType();
-
-        return $configuredType['label'] ?? 'Oferta formativa';
-    }
-
-    public static function getNavigationParentItem(): ?string
-    {
-        return static::getConfiguration()?->getKey() ? 'Oferta formativa' : null;
-    }
-
-    public static function getNavigationSort(): ?int
-    {
-        $configuredType = static::getConfiguredType();
-
-        return $configuredType['sort'] ?? parent::getNavigationSort();
-    }
-
-    public static function getNavigationIcon(): string|\BackedEnum|Htmlable|null
-    {
-        return static::getConfiguration()?->getKey() ? null : Heroicon::OutlinedAcademicCap;
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        $configuredType = static::getConfiguredType();
-
-        return $configuredType['label'] ?? 'Oferta formativa';
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        $query = parent::getEloquentQuery()->withCount('editions');
-        $configuredType = static::getConfiguredType();
-
-        if (! $configuredType) {
-            return $query;
-        }
-
-        return $query->whereHas(
-            'activityType',
-            fn (Builder $activityTypes): Builder => $activityTypes->where('name', $configuredType['type']),
-        );
+        return parent::form($schema)
+            ->columns([
+                'default' => 1,
+                'md' => 2,
+            ]);
     }
 
     public static function getPages(): array
@@ -240,19 +205,113 @@ class TrainingProgramResource extends InstitutionalResource
         ];
     }
 
-    public static function getConfigurationKeyForType(?string $type): ?string
+    protected static function modifyTable(Table $table): Table
     {
-        $configuredType = collect(static::getTypeConfigurations())
-            ->first(fn (array $config): bool => $config['type'] === $type);
-
-        return $configuredType['key'] ?? null;
-    }
-
-    public static function getBrowseUrlForProgram(?TrainingProgram $program = null): string
-    {
-        return static::getUrl(
-            configuration: static::getConfigurationKeyForType($program?->activityType?->name),
-        );
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->label('Programa')
+                    ->icon(Heroicon::OutlinedAcademicCap)
+                    ->weight('semibold')
+                    ->searchable()
+                    ->sortable()
+                    ->wrap(),
+                TextColumn::make('activityType.name')
+                    ->label('Tipo')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
+                TextColumn::make('area.name')
+                    ->label('Área')
+                    ->icon(Heroicon::OutlinedBuildingOffice2)
+                    ->placeholder('Sin asignar')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('duration_hours')
+                    ->label('Duración')
+                    ->suffix(' h')
+                    ->numeric(decimalPlaces: 0)
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => ucfirst($state ?: 'Sin definir'))
+                    ->color(fn (?string $state): string => match ($state) {
+                        'activo' => 'success',
+                        'borrador' => 'warning',
+                        'inactivo' => 'danger',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+            ])
+            ->heading(view('filament.partials.table-heading', [
+                'icon' => Heroicon::OutlinedAcademicCap,
+                'label' => 'Programas de formación',
+            ]))
+            ->description('Administra desde un solo lugar los cursos, minicursos y talleres de la oferta institucional.')
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Nuevo programa')
+                    ->icon(Heroicon::OutlinedPlus)
+                    ->color('primary')
+                    ->modalHeading('Registrar programa de formación')
+                    ->modalDescription('Define la información académica y operativa del programa de formación.')
+                    ->modalIcon(Heroicon::OutlinedAcademicCap)
+                    ->modalIconColor('primary')
+                    ->modalWidth(Width::FiveExtraLarge)
+                    ->modalSubmitActionLabel('Guardar')
+                    ->createAnother(false)
+                    ->successNotificationTitle('Programa registrado correctamente'),
+            ])
+            ->filters([
+                SelectFilter::make('activity_type_id')
+                    ->label('Tipo de formación')
+                    ->placeholder('Cursos, minicursos y talleres')
+                    ->relationship(
+                        'activityType',
+                        'name',
+                        fn (Builder $query): Builder => $query
+                            ->whereIn('name', ['Curso', 'Minicurso', 'Taller'])
+                            ->orderBy('name'),
+                    )
+                    ->preload(),
+                SelectFilter::make('area_id')
+                    ->label('Área responsable')
+                    ->placeholder('Todas las áreas')
+                    ->relationship('area', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('default_modality')
+                    ->label('Modalidad')
+                    ->placeholder('Todas las modalidades')
+                    ->options([
+                        'presencial' => 'Presencial',
+                        'virtual' => 'Virtual',
+                        'hibrida' => 'Híbrida',
+                    ]),
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->placeholder('Todos los estados')
+                    ->options([
+                        'activo' => 'Activo',
+                        'inactivo' => 'Inactivo',
+                        'borrador' => 'Borrador',
+                    ]),
+            ], FiltersLayout::AboveContent)
+            ->filtersFormColumns([
+                'default' => 1,
+                'md' => 2,
+                'xl' => 4,
+            ])
+            ->deferFilters(false)
+            ->searchPlaceholder('Buscar programa de formación')
+            ->defaultPaginationPageOption(25)
+            ->persistSearchInSession(false)
+            ->persistFiltersInSession(false)
+            ->emptyStateIcon(Heroicon::OutlinedAcademicCap)
+            ->emptyStateHeading('No se encontraron programas')
+            ->emptyStateDescription('Ajusta los filtros o registra el primer programa de formación.')
+            ->extraAttributes(['class' => 'pf-management-table pf-training-program-table']);
     }
 
     /**
@@ -261,45 +320,12 @@ class TrainingProgramResource extends InstitutionalResource
     protected static function getTableRecordActions(): array
     {
         return [
-            Action::make('ediciones')
-                ->label('Ediciones')
-                ->icon(Heroicon::OutlinedRectangleStack)
+            Action::make('administrar')
+                ->label('Administrar')
+                ->icon(Heroicon::OutlinedArrowRight)
+                ->button()
                 ->color('primary')
-                ->url(
-                    fn (TrainingProgram $record): string => ActivityResource::getUrl(
-                        parameters: ['training_program' => $record->id],
-                    ),
-                ),
-        ];
-    }
-
-    protected static function getConfiguredType(): ?array
-    {
-        return collect(static::getTypeConfigurations())
-            ->firstWhere('key', static::getConfiguration()?->getKey());
-    }
-
-    protected static function getTypeConfigurations(): array
-    {
-        return [
-            [
-                'key' => 'cursos',
-                'label' => 'Cursos',
-                'type' => 'Curso',
-                'sort' => 1,
-            ],
-            [
-                'key' => 'minicursos',
-                'label' => 'Minicursos',
-                'type' => 'Minicurso',
-                'sort' => 2,
-            ],
-            [
-                'key' => 'talleres',
-                'label' => 'Talleres',
-                'type' => 'Taller',
-                'sort' => 3,
-            ],
+                ->url(fn (TrainingProgram $record): string => ProgramControlPage::getUrl(['record' => $record->getKey()])),
         ];
     }
 }
