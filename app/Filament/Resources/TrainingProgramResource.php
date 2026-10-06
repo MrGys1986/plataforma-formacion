@@ -92,6 +92,11 @@ class TrainingProgramResource extends InstitutionalResource
             'type' => 'textarea',
         ],
         [
+            'name' => 'competencies',
+            'label' => 'Competencias que desarrolla',
+            'type' => 'textarea',
+        ],
+        [
             'name' => 'default_modality',
             'label' => 'Modalidad predeterminada',
             'type' => 'select',

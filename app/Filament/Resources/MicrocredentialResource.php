@@ -2,17 +2,24 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\CredentialManagement\CredentialManagementCluster;
+use App\Filament\Clusters\LearningPathManagement\LearningPathManagementCluster;
 use App\Filament\Resources\MicrocredentialResource\Pages\ManageMicrocredentials;
 use App\Models\Microcredential;
+use Filament\Actions\CreateAction;
+use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
 class MicrocredentialResource extends InstitutionalResource
 {
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $model = Microcredential::class;
 
-    protected static ?string $cluster = CredentialManagementCluster::class;
+    protected static ?string $cluster = LearningPathManagementCluster::class;
 
     protected static ?string $modelLabel = 'Microcredencial';
 
@@ -21,67 +28,80 @@ class MicrocredentialResource extends InstitutionalResource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static array $formFields = [
-        0 => [
+        [
             'name' => 'user_id',
             'label' => 'Titular',
             'type' => 'relation',
             'relationship' => 'user',
             'required' => true,
         ],
-        1 => [
+        [
             'name' => 'activity_id',
             'label' => 'Actividad',
             'type' => 'relation',
             'relationship' => 'activity',
         ],
-        2 => [
+        [
             'name' => 'certificate_id',
             'label' => 'Constancia',
             'type' => 'relation',
             'relationship' => 'certificate',
             'title' => 'folio',
         ],
-        3 => [
+        ['name' => 'learning_path_id', 'label' => 'Ruta', 'type' => 'relation', 'relationship' => 'learningPath'],
+        ['name' => 'diploma_program_id', 'label' => 'Diplomado', 'type' => 'relation', 'relationship' => 'diplomaProgram'],
+        ['name' => 'certification_program_id', 'label' => 'Certificación', 'type' => 'relation', 'relationship' => 'certificationProgram'],
+        [
             'name' => 'name',
             'label' => 'Nombre',
             'required' => true,
         ],
-        4 => [
+        [
             'name' => 'description',
             'label' => 'Descripción',
             'type' => 'textarea',
         ],
-        5 => [
-            'name' => 'json_payload',
-            'label' => 'Carga JSON',
-            'type' => 'json',
+        [
+            'name' => 'competencies',
+            'label' => 'Competencias acreditadas',
+            'type' => 'textarea',
         ],
-        6 => [
+        [
             'name' => 'status',
             'label' => 'Estado',
+            'type' => 'select',
+            'options' => ['pendiente' => 'Pendiente', 'validada' => 'Validada', 'revocada' => 'Revocada'],
+            'default' => 'validada',
+            'required' => true,
         ],
     ];
 
     protected static array $tableColumns = [
-        0 => [
+        [
             'name' => 'name',
             'label' => 'Nombre',
             'searchable' => true,
         ],
-        1 => [
+        [
             'name' => 'user.name',
             'label' => 'Titular',
         ],
-        2 => [
+        [
             'name' => 'activity.name',
             'label' => 'Actividad',
         ],
-        3 => [
+        [
+            'name' => 'learningPath.name',
+            'label' => 'Ruta',
+        ],
+        ['name' => 'diplomaProgram.name', 'label' => 'Diplomado'],
+        ['name' => 'certificationProgram.name', 'label' => 'Certificación'],
+        [
             'name' => 'issued_at',
             'label' => 'Emisión',
             'type' => 'datetime',
         ],
-        4 => [
+        [
             'name' => 'status',
             'label' => 'Estado',
         ],
@@ -96,5 +116,42 @@ class MicrocredentialResource extends InstitutionalResource
         return [
             'index' => ManageMicrocredentials::route('/'),
         ];
+    }
+
+    protected static function modifyTable(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')->label('Microcredencial')->icon(Heroicon::OutlinedSparkles)
+                    ->weight('semibold')->searchable()->sortable()->wrap(),
+                TextColumn::make('user.name')->label('Titular')->searchable(),
+                TextColumn::make('learningPath.name')->label('Ruta')->placeholder('—'),
+                TextColumn::make('diplomaProgram.name')->label('Diplomado')->placeholder('—'),
+                TextColumn::make('certificationProgram.name')->label('Certificación')->placeholder('—'),
+                TextColumn::make('activity.name')->label('Curso / taller')->placeholder('—'),
+                TextColumn::make('issued_at')->label('Emisión')->date('d/m/Y')->sortable(),
+                TextColumn::make('status')->label('Estado')->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'validada' => 'success', 'pendiente' => 'warning', 'revocada' => 'danger', default => 'gray',
+                    }),
+            ])
+            ->heading(view('filament.partials.table-heading', [
+                'icon' => Heroicon::OutlinedSparkles,
+                'label' => 'Microcredenciales',
+            ]))
+            ->description('Consulta y gestiona los reconocimientos de rutas, diplomados, certificaciones y programas.')
+            ->headerActions([
+                CreateAction::make()->label('Nueva microcredencial')->icon(Heroicon::OutlinedPlus)
+                    ->modalHeading('Emitir microcredencial')->modalWidth(Width::FiveExtraLarge)
+                    ->createAnother(false),
+            ])
+            ->filters([
+                SelectFilter::make('status')->label('Estado')->options([
+                    'pendiente' => 'Pendiente', 'validada' => 'Validada', 'revocada' => 'Revocada',
+                ]),
+            ], FiltersLayout::AboveContent)
+            ->searchPlaceholder('Buscar microcredencial')
+            ->emptyStateHeading('No hay microcredenciales')
+            ->emptyStateDescription('Se emitirán al completar elementos que tengan esta opción activada.');
     }
 }

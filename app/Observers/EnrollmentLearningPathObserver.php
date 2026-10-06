@@ -3,21 +3,26 @@
 namespace App\Observers;
 
 use App\Models\Enrollment;
-use App\Models\UserLearningPath;
-use App\Services\LearningPaths\LearningPathProgressService;
+use App\Services\Microcredentials\LearningPathBadgeService;
 
 class EnrollmentLearningPathObserver
 {
-    public function saved(Enrollment $enrollment): void
+    public function updated(Enrollment $enrollment): void
     {
-        if (! $enrollment->wasChanged(['completion_status', 'final_score']) || ! $enrollment->activity_id) {
+        if (! $enrollment->wasChanged(['completion_status', 'final_score'])
+            || $enrollment->completion_status !== 'completado'
+            || ! $enrollment->activity_id) {
             return;
         }
 
-        UserLearningPath::query()
-            ->where('user_id', $enrollment->user_id)
-            ->whereHas('learningPath.items', fn ($query) => $query->where('activity_id', $enrollment->activity_id))
-            ->each(fn (UserLearningPath $assignment) => app(LearningPathProgressService::class)
-                ->synchronizeAssignment($assignment));
+        $enrollment->loadMissing(['activity', 'user']);
+
+        if ($enrollment->activity && $enrollment->user) {
+            app(LearningPathBadgeService::class)->issue(
+                $enrollment->user,
+                $enrollment->activity,
+                $enrollment->completed_at,
+            );
+        }
     }
 }

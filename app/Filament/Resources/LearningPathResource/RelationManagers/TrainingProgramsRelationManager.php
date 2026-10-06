@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\LearningPathResource\RelationManagers;
 
 use App\Filament\Pages\ProgramControlPage;
+use App\Models\CertificationProgram;
+use App\Models\DiplomaProgram;
+use App\Models\LearningPath;
 use App\Services\LearningPaths\LearningPathProgressService;
 use Filament\Actions\Action;
 use Filament\Actions\AttachAction;
@@ -135,9 +138,22 @@ class TrainingProgramsRelationManager extends RelationManager
 
     private function synchronizeAssignments(): void
     {
-        $this->getOwnerRecord()
-            ->userLearningPaths()
+        $owner = $this->getOwnerRecord()->unsetRelations();
+
+        $paths = match (true) {
+            $owner instanceof LearningPath => collect([$owner]),
+            $owner instanceof DiplomaProgram => LearningPath::query()
+                ->whereHas('diplomaPrograms', fn (Builder $query) => $query->whereKey($owner->id))
+                ->orWhereHas('certificationPrograms.diplomaPrograms', fn (Builder $query) => $query->whereKey($owner->id))
+                ->get(),
+            $owner instanceof CertificationProgram => LearningPath::query()
+                ->whereHas('certificationPrograms', fn (Builder $query) => $query->whereKey($owner->id))
+                ->get(),
+            default => collect(),
+        };
+
+        $paths->each(fn (LearningPath $path) => $path->userLearningPaths()
             ->each(fn ($assignment) => app(LearningPathProgressService::class)
-                ->synchronizeAssignment($assignment));
+                ->synchronizeAssignment($assignment)));
     }
 }

@@ -13,7 +13,7 @@ class LearningPathController extends Controller
     {
         $learningPaths = LearningPath::query()
             ->visibleTo($request->user())
-            ->withCount(['items', 'trainingPrograms'])
+            ->withCount(['items', 'trainingPrograms', 'diplomaPrograms', 'certificationPrograms'])
             ->with(['userLearningPaths' => fn ($query) => $query->where('user_id', $request->user()->id)])
             ->paginate(12);
 

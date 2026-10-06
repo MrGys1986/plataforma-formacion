@@ -12,7 +12,7 @@ class BadgeVerificationController extends Controller
     {
         abort_unless($microcredential->status === 'validada', 404);
 
-        $microcredential->load(['activity', 'user']);
+        $microcredential->load(['activity', 'learningPath', 'diplomaProgram', 'certificationProgram', 'user']);
 
         return view('public.badges.verify', compact('microcredential'));
     }

@@ -20,15 +20,9 @@ class LearningPath extends Model
     {
         static::saving(function (LearningPath $learningPath): void {
             if (blank($learningPath->path_type)) {
-                $learningPath->path_type = match (true) {
-                    (bool) $learningPath->generates_microcredential => 'microcredencial',
-                    (bool) $learningPath->generates_diploma => 'diplomado',
-                    default => 'certificacion',
-                };
+                $learningPath->path_type = 'ruta';
             }
-
-            $learningPath->generates_diploma = $learningPath->path_type === 'diplomado';
-            $learningPath->generates_microcredential = $learningPath->path_type === 'microcredencial';
+            $learningPath->generates_microcredential ??= $learningPath->path_type === 'microcredencial';
         });
     }
 
@@ -64,6 +58,22 @@ class LearningPath extends Model
     {
         return $this->belongsToMany(TrainingProgram::class, 'learning_path_training_program')
             ->withPivot(['order_number', 'is_required', 'minimum_score'])
+            ->withTimestamps()
+            ->orderByPivot('order_number');
+    }
+
+    public function diplomaPrograms(): BelongsToMany
+    {
+        return $this->belongsToMany(DiplomaProgram::class, 'learning_path_diploma_program')
+            ->withPivot(['order_number', 'is_required'])
+            ->withTimestamps()
+            ->orderByPivot('order_number');
+    }
+
+    public function certificationPrograms(): BelongsToMany
+    {
+        return $this->belongsToMany(CertificationProgram::class, 'learning_path_certification_program')
+            ->withPivot(['order_number', 'is_required'])
             ->withTimestamps()
             ->orderByPivot('order_number');
     }

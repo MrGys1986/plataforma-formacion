@@ -229,7 +229,18 @@ erDiagram
 - Personal docente, administrativo y responsables.
 - Inscripciones.
 - Asistencias.
-- Rutas de aprendizaje y sus actividades.
+- Rutas de aprendizaje con diplomados, certificaciones y programas de formación reutilizables.
+
+Una ruta puede combinar diplomados, certificaciones y cursos, minicursos o talleres directos.
+Cada diplomado agrupa programas de formación; una certificación puede agrupar programas y
+diplomados. En cada vínculo se configura el orden y si es obligatorio; los programas admiten
+una calificación mínima. Las actividades antiguas de las rutas siguen disponibles en una
+pestaña separada del administrador.
+
+La emisión de microcredenciales se configura de forma independiente en la ruta, el
+diplomado, la certificación o el programa formativo. Una insignia se emite cuando el
+participante completa los requisitos de ese elemento; el catálogo de microcredenciales
+se administra dentro de **Rutas de aprendizaje**.
 
 ### Evidencias y evaluación
 
@@ -325,7 +336,8 @@ Los recursos están agrupados en Clusters:
 | `SystemAdministration` | Usuarios, áreas y administración general |
 | `AcademicManagement` | Actividades, tipos, rutas, inscripciones y asistencia |
 | `EvidenceManagement` | Evidencias, evaluaciones, encuestas y archivos |
-| `CredentialManagement` | Constancias, plantillas y microcredenciales |
+| `CredentialManagement` | Constancias y plantillas |
+| `LearningPathManagement` | Rutas, diplomados, certificaciones y microcredenciales |
 | `ContinuingEducation` | Pagos, webinars y recursos digitales |
 | `QualityManagement` | Auditoría y calidad |
 

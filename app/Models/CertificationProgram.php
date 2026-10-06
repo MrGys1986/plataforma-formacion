@@ -38,4 +38,24 @@ class CertificationProgram extends Model
             ->withPivot(['order_number', 'is_required'])
             ->withTimestamps();
     }
+
+    public function trainingPrograms(): BelongsToMany
+    {
+        return $this->belongsToMany(TrainingProgram::class, 'certification_training_program')
+            ->withPivot(['order_number', 'is_required', 'minimum_score'])
+            ->withTimestamps()
+            ->orderByPivot('order_number');
+    }
+
+    public function learningPaths(): BelongsToMany
+    {
+        return $this->belongsToMany(LearningPath::class, 'learning_path_certification_program')
+            ->withPivot(['order_number', 'is_required'])
+            ->withTimestamps();
+    }
+
+    protected function casts(): array
+    {
+        return ['generates_microcredential' => 'boolean'];
+    }
 }

@@ -15,6 +15,13 @@
             <div><dt class="font-semibold">Costo</dt><dd>{{ $activity->requires_payment ? '$'.number_format((float) $activity->cost, 2).' MXN' : 'Sin costo' }}</dd></div>
         </dl>
 
+        @if (filled($activity->competencies ?: $activity->trainingProgram?->competencies))
+            <section class="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                <h2 class="font-semibold text-slate-900">Competencias que desarrolla</h2>
+                <p class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{{ $activity->competencies ?: $activity->trainingProgram?->competencies }}</p>
+            </section>
+        @endif
+
         <div class="mt-6 border-t border-slate-200 pt-5">
             @if($activity->instructor_id === auth()->id())
                 <p class="rounded-lg bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700">Impartes esta actividad. Puedes gestionarla desde “Cursos que imparto”.</p>

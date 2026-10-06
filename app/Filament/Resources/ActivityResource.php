@@ -124,6 +124,11 @@ class ActivityResource extends InstitutionalResource
                 'type' => 'textarea',
             ],
             [
+                'name' => 'competencies',
+                'label' => 'Competencias de esta edición',
+                'type' => 'textarea',
+            ],
+            [
                 'name' => 'duration_hours',
                 'label' => 'Duración en horas',
                 'type' => 'number',

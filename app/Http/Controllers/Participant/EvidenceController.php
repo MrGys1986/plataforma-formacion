@@ -7,15 +7,17 @@ use App\Http\Requests\Evidences\StoreEvidenceRequest;
 use App\Models\Enrollment;
 use App\Models\Evidence;
 use App\Services\Files\ManagedFileService;
+use App\Services\LearningPaths\LearningPathProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class EvidenceController extends Controller
 {
-    public function store(StoreEvidenceRequest $request, Enrollment $enrollment, ManagedFileService $files): RedirectResponse
+    public function store(StoreEvidenceRequest $request, Enrollment $enrollment, ManagedFileService $files, LearningPathProgressService $progress): RedirectResponse
     {
         abort_unless($enrollment->user_id === $request->user()->id, 403);
+        abort_unless($progress->canAccessActivity($request->user(), $enrollment->activity), 403);
         abort_unless($enrollment->status === 'aprobada', 422, 'La inscripción debe estar aprobada para subir evidencias.');
 
         $uploadedFile = $request->file('file');

@@ -78,6 +78,7 @@ class BadgeFeatureTest extends TestCase
             'name' => 'Ruta de inducción',
             'slug' => 'ruta-de-induccion',
             'status' => 'publicada',
+            'generates_microcredential' => true,
         ]);
         foreach ([$firstActivity, $secondActivity] as $index => $activity) {
             $path->items()->create([

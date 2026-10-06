@@ -200,7 +200,10 @@ class RecordVisibility
     {
         return match (true) {
             $user->hasRole('Calidad Academica') => $query,
-            $user->hasRole('Recursos Humanos') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', false)),
+            $user->hasRole('Recursos Humanos') => $query->where(function (Builder $badges): void {
+                $badges->whereNull('activity_id')
+                    ->orWhereHas('activity', fn (Builder $activity) => $activity->where('is_external', false));
+            }),
             $user->hasRole('Educacion Continua') => $query->whereHas('activity', fn (Builder $activity) => $activity->where('is_external', true)),
             default => $query->where('user_id', $user->id),
         };

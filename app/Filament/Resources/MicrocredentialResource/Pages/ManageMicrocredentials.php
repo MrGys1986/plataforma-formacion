@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\MicrocredentialResource\Pages;
 
 use App\Filament\Resources\MicrocredentialResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageMicrocredentials extends ManageRecords
@@ -12,8 +11,6 @@ class ManageMicrocredentials extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
     }
 }

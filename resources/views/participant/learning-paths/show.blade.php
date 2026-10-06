@@ -70,6 +70,48 @@
                 </div>
             @endif
 
+            @if (filled($learningPath->competencies))
+                <div class="mt-6 rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+                    <h2 class="font-bold text-slate-900">Competencias que desarrollarás</h2>
+                    <p class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{{ $learningPath->competencies }}</p>
+                </div>
+            @endif
+
+            @if ($learningPath->diplomaPrograms->isNotEmpty() || $learningPath->certificationPrograms->isNotEmpty())
+                <section class="mt-8">
+                    <h2 class="text-xl font-bold text-slate-950">Diplomados y certificaciones</h2>
+                    <div class="mt-4 grid gap-4 md:grid-cols-2">
+                        @foreach ($learningPath->diplomaPrograms as $diploma)
+                            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                                <span class="text-xs font-bold uppercase tracking-wide text-blue-700">Diplomado</span>
+                                <h3 class="mt-1 font-bold text-slate-900">{{ $diploma->name }}</h3>
+                                @if (filled($diploma->competencies))
+                                    <p class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{{ $diploma->competencies }}</p>
+                                @endif
+                            </div>
+                        @endforeach
+                        @foreach ($learningPath->certificationPrograms as $certification)
+                            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                                <span class="text-xs font-bold uppercase tracking-wide text-blue-700">Certificación</span>
+                                <h3 class="mt-1 font-bold text-slate-900">{{ $certification->name }}</h3>
+                                @if (filled($certification->competencies))
+                                    <p class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{{ $certification->competencies }}</p>
+                                @endif
+                                @foreach ($certification->diplomaPrograms as $diploma)
+                                    <div class="mt-4 border-l-2 border-blue-200 pl-4">
+                                        <span class="text-xs font-bold uppercase tracking-wide text-blue-700">Diplomado incluido</span>
+                                        <p class="mt-1 font-semibold text-slate-900">{{ $diploma->name }}</p>
+                                        @if (filled($diploma->competencies))
+                                            <p class="mt-1 whitespace-pre-line text-sm leading-6 text-slate-600">{{ $diploma->competencies }}</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+
             <div class="mt-9">
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -97,7 +139,7 @@
                                 @if ($state->completed)
                                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 4 4L19 6" /></svg>
                                 @else
-                                    {{ $item->order_number }}
+                                    {{ $loop->iteration }}
                                 @endif
                             </span>
 
@@ -105,6 +147,9 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-slate-600">{{ $typeName }}</span>
+                                        @if (isset($item->group_name) && $item->group_name !== 'Ruta')
+                                            <span class="text-xs font-semibold text-blue-700">{{ $item->group_name }}</span>
+                                        @endif
                                         @if ($item->is_required)
                                             <span class="text-xs font-semibold text-slate-400">Obligatoria</span>
                                         @else

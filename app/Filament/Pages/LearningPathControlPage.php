@@ -32,7 +32,7 @@ class LearningPathControlPage extends Page
         $this->record = LearningPath::query()
             ->visibleTo(auth()->user())
             ->with(['area'])
-            ->withCount(['competencyDefinitions', 'trainingPrograms', 'userLearningPaths'])
+            ->withCount(['trainingPrograms', 'diplomaPrograms', 'certificationPrograms', 'userLearningPaths', 'items'])
             ->where($routeColumn, $record)
             ->firstOrFail();
 
@@ -66,16 +66,8 @@ class LearningPathControlPage extends Page
 
     protected function getViewData(): array
     {
-        $typeLabel = match ($this->record->path_type) {
-            'certificacion' => 'Certificación',
-            'diplomado' => 'Diplomado',
-            'microcredencial' => 'Microcredencial',
-            default => 'Ruta de aprendizaje',
-        };
-
         return [
             'learningPath' => $this->record,
-            'typeLabel' => $typeLabel,
             'pathsUrl' => LearningPathResource::getUrl(),
             'editUrl' => LearningPathResource::getUrl('edit', [
                 'record' => $this->record,
@@ -86,28 +78,24 @@ class LearningPathControlPage extends Page
                     'url' => LearningPathResource::getUrl(),
                 ],
                 [
-                    'label' => $typeLabel,
-                    'url' => LearningPathResource::getUrl(parameters: [
-                        'tableFilters' => [
-                            'path_type' => ['value' => $this->record->path_type],
-                        ],
-                    ]),
-                ],
-                [
                     'label' => $this->record->name,
                     'url' => null,
                 ],
             ],
             'cards' => [
                 [
-                    'title' => 'Competencias',
-                    'description' => 'Crea nuevas competencias o vincula las que ya existen.',
-                    'count' => $this->record->competency_definitions_count,
-                    'url' => LearningPathResource::getUrl('edit', [
-                        'record' => $this->record,
-                        'relation' => '0',
-                    ]),
-                    'icon' => Heroicon::OutlinedLightBulb,
+                    'title' => 'Diplomados',
+                    'description' => 'Vincula diplomados que agrupan cursos, minicursos y talleres.',
+                    'count' => $this->record->diploma_programs_count,
+                    'url' => LearningPathResource::getUrl('edit', ['record' => $this->record, 'relation' => '0']),
+                    'icon' => Heroicon::OutlinedAcademicCap,
+                ],
+                [
+                    'title' => 'Certificaciones',
+                    'description' => 'Vincula certificaciones con diplomados y programas.',
+                    'count' => $this->record->certification_programs_count,
+                    'url' => LearningPathResource::getUrl('edit', ['record' => $this->record, 'relation' => '1']),
+                    'icon' => Heroicon::OutlinedCheckBadge,
                 ],
                 [
                     'title' => 'Programas de formación',
@@ -115,7 +103,7 @@ class LearningPathControlPage extends Page
                     'count' => $this->record->training_programs_count,
                     'url' => LearningPathResource::getUrl('edit', [
                         'record' => $this->record,
-                        'relation' => '1',
+                        'relation' => '2',
                     ]),
                     'icon' => Heroicon::OutlinedAcademicCap,
                 ],
@@ -125,9 +113,19 @@ class LearningPathControlPage extends Page
                     'count' => $this->record->user_learning_paths_count,
                     'url' => LearningPathResource::getUrl('edit', [
                         'record' => $this->record,
-                        'relation' => '2',
+                        'relation' => '3',
                     ]),
                     'icon' => Heroicon::OutlinedUsers,
+                ],
+                [
+                    'title' => 'Actividades anteriores',
+                    'description' => 'Consulta las actividades creadas antes del catálogo de programas.',
+                    'count' => $this->record->items_count,
+                    'url' => LearningPathResource::getUrl('edit', [
+                        'record' => $this->record,
+                        'relation' => '4',
+                    ]),
+                    'icon' => Heroicon::OutlinedClock,
                 ],
             ],
         ];

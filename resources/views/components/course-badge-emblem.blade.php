@@ -3,7 +3,7 @@
 @php
     $course = $badge->activity;
     $learningPath = $badge->learningPath;
-    $source = $learningPath ?? $course;
+    $source = $learningPath ?? $badge->diplomaProgram ?? $badge->certificationProgram ?? $course;
     $identity = $source?->public_id ?? $source?->slug ?? $source?->id ?? $source?->name ?? $badge->name;
     $variant = abs(crc32((string) $identity));
     $palettes = [

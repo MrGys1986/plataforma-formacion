@@ -19,6 +19,18 @@ class MicrocredentialPayloadService
                 'public_id' => $microcredential->learningPath->public_id,
                 'name' => $microcredential->learningPath->name,
             ] : null,
+            'diploma_program' => $microcredential->diplomaProgram ? [
+                'public_id' => $microcredential->diplomaProgram->public_id,
+                'name' => $microcredential->diplomaProgram->name,
+            ] : null,
+            'certification_program' => $microcredential->certificationProgram ? [
+                'public_id' => $microcredential->certificationProgram->public_id,
+                'name' => $microcredential->certificationProgram->name,
+            ] : null,
+            'activity' => $microcredential->activity ? [
+                'public_id' => $microcredential->activity->public_id,
+                'name' => $microcredential->activity->name,
+            ] : null,
             'recipient' => [
                 'public_id' => $microcredential->user?->public_id,
                 'name' => $microcredential->user?->name,

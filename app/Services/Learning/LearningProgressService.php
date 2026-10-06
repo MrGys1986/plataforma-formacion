@@ -3,12 +3,12 @@
 namespace App\Services\Learning;
 
 use App\Models\CertificationProgram;
-use App\Models\Competency;
 use App\Models\DiplomaProgram;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Models\UserLearningPath;
 use App\Services\LearningPaths\LearningPathProgressService;
+use App\Services\Microcredentials\LearningPathBadgeService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -16,34 +16,23 @@ class LearningProgressService
 {
     public function recalculate(User $user): void
     {
-        $completedPrograms = Enrollment::query()
-            ->where('user_id', $user->id)
-            ->where('completion_status', 'completado')
-            ->whereHas('activity', fn ($query) => $query->whereNotNull('training_program_id'))
-            ->with('activity:id,training_program_id')
-            ->get()
-            ->pluck('activity.training_program_id')
-            ->filter()
-            ->unique()
-            ->values();
-
-        $completedDiplomas = $this->updateDiplomas($user, $completedPrograms);
-        $completedCertifications = $this->updateCertifications($user, $completedDiplomas);
-        $completedCompetencies = $this->updateCompetencies($user, $completedCertifications);
+        $completedDiplomas = $this->updateDiplomas($user);
+        $this->updateCertifications($user, $completedDiplomas);
         $this->updateLearningPaths($user);
     }
 
-    private function updateDiplomas(User $user, Collection $completedPrograms): Collection
+    private function updateDiplomas(User $user): Collection
     {
         $completed = collect();
 
         DiplomaProgram::query()
             ->where('status', 'activo')
             ->with(['trainingPrograms' => fn ($query) => $query->where('diploma_training_program.is_required', true)])
-            ->each(function (DiplomaProgram $diploma) use ($user, $completedPrograms, $completed): void {
+            ->each(function (DiplomaProgram $diploma) use ($user, $completed): void {
                 $required = $diploma->trainingPrograms->pluck('id');
-                $progress = $this->progress($required, $completedPrograms);
-                $status = $this->status($required, $completedPrograms);
+                $qualified = $this->qualifiedPrograms($user, $diploma->trainingPrograms);
+                $progress = $this->progress($required, $qualified);
+                $status = $this->status($required, $qualified);
 
                 $this->upsertProgress(
                     'user_diploma_programs',
@@ -54,6 +43,7 @@ class LearningProgressService
 
                 if ($status === 'completado') {
                     $completed->push($diploma->id);
+                    app(LearningPathBadgeService::class)->issue($user, $diploma);
                 }
             });
 
@@ -66,11 +56,20 @@ class LearningProgressService
 
         CertificationProgram::query()
             ->where('status', 'activo')
-            ->with(['diplomaPrograms' => fn ($query) => $query->where('certification_diploma.is_required', true)])
+            ->with([
+                'diplomaPrograms' => fn ($query) => $query->where('certification_diploma.is_required', true),
+                'trainingPrograms' => fn ($query) => $query->where('certification_training_program.is_required', true),
+            ])
             ->each(function (CertificationProgram $certification) use ($user, $completedDiplomas, $completed): void {
-                $required = $certification->diplomaPrograms->pluck('id');
-                $progress = $this->progress($required, $completedDiplomas);
-                $status = $this->status($required, $completedDiplomas);
+                $requiredDiplomas = $certification->diplomaPrograms->pluck('id');
+                $requiredPrograms = $certification->trainingPrograms->pluck('id');
+                $qualifiedPrograms = $this->qualifiedPrograms($user, $certification->trainingPrograms);
+                $required = $requiredDiplomas->map(fn ($id) => 'd:'.$id)
+                    ->concat($requiredPrograms->map(fn ($id) => 'p:'.$id));
+                $qualified = $completedDiplomas->map(fn ($id) => 'd:'.$id)
+                    ->concat($qualifiedPrograms->map(fn ($id) => 'p:'.$id));
+                $progress = $this->progress($required, $qualified);
+                $status = $this->status($required, $qualified);
 
                 $this->upsertProgress(
                     'user_certification_programs',
@@ -81,33 +80,7 @@ class LearningProgressService
 
                 if ($status === 'completado') {
                     $completed->push($certification->id);
-                }
-            });
-
-        return $completed;
-    }
-
-    private function updateCompetencies(User $user, Collection $completedCertifications): Collection
-    {
-        $completed = collect();
-
-        Competency::query()
-            ->where('status', 'activo')
-            ->with(['certificationPrograms' => fn ($query) => $query->where('competency_certification.is_required', true)])
-            ->each(function (Competency $competency) use ($user, $completedCertifications, $completed): void {
-                $required = $competency->certificationPrograms->pluck('id');
-                $progress = $this->progress($required, $completedCertifications);
-                $status = $this->status($required, $completedCertifications);
-
-                $this->upsertProgress(
-                    'user_competencies',
-                    ['user_id' => $user->id, 'competency_id' => $competency->id],
-                    $status,
-                    $progress,
-                );
-
-                if ($status === 'completado') {
-                    $completed->push($competency->id);
+                    app(LearningPathBadgeService::class)->issue($user, $certification);
                 }
             });
 
@@ -130,6 +103,28 @@ class LearningProgressService
         }
 
         return round($required->intersect($completed)->count() * 100 / $required->count(), 2);
+    }
+
+    private function qualifiedPrograms(User $user, Collection $programs): Collection
+    {
+        if ($programs->isEmpty()) {
+            return collect();
+        }
+
+        $enrollments = Enrollment::query()
+            ->where('user_id', $user->id)
+            ->where('completion_status', 'completado')
+            ->whereHas('activity', fn ($query) => $query->whereIn('training_program_id', $programs->pluck('id')))
+            ->with('activity:id,training_program_id')
+            ->get();
+
+        return $programs->filter(fn ($program): bool => $enrollments->contains(fn ($enrollment): bool =>
+            $enrollment->activity?->training_program_id === $program->id
+            && app(LearningPathProgressService::class)->meetsMinimumScore(
+                $enrollment->final_score,
+                $program->pivot->minimum_score,
+            )
+        ))->pluck('id');
     }
 
     private function status(Collection $required, Collection $completed): string

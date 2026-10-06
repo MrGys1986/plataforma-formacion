@@ -39,6 +39,13 @@ class DiplomaProgram extends Model
             ->withTimestamps();
     }
 
+    public function learningPaths(): BelongsToMany
+    {
+        return $this->belongsToMany(LearningPath::class, 'learning_path_diploma_program')
+            ->withPivot(['order_number', 'is_required'])
+            ->withTimestamps();
+    }
+
     public function surveys(): BelongsToMany
     {
         return $this->belongsToMany(Survey::class)->withTimestamps();
@@ -48,6 +55,7 @@ class DiplomaProgram extends Model
     {
         return [
             'total_hours' => 'decimal:2',
+            'generates_microcredential' => 'boolean',
         ];
     }
 }

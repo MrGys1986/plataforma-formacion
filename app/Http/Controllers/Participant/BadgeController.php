@@ -20,9 +20,8 @@ class BadgeController extends Controller
 
         $badges = $request->user()
             ->microcredentials()
-            ->whereNotNull('learning_path_id')
             ->where('status', 'validada')
-            ->with('learningPath')
+            ->with(['learningPath', 'diplomaProgram', 'certificationProgram', 'activity.trainingProgram'])
             ->latest('issued_at')
             ->paginate(12);
 
@@ -33,9 +32,7 @@ class BadgeController extends Controller
     {
         abort_unless($microcredential->user_id === $request->user()->id, 403);
 
-        abort_unless($microcredential->learning_path_id !== null, 404);
-
-        $microcredential->load(['learningPath', 'user']);
+        $microcredential->load(['learningPath', 'diplomaProgram', 'certificationProgram', 'activity', 'user']);
 
         return view('participant.badges.show', compact('microcredential'));
     }

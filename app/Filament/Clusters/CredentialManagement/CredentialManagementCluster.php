@@ -8,6 +8,8 @@ use Filament\Support\Icons\Heroicon;
 
 class CredentialManagementCluster extends Cluster
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?int $navigationSort = 7;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;

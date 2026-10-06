@@ -11,6 +11,12 @@ class CompetencyResource extends InstitutionalResource
 {
     protected static bool $shouldRegisterNavigation = false;
 
+    // Las competencias ahora se describen en cada ficha; el catálogo legado se conserva solo como historial.
+    public static function canAccess(): bool
+    {
+        return false;
+    }
+
     protected static ?int $navigationSort = 2;
 
     protected static ?string $model = Competency::class;

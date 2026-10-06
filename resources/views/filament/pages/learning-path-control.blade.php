@@ -39,14 +39,14 @@
 
             <h2 class="pf-edition-summary-title">{{ $learningPath->name }}</h2>
             <p class="pf-edition-summary-copy">
-                Administra las competencias, los programas de formación reutilizables y los participantes desde un solo nivel de control.
+                Administra diplomados, certificaciones, programas de formación y participantes desde esta ruta.
             </p>
         </div>
 
         <dl class="pf-edition-meta">
             <div>
                 <dt>Tipo</dt>
-                <dd>{{ $typeLabel }}</dd>
+                <dd>Ruta de aprendizaje</dd>
             </div>
             <div>
                 <dt>Área responsable</dt>
@@ -66,6 +66,15 @@
             </div>
         </dl>
     </section>
+
+    @if (filled($learningPath->competencies))
+        <section class="pf-edition-summary">
+            <div class="pf-edition-summary-main">
+                <h3 class="pf-edition-summary-title">Competencias que desarrolla</h3>
+                <p class="pf-edition-summary-copy" style="white-space: pre-line">{{ $learningPath->competencies }}</p>
+            </div>
+        </section>
+    @endif
 
     <div class="pf-edition-grid pf-learning-path-grid">
         @foreach ($cards as $card)

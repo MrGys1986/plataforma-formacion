@@ -23,26 +23,19 @@ class ManageLearningPaths extends ManageRecords
 
     public function getSubheading(): string|Htmlable|null
     {
-        return 'Administra certificaciones, diplomados y microcredenciales desde un solo catálogo.';
+        return 'Construye rutas con diplomados, certificaciones, cursos, minicursos y talleres.';
     }
 
     public function getTabs(): array
     {
         return [
-            'todas' => Tab::make('Todas las rutas')
-                ->icon(Heroicon::OutlinedSquares2x2),
-            'certificaciones' => Tab::make('Certificaciones')
+            'todas' => Tab::make('Todas las rutas')->icon(Heroicon::OutlinedSquares2x2),
+            'publicadas' => Tab::make('Publicadas')
                 ->icon(Heroicon::OutlinedCheckBadge)
-                ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                    ->where('path_type', 'certificacion')),
-            'diplomados' => Tab::make('Diplomados')
-                ->icon(Heroicon::OutlinedAcademicCap)
-                ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                    ->where('path_type', 'diplomado')),
-            'microcredenciales' => Tab::make('Microcredenciales')
-                ->icon(Heroicon::OutlinedSparkles)
-                ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                    ->where('path_type', 'microcredencial')),
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'publicada')),
+            'borradores' => Tab::make('Borradores')
+                ->icon(Heroicon::OutlinedPencilSquare)
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('status', 'borrador')),
         ];
     }
 

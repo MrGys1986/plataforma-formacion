@@ -6,7 +6,9 @@ use App\Filament\Clusters\LearningPathManagement\LearningPathManagementCluster;
 use App\Filament\Pages\LearningPathControlPage;
 use App\Filament\Resources\LearningPathResource\Pages\EditLearningPath;
 use App\Filament\Resources\LearningPathResource\Pages\ManageLearningPaths;
-use App\Filament\Resources\LearningPathResource\RelationManagers\CompetencyDefinitionsRelationManager;
+use App\Filament\Resources\LearningPathResource\RelationManagers\CertificationProgramsRelationManager;
+use App\Filament\Resources\LearningPathResource\RelationManagers\DiplomaProgramsRelationManager;
+use App\Filament\Resources\LearningPathResource\RelationManagers\LegacyActivitiesRelationManager;
 use App\Filament\Resources\LearningPathResource\RelationManagers\TrainingProgramsRelationManager;
 use App\Filament\Resources\LearningPathResource\RelationManagers\UserLearningPathsRelationManager;
 use App\Models\LearningPath;
@@ -55,16 +57,6 @@ class LearningPathResource extends InstitutionalResource
                     ->description('Define el tipo de reconocimiento, el alcance y la forma de avance.')
                     ->icon(Heroicon::OutlinedMap)
                     ->schema([
-                        Select::make('path_type')
-                            ->label('Tipo de ruta')
-                            ->options([
-                                'certificacion' => 'Certificación',
-                                'diplomado' => 'Diplomado',
-                                'microcredencial' => 'Microcredencial',
-                            ])
-                            ->default('certificacion')
-                            ->native(false)
-                            ->required(),
                         Select::make('area_id')
                             ->label('Área responsable')
                             ->relationship('area', 'name')
@@ -103,6 +95,11 @@ class LearningPathResource extends InstitutionalResource
                             ->label('Objetivo')
                             ->rows(3)
                             ->columnSpanFull(),
+                        Textarea::make('competencies')
+                            ->label('Competencias que desarrolla')
+                            ->helperText('Descríbelas aquí; no es necesario crearlas ni vincularlas por separado.')
+                            ->rows(3)
+                            ->columnSpanFull(),
                         Textarea::make('target_audience')
                             ->label('Dirigido a')
                             ->rows(3)
@@ -110,6 +107,9 @@ class LearningPathResource extends InstitutionalResource
                         Toggle::make('is_sequential')
                             ->label('Avance secuencial')
                             ->helperText('Los programas deberán completarse en el orden establecido.'),
+                        Toggle::make('generates_microcredential')
+                            ->label('Otorga microcredencial al completar la ruta')
+                            ->default(false),
                     ])
                     ->columns([
                         'default' => 1,
@@ -121,15 +121,17 @@ class LearningPathResource extends InstitutionalResource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->withCount(['competencyDefinitions', 'trainingPrograms', 'userLearningPaths']);
+            ->withCount(['trainingPrograms', 'diplomaPrograms', 'certificationPrograms', 'userLearningPaths', 'items']);
     }
 
     public static function getRelations(): array
     {
         return [
-            CompetencyDefinitionsRelationManager::class,
+            DiplomaProgramsRelationManager::class,
+            CertificationProgramsRelationManager::class,
             TrainingProgramsRelationManager::class,
             UserLearningPathsRelationManager::class,
+            LegacyActivitiesRelationManager::class,
         ];
     }
 
@@ -152,29 +154,13 @@ class LearningPathResource extends InstitutionalResource
                     ->searchable()
                     ->sortable()
                     ->wrap(),
-                TextColumn::make('path_type')
-                    ->label('Tipo')
-                    ->badge()
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'certificacion' => 'Certificación',
-                        'diplomado' => 'Diplomado',
-                        'microcredencial' => 'Microcredencial',
-                        default => 'Sin definir',
-                    })
-                    ->color(fn (?string $state): string => match ($state) {
-                        'certificacion' => 'info',
-                        'diplomado' => 'warning',
-                        'microcredencial' => 'success',
-                        default => 'gray',
-                    }),
-                TextColumn::make('competency_definitions_count')
-                    ->label('Competencias')
-                    ->badge()
-                    ->color('gray'),
+                TextColumn::make('diploma_programs_count')->label('Diplomados')->badge(),
+                TextColumn::make('certification_programs_count')->label('Certificaciones')->badge(),
                 TextColumn::make('training_programs_count')
                     ->label('Programas')
                     ->badge()
                     ->color('primary'),
+                TextColumn::make('items_count')->label('Act. anteriores')->badge()->color('gray'),
                 TextColumn::make('total_hours')
                     ->label('Duración')
                     ->suffix(' h')
@@ -195,13 +181,13 @@ class LearningPathResource extends InstitutionalResource
                 'icon' => Heroicon::OutlinedMap,
                 'label' => 'Rutas de aprendizaje',
             ]))
-            ->description('Construye certificaciones, diplomados y microcredenciales con competencias y programas reutilizables.')
+            ->description('Agrupa diplomados, certificaciones y programas reutilizables en itinerarios formativos.')
             ->headerActions([
                 CreateAction::make()
                     ->label('Nueva ruta')
                     ->icon(Heroicon::OutlinedPlus)
                     ->modalHeading('Crear ruta de aprendizaje')
-                    ->modalDescription('Registra primero la información general; después podrás añadir competencias y programas.')
+                    ->modalDescription('Registra la ruta y después vincula diplomados, certificaciones y programas.')
                     ->modalIcon(Heroicon::OutlinedMap)
                     ->modalWidth(Width::FiveExtraLarge)
                     ->modalSubmitActionLabel('Guardar')
@@ -209,14 +195,9 @@ class LearningPathResource extends InstitutionalResource
                     ->successNotificationTitle('Ruta creada correctamente'),
             ])
             ->filters([
-                SelectFilter::make('path_type')
-                    ->label('Tipo de ruta')
-                    ->placeholder('Todos los tipos')
-                    ->options([
-                        'certificacion' => 'Certificación',
-                        'diplomado' => 'Diplomado',
-                        'microcredencial' => 'Microcredencial',
-                    ]),
+                SelectFilter::make('generates_microcredential')
+                    ->label('Microcredencial')
+                    ->options([1 => 'Sí', 0 => 'No']),
                 SelectFilter::make('area_id')
                     ->label('Área responsable')
                     ->placeholder('Todas las áreas')

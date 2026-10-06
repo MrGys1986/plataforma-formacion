@@ -10,6 +10,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserLearningPathsRelationManager extends RelationManager
 {
@@ -24,7 +25,12 @@ class UserLearningPathsRelationManager extends RelationManager
         return $schema->components([
             Select::make('user_id')
                 ->label('Participante')
-                ->relationship('user', 'name')
+                ->relationship('user', 'name', modifyQueryUsing: fn (Builder $query): Builder => $query
+                    ->where('status', 'activo')
+                    ->whereHas('roles', fn (Builder $roles): Builder => $roles
+                        ->whereIn('name', ['Alumno', 'Profesor', 'Externo']))
+                    ->whereDoesntHave('userLearningPaths', fn (Builder $assignments): Builder => $assignments
+                        ->where('learning_path_id', $this->getOwnerRecord()->id)))
                 ->searchable(['name', 'email'])
                 ->preload()
                 ->required(),
