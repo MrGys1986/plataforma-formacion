@@ -17,7 +17,8 @@ class ManageCertificates extends ManageRecords
     {
         return [
             ...$this->getEditionContextHeaderActions(),
-            CreateAction::make(),
+            CreateAction::make()->label('Subir constancia')
+                ->mutateDataUsing(fn (array $data): array => CertificateResource::prepareCertificateData($data)),
         ];
     }
 }

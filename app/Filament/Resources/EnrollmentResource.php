@@ -5,7 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Clusters\TrainingManagement\TrainingManagementCluster;
 use App\Filament\Resources\EnrollmentResource\Pages\ManageEnrollments;
 use App\Models\Enrollment;
+use App\Services\Enrollments\EnrollmentService;
+use Closure;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 
 class EnrollmentResource extends InstitutionalResource
 {
@@ -61,7 +68,7 @@ class EnrollmentResource extends InstitutionalResource
             [
                 'name' => 'user_id',
                 'label' => 'Participante',
-                'type' => request()->filled('training_program') ? 'hidden' : 'relation',
+                'type' => 'relation',
                 'relationship' => 'user',
                 'required' => true,
             ],
@@ -141,5 +148,58 @@ class EnrollmentResource extends InstitutionalResource
         }
 
         return $query->where('activity_id', request()->integer('activity'));
+    }
+
+    protected static function getTableRecordActions(): array
+    {
+        return [
+            Action::make('approve')->label('Aprobar')
+                ->visible(fn (Enrollment $record): bool => $record->status === 'solicitada' && Gate::allows('approve', $record))
+                ->action(fn (Enrollment $record) => app(EnrollmentService::class)->approve($record, auth()->user())),
+            Action::make('reject')->label('Rechazar')->color('danger')
+                ->visible(fn (Enrollment $record): bool => $record->status === 'solicitada' && Gate::allows('reject', $record))
+                ->schema([Textarea::make('reason')->label('Motivo')->required()->maxLength(1000)])
+                ->action(fn (Enrollment $record, array $data) => app(EnrollmentService::class)->reject($record, $data['reason'])),
+        ];
+    }
+
+    protected static function makeFormComponent(array $definition): Component
+    {
+        $component = parent::makeFormComponent($definition);
+
+        if (in_array($definition['name'], ['user_id', 'activity_id'], true)) {
+            $field = $definition['name'];
+            $component->rules([
+                fn (Get $get, ?Enrollment $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get, $record, $field): void {
+                    if (blank($get('user_id')) || blank($get('activity_id'))) {
+                        return;
+                    }
+
+                    $candidate = $record ? clone $record : new Enrollment;
+                    $candidate->fill([
+                        'user_id' => $get('user_id'),
+                        'activity_id' => $get('activity_id'),
+                        'status' => $get('status') ?? 'solicitada',
+                    ]);
+                    $message = $candidate->availabilityErrors()[$field] ?? null;
+
+                    if ($message !== null) {
+                        $fail($message);
+                    }
+                },
+            ]);
+        }
+
+        if ($definition['name'] === 'completion_status') {
+            $component->rules([
+                fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                    if ($value === 'completado' && ($get('status') !== 'aprobada' || blank($get('final_score')))) {
+                        $fail('Aprueba la inscripción y captura la calificación antes de marcarla como completada.');
+                    }
+                },
+            ]);
+        }
+
+        return $component;
     }
 }

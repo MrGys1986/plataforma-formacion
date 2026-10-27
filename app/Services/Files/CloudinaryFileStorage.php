@@ -38,6 +38,7 @@ class CloudinaryFileStorage
             'type' => $deliveryType,
             'folder' => $folder,
             'public_id' => $publicImage ? pathinfo($storedName, PATHINFO_FILENAME) : $storedName,
+            'filename_override' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
             'use_filename' => false,
             'unique_filename' => false,
             'overwrite' => false,
@@ -60,21 +61,21 @@ class CloudinaryFileStorage
         ];
     }
 
-    public function temporaryDownloadUrl(string $publicId, string $extension, string $downloadName, int $minutes): string
+    public function temporaryDownloadUrl(string $publicId, string $extension, int $minutes, string $resourceType = 'raw', string $deliveryType = 'private'): string
     {
         return $this->client()->uploadApi()->privateDownloadUrl($publicId, $extension, [
-            'resource_type' => 'raw',
-            'type' => 'private',
-            'attachment' => $downloadName,
+            'resource_type' => $resourceType,
+            'type' => $deliveryType,
+            'attachment' => true,
             'expires_at' => now()->addMinutes($minutes)->timestamp,
         ]);
     }
 
-    public function temporaryPreviewUrl(string $publicId, string $extension, int $minutes): string
+    public function temporaryPreviewUrl(string $publicId, string $extension, int $minutes, string $resourceType = 'raw', string $deliveryType = 'private'): string
     {
         return $this->client()->uploadApi()->privateDownloadUrl($publicId, $extension, [
-            'resource_type' => 'raw',
-            'type' => 'private',
+            'resource_type' => $resourceType,
+            'type' => $deliveryType,
             'expires_at' => now()->addMinutes($minutes)->timestamp,
         ]);
     }
@@ -94,13 +95,6 @@ class CloudinaryFileStorage
 
     private function client(): Cloudinary
     {
-        return new Cloudinary([
-            'cloud' => [
-                'cloud_name' => config('services.cloudinary.cloud_name'),
-                'api_key' => config('services.cloudinary.api_key'),
-                'api_secret' => config('services.cloudinary.api_secret'),
-            ],
-            'url' => ['secure' => true],
-        ]);
+        return app(Cloudinary::class);
     }
 }

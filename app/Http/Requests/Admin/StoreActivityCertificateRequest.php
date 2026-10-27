@@ -25,4 +25,11 @@ class StoreActivityCertificateRequest extends FormRequest
             ],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'certificate.max' => 'La constancia debe pesar como máximo '.(config('security.upload_max_kilobytes') / 1024).' MB. Selecciona un PDF más pequeño.',
+        ];
+    }
 }

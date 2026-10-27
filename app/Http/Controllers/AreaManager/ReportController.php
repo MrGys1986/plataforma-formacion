@@ -13,6 +13,8 @@ class ReportController extends Controller
 {
     public function index(Request $request, InstitutionalReportService $reports, AuditService $audit)
     {
+        abort_if($request->user()->area_id === null && ! $request->user()->hasRole('Superadministrador'), 403, 'Tu cuenta necesita un área asignada para consultar este reporte.');
+
         $audit->log('reportes', 'consulta_area');
 
         return view('area-manager.reports.index', [

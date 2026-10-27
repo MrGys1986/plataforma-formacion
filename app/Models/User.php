@@ -64,6 +64,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Enrollment::class);
     }
 
+    public function inAppNotifications(): HasMany
+    {
+        return $this->hasMany(NotificationLog::class)->where('channel', 'in_app')->where('status', 'enviada');
+    }
+
     public function instructedActivities(): HasMany
     {
         return $this->hasMany(Activity::class, 'instructor_id');

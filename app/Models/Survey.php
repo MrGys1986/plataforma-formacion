@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
 use App\Models\Concerns\VisibleToUser;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,6 +15,13 @@ class Survey extends Model
     use HasPublicId, VisibleToUser;
 
     protected $guarded = [];
+
+    public function scopeForActivity(Builder $query, Activity $activity): Builder
+    {
+        return $query->where('status', 'activa')->where(fn (Builder $surveys): Builder => $surveys
+            ->where('is_general', true)
+            ->orWhereHas('trainingPrograms', fn (Builder $programs): Builder => $programs->whereKey($activity->training_program_id)));
+    }
 
     public function questions(): HasMany
     {

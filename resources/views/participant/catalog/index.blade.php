@@ -5,7 +5,7 @@
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             @forelse ($activities as $activity)
                 @php
-                    $courseName = Illuminate\Support\Str::lower($activity->name);
+                    $courseName = Illuminate\Support\Str::lower($activity->participant_name);
                     $courseCover = match (true) {
                         str_contains($courseName, 'liderazgo') => 'course-leadership.png',
                         str_contains($courseName, 'protección'),
@@ -17,19 +17,19 @@
                         default => 'course-general.png',
                     };
                 @endphp
-                <a class="group flex h-full flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-950/10" href="{{ route('participant.catalog.show', $activity) }}">
+                <a class="group flex h-full flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-300 hover:shadow-xl hover:shadow-brand-950/10" href="{{ route('participant.catalog.show', ['activity' => $activity]) }}">
                     <div class="relative aspect-[16/8] overflow-hidden bg-brand-50">
                         <img
                             class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                             src="{{ $activity->coverFile?->optimizedImageUrl(960, 420) ?? $activity->trainingProgram?->coverFile?->optimizedImageUrl(960, 420) ?? asset('img/courses/'.$courseCover) }}"
-                            alt="Imagen de referencia del curso {{ $activity->name }}"
+                            alt="Imagen de referencia del curso {{ $activity->participant_name }}"
                             loading="lazy"
                             decoding="async"
                         >
                         <span class="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[0.68rem] font-extrabold uppercase tracking-[0.12em] text-brand-700 shadow-sm backdrop-blur">{{ $activity->activityType?->name ?? 'Formación' }}</span>
                     </div>
                     <div class="flex flex-1 flex-col p-5 text-center">
-                        <h2 class="text-lg font-extrabold tracking-tight text-slate-900">{{ $activity->name }}</h2>
+                        <h2 class="text-lg font-extrabold tracking-tight text-slate-900">{{ $activity->participant_name }}</h2>
                         <p class="mt-2 line-clamp-2 text-sm leading-6 text-slate-500">{{ $activity->description ?: 'Actividad formativa institucional.' }}</p>
                         <div class="mt-auto pt-5 text-sm">
                             <div class="flex items-center justify-center gap-3 border-t border-slate-100 pt-4">

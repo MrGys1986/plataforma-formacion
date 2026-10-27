@@ -9,7 +9,7 @@
                         <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 transition group-hover:bg-brand-600 group-hover:text-white"><x-portal-nav-icon name="teaching" /></span>
                         <div>
                             <p class="text-xs font-bold uppercase tracking-[0.14em] text-blue-600">{{ $activity->activityType?->name ?? 'Actividad formativa' }}</p>
-                            <h2 class="mt-2 text-lg font-extrabold text-slate-900">{{ $activity->name }}</h2>
+                            <h2 class="mt-2 text-lg font-extrabold text-slate-900">{{ $activity->participant_name }}</h2>
                         </div>
                         <span class="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{{ ucfirst(str_replace('_', ' ', $activity->status)) }}</span>
                     </div>

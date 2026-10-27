@@ -55,7 +55,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn (): string => view('filament.partials.user-name')->render(),
+                fn (): string => view('filament.partials.user-name')->render().view('filament.partials.notification-bell')->render(),
             )
             ->renderHook(
                 PanelsRenderHook::SCRIPTS_AFTER,

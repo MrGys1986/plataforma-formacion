@@ -1,7 +1,7 @@
 @extends('layouts.portal')
 
 @section('content')
-    <x-portal-page :title="$enrollment->activity?->name ?? 'Mi formación'" description="Consulta tu avance y entrega tus propias evidencias.">
+    <x-portal-page :title="$enrollment->activity?->participant_name ?? 'Mi formación'" description="Consulta tu avance y entrega tus propias evidencias.">
         @if(session('status'))
             <div class="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">{{ session('status') }}</div>
         @endif
@@ -11,6 +11,24 @@
             <x-quality-stat label="Avance" :value="ucfirst(str_replace('_', ' ', $enrollment->completion_status))" detail="Progreso del curso" tone="emerald" />
             <x-quality-stat label="Calificación" :value="$enrollment->final_score ?? 'Pendiente'" detail="Resultado obtenido" tone="slate" />
         </div>
+
+        @if ($enrollment->status === 'aprobada' && $enrollment->completion_status === 'completado')
+            <section class="mt-6 rounded-lg border p-4">
+                <h2 class="font-semibold">Formación completada</h2>
+                @foreach ($enrollment->certificates as $certificate)
+                    @if ($certificate->fileUpload)
+                        <a class="mt-3 block text-sm font-semibold text-blue-700 underline" href="{{ $certificate->fileUpload->temporaryDownloadUrl() }}">Descargar constancia</a>
+                    @endif
+                @endforeach
+                @foreach ($surveys as $survey)
+                    @if ($answeredSurveyIds->contains($survey->id))
+                        <p class="mt-3 text-sm text-emerald-700">Encuesta respondida: {{ $survey->name }}</p>
+                    @else
+                        <a class="mt-3 block text-sm font-semibold text-blue-700 underline" href="{{ route('participant.surveys.show', ['survey' => $survey, 'activity' => $enrollment->activity]) }}">Evaluar curso: {{ $survey->name }}</a>
+                    @endif
+                @endforeach
+            </section>
+        @endif
 
         <div class="mt-7 grid gap-6 xl:grid-cols-[1fr_360px]">
             <section class="rounded-2xl border border-brand-100 bg-white p-5 shadow-sm sm:p-6">

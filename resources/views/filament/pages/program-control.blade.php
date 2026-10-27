@@ -17,6 +17,7 @@
         <div class="pf-edition-summary-main">
             <div class="pf-program-control-toolbar">
                 <p class="pf-dashboard-eyebrow">Control del programa</p>
+                {{ $this->configureEnrollmentAction }}
 
                 <a href="{{ $programsUrl }}" class="pf-program-back">
                     <x-filament::icon

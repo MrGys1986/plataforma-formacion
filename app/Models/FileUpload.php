@@ -7,8 +7,8 @@ use App\Models\Concerns\VisibleToUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\URL;
 
 class FileUpload extends Model
 {
@@ -51,6 +51,11 @@ class FileUpload extends Model
         return $this->hasMany(TrainingProgram::class, 'cover_file_id');
     }
 
+    public function learningPathCovers(): HasMany
+    {
+        return $this->hasMany(LearningPath::class, 'cover_file_id');
+    }
+
     public function activityCovers(): HasMany
     {
         return $this->hasMany(Activity::class, 'cover_file_id');
@@ -69,12 +74,17 @@ class FileUpload extends Model
             && ! $this->paymentProofs()->exists()
             && ! $this->certificateTemplates()->exists()
             && ! $this->courseCovers()->exists()
+            && ! $this->learningPathCovers()->exists()
             && ! $this->activityCovers()->exists()
             && ! $this->userAvatars()->exists();
     }
 
     public function optimizedImageUrl(int $width = 800, int $height = 450): string
     {
+        if ($this->disk === 'public' && $this->resource_type === 'image') {
+            return asset('storage/'.$this->path);
+        }
+
         if ($this->disk !== 'cloudinary' || $this->resource_type !== 'image') {
             return $this->temporaryDownloadUrl();
         }
@@ -104,6 +114,21 @@ class FileUpload extends Model
             now()->addMinutes($minutes ?? config('security.signed_url_minutes', 10)),
             ['fileUpload' => $this],
         );
+    }
+
+    public function downloadName(): string
+    {
+        $name = basename(str_replace('\\', '/', $this->original_name ?: $this->stored_name ?: 'archivo'));
+
+        if ($this->mime_type === 'application/pdf' || strtolower((string) $this->extension) === 'pdf') {
+            $name = preg_replace('/(?:\.tmp)+$/i', '', $name);
+
+            if (! str_ends_with(strtolower($name), '.pdf')) {
+                $name = pathinfo($name, PATHINFO_FILENAME).'.pdf';
+            }
+        }
+
+        return $name;
     }
 
     public function temporaryPreviewUrl(?int $minutes = null): string

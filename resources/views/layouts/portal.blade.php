@@ -6,6 +6,7 @@
     <meta name="description" content="Plataforma Institucional de Formación y Microcredenciales de la Universidad Aeronáutica en Querétaro.">
     <title>@yield('title', 'Plataforma Institucional de Formación y Microcredenciales')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 @php($portal = $portal ?? \App\Support\PortalConfiguration::forUser(auth()->user()))
 @php($isOperationalPortal = auth()->check() && $portal['key'] !== 'unsupported')
@@ -26,6 +27,8 @@
             </a>
 
             @auth
+                <div class="flex shrink-0 items-center gap-3">
+                <livewire:notification-bell />
                 <details class="group relative">
                     <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.07] px-2 py-1.5 transition hover:border-white/30 hover:bg-white/15 focus:outline-none focus:ring-4 focus:ring-white/15 sm:gap-3 sm:px-3 sm:py-2">
                         @if(auth()->user()->avatarFile)
@@ -69,6 +72,7 @@
                         </form>
                     </div>
                 </details>
+                </div>
             @endauth
         </div>
 
@@ -125,5 +129,6 @@
             <p class="text-xs text-blue-100/60">© {{ date('Y') }} Universidad Aeronáutica en Querétaro</p>
         </div>
     </footer>
+    @livewireScripts
 </body>
 </html>

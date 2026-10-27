@@ -1,7 +1,7 @@
 @extends('layouts.portal')
 
 @section('content')
-    <x-portal-page :title="$activity->name" description="Seguimiento, evaluación y constancias de los participantes inscritos.">
+    <x-portal-page :title="$activity->participant_name" description="Seguimiento, evaluación y constancias de los participantes inscritos.">
         @if(session('status'))
             <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{{ session('status') }}</div>
         @endif
@@ -176,7 +176,8 @@
                                     <form class="mt-3 space-y-3" method="POST" action="{{ route('participant.professor.teaching.certificates.store', [$activity, $enrollment]) }}" enctype="multipart/form-data">
                                         @csrf
                                         <label class="sr-only" for="certificate-{{ $enrollment->id }}">Constancia de {{ $enrollment->user?->name }}</label>
-                                        <input class="block w-full text-sm text-slate-600 file:mb-2 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-semibold file:text-blue-700" id="certificate-{{ $enrollment->id }}" type="file" name="certificate" accept="application/pdf" required>
+                                        <p id="certificate-limit-{{ $enrollment->id }}" class="text-sm text-slate-500">Solo PDF. Tamaño máximo: {{ config('security.upload_max_kilobytes') / 1024 }} MB.</p>
+                                        <input class="block w-full text-sm text-slate-600 file:mb-2 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-semibold file:text-blue-700" id="certificate-{{ $enrollment->id }}" type="file" name="certificate" accept="application/pdf" data-max-file-size="{{ config('security.upload_max_kilobytes') * 1024 }}" aria-describedby="certificate-limit-{{ $enrollment->id }}" required>
                                         <button class="w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-600" type="submit">{{ $certificate ? 'Reemplazar constancia' : 'Subir constancia' }}</button>
                                     </form>
                                 @else

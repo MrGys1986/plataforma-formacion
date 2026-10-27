@@ -28,4 +28,12 @@ class UploadCourseCertificateRequest extends FormRequest
     {
         return ['certificate' => 'constancia'];
     }
+
+    public function messages(): array
+    {
+        return [
+            'certificate.max' => 'La constancia debe pesar como máximo '.(config('security.upload_max_kilobytes') / 1024).' MB. Selecciona un PDF más pequeño.',
+            'certificate.uploaded' => 'No se pudo recibir la constancia. Selecciona un PDF de hasta '.(config('security.upload_max_kilobytes') / 1024).' MB.',
+        ];
+    }
 }

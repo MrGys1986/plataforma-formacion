@@ -112,8 +112,8 @@ final class PortalConfiguration
                 self::action('Rutas de aprendizaje', 'Avanza por itinerarios formativos organizados.', 'participant.learning-paths.index', 'path'),
                 self::action('Mis constancias', 'Consulta los documentos que has obtenido.', 'participant.certificates.index', 'certificate'),
             ],
-            profileRoute: 'participant.badges.index',
-            profileLabel: 'Mis insignias',
+            profileRoute: 'participant.profile',
+            profileLabel: 'Mi perfil',
         );
     }
 
@@ -135,8 +135,8 @@ final class PortalConfiguration
                 self::action('Mis pagos', 'Consulta comprobantes y estados de validación.', 'participant.payments.index', 'payment'),
                 self::action('Mis constancias', 'Accede a tus documentos emitidos.', 'participant.certificates.index', 'certificate'),
             ],
-            profileRoute: 'participant.badges.index',
-            profileLabel: 'Mis insignias',
+            profileRoute: 'participant.profile',
+            profileLabel: 'Mi perfil',
         );
     }
 

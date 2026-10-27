@@ -11,7 +11,7 @@ class MyCourseController extends Controller
     {
         $enrollments = $request->user()
             ->enrollments()
-            ->with('activity')
+            ->with('activity.activityType')
             ->latest()
             ->paginate(12);
 

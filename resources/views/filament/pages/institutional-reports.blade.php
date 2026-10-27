@@ -9,14 +9,16 @@
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
-        <x-filament::section>
-            <x-slot name="heading">Pagos validados</x-slot>
-            <p class="text-3xl font-bold text-gray-950 dark:text-white">
-                ${{ number_format((float) $validatedPayments, 2) }} MXN
-            </p>
-        </x-filament::section>
+        @if ($validatedPayments !== null)
+            <x-filament::section>
+                <x-slot name="heading">Pagos validados</x-slot>
+                <p class="text-3xl font-bold text-gray-950 dark:text-white">
+                    ${{ number_format((float) $validatedPayments, 2) }} MXN
+                </p>
+            </x-filament::section>
+        @endif
 
-        <x-filament::section class="lg:col-span-2">
+        <x-filament::section :class="$validatedPayments === null ? 'lg:col-span-3' : 'lg:col-span-2'">
             <x-slot name="heading">Programas con actividad</x-slot>
 
             <div class="divide-y divide-gray-200 dark:divide-white/10">

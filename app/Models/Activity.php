@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPublicId;
 use App\Models\Concerns\VisibleToUser;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,6 +17,13 @@ class Activity extends Model
     use HasPublicId, SoftDeletes, VisibleToUser;
 
     protected $guarded = [];
+
+    protected function participantName(): Attribute
+    {
+        return Attribute::get(fn (): string => preg_replace(
+            '/\s+[-–—]\s*edici[oó]n\b.*$/iu', '', (string) $this->name,
+        ) ?? (string) $this->name);
+    }
 
     protected static function booted(): void
     {
@@ -90,6 +98,12 @@ class Activity extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function hasAvailableCapacity(): bool
+    {
+        return $this->max_capacity === null
+            || $this->enrollments()->whereIn('status', Enrollment::CAPACITY_STATUSES)->count() < $this->max_capacity;
+    }
+
     public function evidences(): HasMany
     {
         return $this->hasMany(Evidence::class);
@@ -130,6 +144,7 @@ class Activity extends Model
             'enrollment_start_date' => 'date',
             'enrollment_end_date' => 'date',
             'duration_hours' => 'decimal:2',
+            'max_capacity' => 'integer',
             'cost' => 'decimal:2',
             'is_external' => 'boolean',
             'requires_approval' => 'boolean',

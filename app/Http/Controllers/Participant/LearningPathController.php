@@ -14,7 +14,10 @@ class LearningPathController extends Controller
         $learningPaths = LearningPath::query()
             ->visibleTo($request->user())
             ->withCount(['items', 'trainingPrograms', 'diplomaPrograms', 'certificationPrograms'])
-            ->with(['userLearningPaths' => fn ($query) => $query->where('user_id', $request->user()->id)])
+            ->with([
+                'coverFile',
+                'userLearningPaths' => fn ($query) => $query->where('user_id', $request->user()->id),
+            ])
             ->paginate(12);
 
         return view('participant.learning-paths.index', compact('learningPaths'));
@@ -27,6 +30,7 @@ class LearningPathController extends Controller
     ) {
         $this->authorize('view', $learningPath);
         $learningPath->load([
+            'coverFile',
             'trainingPrograms.activityType',
             'trainingPrograms.activities',
             'items.activity.activityType',

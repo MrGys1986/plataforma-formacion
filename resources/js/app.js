@@ -1,4 +1,7 @@
 import { DataTable } from 'simple-datatables';
+import { initializeFileUploadValidation } from './file-upload-validation';
+
+initializeFileUploadValidation();
 
 document.documentElement.classList.add('js');
 

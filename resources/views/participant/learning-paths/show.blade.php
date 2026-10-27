@@ -14,6 +14,10 @@
                 Todas las rutas
             </a>
 
+            @if ($learningPath->coverFile)
+                <img class="mt-6 h-56 w-full rounded-2xl object-cover shadow-sm sm:h-72" src="{{ $learningPath->coverFile->optimizedImageUrl(1400, 560) }}" alt="Portada de {{ $learningPath->name }}">
+            @endif
+
             <div class="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div class="max-w-3xl">
                     <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
@@ -175,7 +179,7 @@
 
                                     @if ($activity)
                                         <a class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-blue-700 hover:text-blue-700"
-                                           href="{{ route('participant.catalog.show', $activity) }}">
+                                           href="{{ route('participant.catalog.show', ['activity' => $activity]) }}">
                                             Ver en catálogo
                                             <span aria-hidden="true">→</span>
                                         </a>

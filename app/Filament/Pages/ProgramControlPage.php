@@ -20,11 +20,17 @@ use App\Models\Evaluation;
 use App\Models\Evidence;
 use App\Models\SurveyResponse;
 use App\Models\TrainingProgram;
+use App\Models\User;
 use App\Services\Training\TrainingProgramOperationService;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 class ProgramControlPage extends Page
 {
@@ -82,6 +88,40 @@ class ProgramControlPage extends Page
     protected function getHeaderActions(): array
     {
         return [];
+    }
+
+    public function configureEnrollmentAction(): Action
+    {
+        return Action::make('configureEnrollment')
+            ->label('Configurar inscripción')
+            ->authorize(fn (): bool => Gate::allows('update', $this->activity))
+            ->fillForm(fn (): array => $this->activity->only(['instructor_id', 'status', 'max_capacity']))
+            ->schema([
+                Select::make('instructor_id')->label('Profesor responsable')
+                    ->options(fn (): array => User::query()->role('Profesor')->where('status', 'activo')->pluck('name', 'id')->all())
+                    ->searchable()->required(),
+                TextInput::make('max_capacity')->label('Cupo máximo (opcional)')
+                    ->integer()->minValue(1)->nullable()->placeholder('Sin límite')
+                    ->helperText('Déjalo vacío para permitir inscripciones sin límite. Las solicitudes pendientes y aprobadas ocupan un lugar.'),
+                Select::make('status')->label('Estado')
+                    ->options([
+                        'borrador' => 'Borrador',
+                        'publicado' => 'Publicado en catálogo',
+                        'en_inscripcion' => 'Inscripciones abiertas',
+                        'en_curso' => 'En curso',
+                        'finalizado' => 'Finalizado',
+                    ])->required(),
+            ])
+            ->action(function (array $data): void {
+                Gate::authorize('update', $this->activity);
+
+                if (! User::query()->role('Profesor')->where('status', 'activo')->whereKey($data['instructor_id'])->exists()) {
+                    throw ValidationException::withMessages(['instructor_id' => 'Selecciona un profesor activo.']);
+                }
+
+                $this->activity->update($data);
+                Notification::make()->title('Configuración de inscripción actualizada')->success()->send();
+            });
     }
 
     protected function getViewData(): array

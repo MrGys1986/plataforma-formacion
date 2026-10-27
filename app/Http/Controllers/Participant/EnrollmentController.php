@@ -12,6 +12,7 @@ class EnrollmentController extends Controller
 {
     public function store(Request $request, Activity $activity, EnrollmentService $enrollments): RedirectResponse
     {
+        $this->authorize('view', $activity);
         abort_unless(in_array($activity->status, ['publicado', 'en_inscripcion'], true), 422);
         abort_if($activity->instructor_id === $request->user()->id, 422, 'No puedes inscribirte en una actividad que impartes.');
 
@@ -19,7 +20,7 @@ class EnrollmentController extends Controller
 
         if ($activity->requires_payment) {
             return redirect()
-                ->route('participant.catalog.show', $activity)
+                ->route('participant.catalog.show', ['activity' => $activity])
                 ->with('status', 'Completa el pago para enviar tu solicitud de inscripción.');
         }
 
