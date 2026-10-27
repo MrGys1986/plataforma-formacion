@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Activity;
 use App\Models\ActivityType;
+use App\Models\Certificate;
 use App\Models\Enrollment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,5 +62,17 @@ class ProfessorCertificateUploadTest extends TestCase
             ->assertOk()
             ->assertSee('Taller completado')
             ->assertSee('Descargar constancia');
+
+        $certificate = Certificate::sole();
+        $previousFileId = $certificate->file_upload_id;
+        $this->actingAs($professor)->post(
+            route('participant.professor.teaching.certificates.store', [$activity, $enrollment]),
+            ['certificate' => UploadedFile::fake()->create('constancia-grande.pdf', 16000, 'application/pdf')],
+        )->assertRedirect()->assertSessionHasErrors([
+            'certificate' => 'La constancia debe pesar como máximo 10 MB. Selecciona un PDF más pequeño.',
+        ]);
+        $this->assertSame($previousFileId, $certificate->fresh()->file_upload_id);
+        $this->assertDatabaseCount('certificates', 1);
+        $this->assertDatabaseCount('file_uploads', 1);
     }
 }

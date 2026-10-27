@@ -72,10 +72,11 @@ class SurveyPolicy
 
     public function respond(User $user, Survey $survey, Activity $activity): bool
     {
-        return $survey->status === 'activa'
+        return Survey::query()->forActivity($activity)->whereKey($survey->id)->exists()
             && $activity->enrollments()
                 ->where('user_id', $user->id)
-                ->whereNotIn('status', ['rechazada', 'cancelada'])
+                ->where('status', 'aprobada')
+                ->where('completion_status', 'completado')
                 ->exists();
     }
 }

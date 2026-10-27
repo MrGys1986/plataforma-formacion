@@ -19,6 +19,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -69,7 +70,10 @@ class LearningPathResource extends InstitutionalResource
                             ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
                         TextInput::make('slug')
                             ->label('Identificador')
-                            ->required()
+                            ->helperText('Se genera automáticamente a partir del nombre si lo dejas vacío.')
+                            ->nullable()
+                            ->mutateStateForValidationUsing(fn (?string $state, Get $get): string => Str::slug(filled($state) ? $state : (string) $get('name')))
+                            ->dehydrateStateUsing(fn (?string $state, Get $get): string => Str::slug(filled($state) ? $state : (string) $get('name')))
                             ->unique(ignoreRecord: true),
                         Select::make('status')
                             ->label('Estado')
@@ -91,6 +95,15 @@ class LearningPathResource extends InstitutionalResource
                             ->label('Descripción')
                             ->rows(3)
                             ->columnSpanFull(),
+                        static::makeFormComponent([
+                            'name' => 'cover_file_id',
+                            'label' => 'Imagen de portada',
+                            'type' => 'file',
+                            'directory' => 'learning-path-covers',
+                            'public_image' => true,
+                            'accepted_types' => ['image/jpeg', 'image/png', 'image/webp'],
+                            'max_size' => 5120,
+                        ]),
                         Textarea::make('objective')
                             ->label('Objetivo')
                             ->rows(3)
@@ -146,6 +159,7 @@ class LearningPathResource extends InstitutionalResource
     protected static function modifyTable(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withoutTrashed())
             ->columns([
                 TextColumn::make('name')
                     ->label('Ruta de aprendizaje')
@@ -239,6 +253,7 @@ class LearningPathResource extends InstitutionalResource
                 ->color('primary')
                 ->url(fn (LearningPath $record): string => LearningPathControlPage::getUrl([
                     'record' => $record->getKey(),
+                    'action' => static::canEdit($record) ? 'managePrograms' : null,
                 ])),
         ];
     }

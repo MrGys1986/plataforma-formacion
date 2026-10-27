@@ -30,7 +30,7 @@
                     <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-3">
-                                <h2 class="font-bold text-slate-950">{{ $payment->activity?->name ?? 'Curso no disponible' }}</h2>
+                                <h2 class="font-bold text-slate-950">{{ $payment->activity?->participant_name ?? 'Curso no disponible' }}</h2>
                                 <span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $statusClass }}">{{ ucfirst($payment->status) }}</span>
                             </div>
                             <dl class="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">

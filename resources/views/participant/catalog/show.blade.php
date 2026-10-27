@@ -1,10 +1,10 @@
 @extends('layouts.portal')
 
 @section('content')
-    <x-portal-page :title="$activity->name" :description="$activity->description">
+    <x-portal-page :title="$activity->participant_name" :description="$activity->description">
         @php($coverFile = $activity->coverFile ?? $activity->trainingProgram?->coverFile)
         @if($coverFile)
-            <img class="mb-6 aspect-[16/6] w-full rounded-xl object-cover" src="{{ $coverFile->optimizedImageUrl(1400, 525) }}" alt="Portada de {{ $activity->name }}">
+            <img class="mb-6 aspect-[16/6] w-full rounded-xl object-cover" src="{{ $coverFile->optimizedImageUrl(1400, 525) }}" alt="Portada de {{ $activity->participant_name }}">
         @endif
         <dl class="grid gap-3 text-sm md:grid-cols-2">
             <div><dt class="font-semibold">Tipo</dt><dd>{{ $activity->activityType?->name }}</dd></div>
@@ -23,12 +23,20 @@
         @endif
 
         <div class="mt-6 border-t border-slate-200 pt-5">
+            @error('activity_id')
+                <p class="mb-3 text-sm font-medium text-rose-700" role="alert">{{ $message }}</p>
+            @enderror
+            @error('user_id')
+                <p class="mb-3 text-sm font-medium text-rose-700" role="alert">{{ $message }}</p>
+            @enderror
             @if($activity->instructor_id === auth()->id())
                 <p class="rounded-lg bg-blue-50 px-4 py-3 text-sm font-medium text-blue-700">Impartes esta actividad. Puedes gestionarla desde “Cursos que imparto”.</p>
             @elseif($enrollment && $activity->requires_payment && ! $enrollment->requested_at)
                 <p class="rounded-lg bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">Tu lugar aún no está solicitado. Completa el pago para enviar la inscripción.</p>
             @elseif($enrollment)
                 <p class="rounded-lg bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">Tu inscripción está {{ $enrollment->status }}.</p>
+            @elseif(in_array($activity->status, ['publicado', 'en_inscripcion'], true) && ! $activity->hasAvailableCapacity())
+                <p class="text-sm text-slate-500">No hay cupos disponibles en esta actividad.</p>
             @elseif(in_array($activity->status, ['publicado', 'en_inscripcion'], true))
                 <form method="POST" action="{{ route('participant.catalog.enroll', $activity) }}">
                     @csrf

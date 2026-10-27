@@ -24,14 +24,7 @@ class CheckCloudinaryConnection extends Command
             return self::FAILURE;
         }
 
-        $cloudinary = new Cloudinary([
-            'cloud' => [
-                'cloud_name' => config('services.cloudinary.cloud_name'),
-                'api_key' => config('services.cloudinary.api_key'),
-                'api_secret' => config('services.cloudinary.api_secret'),
-            ],
-            'url' => ['secure' => true],
-        ]);
+        $cloudinary = app(Cloudinary::class);
 
         $temporaryPath = tempnam(sys_get_temp_dir(), 'cloudinary-check-');
         $publicId = collect([

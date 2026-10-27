@@ -8,6 +8,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class ManageLearningPaths extends ManageRecords
 {
@@ -42,5 +43,14 @@ class ManageLearningPaths extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [];
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['slug'] = filled($data['slug'] ?? null)
+            ? Str::slug($data['slug'])
+            : Str::slug((string) ($data['name'] ?? 'ruta-de-aprendizaje'));
+
+        return $data;
     }
 }

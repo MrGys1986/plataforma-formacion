@@ -19,6 +19,8 @@
                 <p class="pf-dashboard-eyebrow">Control de la ruta</p>
 
                 <div class="pf-control-actions">
+                    {{ $this->manageProgramsAction }}
+
                     <a href="{{ $editUrl }}" class="pf-program-back">
                         <x-filament::icon
                             :icon="\Filament\Support\Icons\Heroicon::OutlinedPencilSquare"
@@ -78,7 +80,11 @@
 
     <div class="pf-edition-grid pf-learning-path-grid">
         @foreach ($cards as $card)
-            <a href="{{ $card['url'] }}" class="pf-edition-card">
+            @if (isset($card['action']))
+                <button type="button" wire:click="mountAction('{{ $card['action'] }}')" class="pf-edition-card text-left">
+            @else
+                <a href="{{ $card['url'] }}" class="pf-edition-card">
+            @endif
                 <div class="pf-edition-card-head">
                     <div class="pf-edition-card-icon-wrap">
                         <x-filament::icon :icon="$card['icon']" class="pf-edition-card-icon" />
@@ -90,7 +96,11 @@
                     <h3 class="pf-edition-card-title">{{ $card['title'] }}</h3>
                     <p class="pf-edition-card-copy">{{ $card['description'] }}</p>
                 </div>
-            </a>
+            @if (isset($card['action']))
+                </button>
+            @else
+                </a>
+            @endif
         @endforeach
     </div>
 </x-filament-panels::page>

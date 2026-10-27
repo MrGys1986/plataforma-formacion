@@ -12,6 +12,19 @@ class SurveyQuestion extends Model
 
     protected $guarded = [];
 
+    public function answerOptions(): array
+    {
+        if ($this->question_type === 'escala') {
+            return array_combine(range(1, 5), range(1, 5));
+        }
+
+        $options = $this->options ?? [];
+
+        return array_is_list($options) && $options !== []
+            ? array_combine($options, $options)
+            : $options;
+    }
+
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Survey::class);

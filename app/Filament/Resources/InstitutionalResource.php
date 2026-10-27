@@ -6,6 +6,7 @@ use App\Models\FileUpload as ManagedFile;
 use App\Services\Files\ManagedFileService;
 use BackedEnum;
 use Closure;
+use Cloudinary\Api\Exception\ApiError;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -29,9 +30,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 abstract class InstitutionalResource extends Resource
@@ -141,19 +144,35 @@ abstract class InstitutionalResource extends Resource
             'date' => DatePicker::make($name),
             'datetime' => DateTimePicker::make($name),
             'file' => FileUpload::make($name)
-                ->acceptedFileTypes($definition['accepted_types'] ?? null)
+                ->when(isset($definition['accepted_types']), fn (FileUpload $upload) => $upload
+                    ->acceptedFileTypes($definition['accepted_types']))
+                ->fetchFileInformation(false)
                 ->maxSize($definition['max_size'] ?? config('security.upload_max_kilobytes'))
                 ->previewable($definition['public_image'] ?? false)
+                ->imagePreviewHeight($definition['public_image'] ?? false ? '180px' : null)
                 ->openable()
                 ->downloadable()
-                ->saveUploadedFileUsing(function (TemporaryUploadedFile $file) use ($definition): string {
+                ->saveUploadedFileUsing(function (FileUpload $component, TemporaryUploadedFile $file) use ($definition): string {
                     $directory = $definition['directory'] ?? 'managed-files';
-                    $managed = app(ManagedFileService::class)->store(
-                        $file,
-                        $directory,
-                        auth()->id(),
-                        $definition['public_image'] ?? false,
-                    );
+
+                    try {
+                        $managed = app(ManagedFileService::class)->store(
+                            $file,
+                            $directory,
+                            auth()->id(),
+                            $definition['public_image'] ?? false,
+                        );
+                    } catch (ConnectException|ApiError $exception) {
+                        report($exception);
+
+                        throw ValidationException::withMessages([
+                            $component->getStatePath() => $exception instanceof ConnectException
+                                ? (($exception->getHandlerContext()['errno'] ?? null) === 28
+                                    ? 'Cloudinary tardó demasiado en responder. Vuelve a intentar subir el archivo; tus datos siguen en el formulario.'
+                                    : 'No fue posible conectar con Cloudinary. Revisa tu conexión a Internet y vuelve a intentar subir el archivo.')
+                                : 'Cloudinary no pudo guardar el archivo. Revisa su configuración y vuelve a intentarlo.',
+                        ]);
+                    }
 
                     return (string) $managed->getKey();
                 })

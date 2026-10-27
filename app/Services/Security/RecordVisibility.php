@@ -98,7 +98,10 @@ class RecordVisibility
                     ->whereHas('evidences', fn (Builder $evidences) => $evidences->where('assigned_evaluator_id', $user->id))
                     ->orWhereHas('evaluations.results', fn (Builder $results) => $results->where('evaluator_id', $user->id));
             }),
-            default => $query->where('status', 'publicado'),
+            default => $query->where(fn (Builder $activities): Builder => $activities
+                ->whereIn('status', ['publicado', 'en_inscripcion'])
+                ->orWhereHas('enrollments', fn (Builder $enrollments): Builder => $enrollments
+                    ->where('user_id', $user->id)->where('status', 'aprobada'))),
         };
     }
 

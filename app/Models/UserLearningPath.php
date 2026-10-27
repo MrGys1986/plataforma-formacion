@@ -10,6 +10,16 @@ class UserLearningPath extends Model
 {
     protected $guarded = [];
 
+    public function save(array $options = []): bool
+    {
+        if ($this->exists) {
+            return parent::save($options);
+        }
+
+        // Si alguna actividad está llena, revierte también la asignación y las otras inscripciones.
+        return $this->getConnection()->transaction(fn (): bool => parent::save($options));
+    }
+
     protected static function booted(): void
     {
         static::created(function (UserLearningPath $assignment): void {

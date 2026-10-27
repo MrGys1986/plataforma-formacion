@@ -12,6 +12,7 @@ use App\Http\Controllers\Participant\LearningPathController;
 use App\Http\Controllers\Participant\MyCourseController;
 use App\Http\Controllers\Participant\PaymentController;
 use App\Http\Controllers\Participant\ProfessorProfileController;
+use App\Http\Controllers\Participant\ProfileController;
 use App\Http\Controllers\Participant\ResourceController;
 use App\Http\Controllers\Participant\SurveyController;
 use App\Http\Controllers\Participant\TeachingCourseController;
@@ -37,7 +38,9 @@ Route::prefix('participant')
         Route::get('/badges/{microcredential}', [BadgeController::class, 'show'])->name('badges.show');
         Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');
         Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
+        Route::get('/profile', ProfileController::class)->name('profile');
         Route::get('/surveys/{survey}/activity/{activity}', [SurveyController::class, 'show'])->name('surveys.show');
+        Route::post('/surveys/{survey}/activity/{activity}', [SurveyController::class, 'store'])->name('surveys.store');
         Route::get('/webinars', [WebinarController::class, 'index'])->name('webinars.index');
         Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
 

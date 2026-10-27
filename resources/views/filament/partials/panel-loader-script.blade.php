@@ -202,23 +202,21 @@
         })
 
         document.addEventListener('livewire:init', () => {
-            if (! window.Livewire?.hook) {
+            if (! window.Livewire?.interceptRequest) {
                 return
             }
 
-            window.Livewire.hook('request', ({ succeed, fail }) => {
+            window.Livewire.interceptRequest(({ onFinish }) => {
                 if (! state.awaitingFormRequest) {
                     return
                 }
 
                 state.awaitingFormRequest = false
+                clearTimeout(state.safetyTimer)
 
-                const finalize = () => {
+                onFinish(() => {
                     requestAnimationFrame(() => end())
-                }
-
-                succeed(finalize)
-                fail(finalize)
+                })
             })
         })
     })()

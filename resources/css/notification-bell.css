@@ -1,0 +1,36 @@
+.pf-notification-bell { position: relative; flex-shrink: 0; color: #fff; }
+.pf-notification-trigger { position: relative; display: flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; list-style: none; border: 1px solid rgb(255 255 255 / 15%); border-radius: 12px; background: rgb(255 255 255 / 7%); cursor: pointer; }
+.pf-notification-trigger::-webkit-details-marker { display: none; }
+.pf-notification-trigger:hover { background: rgb(255 255 255 / 15%); }
+.pf-notification-trigger:focus-visible, .pf-notification-panel button:focus-visible { outline: 2px solid #45a7eb; outline-offset: 2px; }
+.pf-notification-count { position: absolute; top: -5px; right: -5px; display: flex; min-width: 20px; height: 20px; align-items: center; justify-content: center; border-radius: 99px; background: #e11d48; padding: 0 4px; color: #fff; font-size: 10px; font-weight: 800; }
+.pf-notification-panel { position: absolute; top: calc(100% + 12px); right: 0; z-index: 100; width: min(25rem, calc(100vw - 2rem)); overflow: hidden; border: 1px solid #dceefe; border-radius: 16px; background: #fff; color: #334155; box-shadow: 0 20px 45px rgb(7 38 64 / 25%); text-align: left; }
+.pf-notification-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #e2e8f0; padding: 18px; }
+.pf-notification-heading h2 { margin: 0; color: #0f172a; font-size: 16px; font-weight: 800; }
+.pf-notification-heading p { margin: 4px 0 0; color: #64748b; font-size: 12px; }
+.pf-notification-panel button { cursor: pointer; }
+.pf-notification-panel button:disabled { cursor: default; opacity: .5; }
+.pf-notification-read-all { max-width: 130px; border: 0; background: none; color: #106bb8; font-size: 12px; line-height: 1.5; font-weight: 700; text-align: right; }
+.pf-notification-list { max-height: min(65vh, 460px); overflow-y: auto; overscroll-behavior: contain; }
+.pf-notification-item { display: flex; align-items: flex-start; border-bottom: 1px solid #f1f5f9; }
+.pf-notification-item:last-child { border-bottom: 0; }
+.pf-notification-unread { border-left: 3px solid #106bb8; background: #eff8ff; }
+.pf-notification-open { display: block; flex: 1; min-width: 0; border: 0; background: none; padding: 16px 18px; text-align: left; }
+.pf-notification-open:hover { background: rgb(16 107 184 / 5%); }
+.pf-notification-subject { display: block; color: #0f172a; font-size: 13px; line-height: 1.5; font-weight: 750; overflow-wrap: anywhere; }
+.pf-notification-message { display: block; margin-top: 5px; color: #475569; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.pf-notification-time { display: block; margin-top: 8px; color: #64748b; font-size: 11px; }
+.pf-notification-read { display: flex; min-width: 36px; min-height: 36px; align-items: center; justify-content: center; margin: 10px 6px 0 0; border: 0; border-radius: 8px; background: none; color: #106bb8; }
+.pf-notification-read:hover { background: #dceefe; }
+.pf-notification-empty { padding: 32px 24px; text-align: center; }
+.pf-notification-empty p { color: #0f172a; font-size: 15px; font-weight: 750; }
+.pf-notification-empty span { display: block; margin-top: 8px; color: #64748b; font-size: 13px; line-height: 1.6; }
+.pf-notification-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid #e2e8f0; padding: 12px 16px; font-size: 12px; }
+.pf-notification-pagination button { border: 0; background: none; color: #106bb8; font-weight: 700; }
+.pf-notification-bell-admin { color: #475569; }
+.pf-notification-bell-admin .pf-notification-trigger { border-color: #e2e8f0; background: #f8fafc; }
+.pf-notification-bell-admin .pf-notification-trigger:hover { background: #eff8ff; }
+@media (max-width: 640px) {
+    .pf-notification-panel { position: fixed; top: 86px; right: 12px; width: calc(100vw - 24px); }
+    .pf-notification-bell-admin .pf-notification-panel { top: 68px; }
+}

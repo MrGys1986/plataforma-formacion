@@ -89,6 +89,8 @@ class DigitalResourceResource extends InstitutionalResource
             [
                 'name' => 'resource_type',
                 'label' => 'Tipo de recurso',
+                'default' => 'documento',
+                'required' => true,
             ],
             [
                 'name' => 'external_url',
@@ -104,10 +106,14 @@ class DigitalResourceResource extends InstitutionalResource
             [
                 'name' => 'visibility',
                 'label' => 'Visibilidad',
+                'default' => 'interno',
+                'required' => true,
             ],
             [
                 'name' => 'status',
                 'label' => 'Estado',
+                'default' => 'activo',
+                'required' => true,
             ],
         ];
     }

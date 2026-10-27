@@ -54,11 +54,21 @@
                         $contentCount = $contentCount ?: $learningPath->items_count;
                     @endphp
 
-                    <a class="group relative flex min-h-64 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-6 transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg hover:shadow-slate-200/70"
+                    <a class="group relative flex min-h-64 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg hover:shadow-slate-200/70"
                        href="{{ route('participant.learning-paths.show', $learningPath) }}">
-                        <span class="absolute inset-y-0 left-0 w-1 bg-slate-200 transition-colors group-hover:bg-blue-700"></span>
+                        <div class="relative h-40 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500">
+                            @if ($learningPath->coverFile)
+                                <img class="h-full w-full object-cover transition duration-500 group-hover:scale-105" src="{{ $learningPath->coverFile->optimizedImageUrl(900, 360) }}" alt="Portada de {{ $learningPath->name }}">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
+                            @else
+                                <div class="absolute inset-0 flex items-center justify-center text-white/80">
+                                    <svg class="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 8h7M8 12h5" /></svg>
+                                </div>
+                            @endif
+                            <span class="absolute left-5 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-800">Ruta de aprendizaje</span>
+                        </div>
 
-                        <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-start justify-between gap-4 px-6 pt-5">
                             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-blue-800">
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m4 17 5-5 3 3 8-8M15 7h5v5" />
@@ -80,7 +90,7 @@
                             @endif
                         </div>
 
-                        <div class="mt-5">
+                        <div class="mt-5 px-6">
                             <h3 class="text-lg font-bold leading-snug text-slate-950 transition-colors group-hover:text-blue-800">
                                 {{ $learningPath->name }}
                             </h3>
@@ -89,7 +99,7 @@
                             </p>
                         </div>
 
-                        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600">
+                        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 px-6 text-sm text-slate-600">
                             <span class="inline-flex items-center gap-2">
                                 <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
                                 <strong class="font-semibold text-slate-800">{{ $contentCount }}</strong>
@@ -103,7 +113,7 @@
                             @endif
                         </div>
 
-                        <div class="mt-auto border-t border-slate-100 pt-5">
+                        <div class="mt-auto border-t border-slate-100 px-6 pb-6 pt-5">
                             @if ($assignment)
                                 <div class="flex items-center gap-4">
                                     <div class="min-w-0 flex-1">

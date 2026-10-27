@@ -39,6 +39,7 @@ class TrainingProgramOperationService
             'modality' => $program->default_modality,
             'cost' => $program->default_cost,
             'is_external' => $program->is_external,
+            'requires_approval' => $program->requires_approval,
             'requires_payment' => $program->requires_payment,
             'requires_evaluation' => $program->requires_evaluation,
             'requires_survey' => $program->requires_survey,

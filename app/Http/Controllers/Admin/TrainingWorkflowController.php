@@ -147,6 +147,7 @@ class TrainingWorkflowController extends Controller
             ->firstOrFail();
 
         abort_unless($enrollment->completion_status === 'completado', 422, 'El participante debe completar la actividad antes de recibir su constancia.');
+        abort_unless($enrollment->status === 'aprobada', 422, 'La inscripción debe estar aprobada para recibir su constancia.');
 
         $existing = Certificate::query()
             ->with('fileUpload')

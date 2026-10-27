@@ -11,7 +11,8 @@ class CertificateController extends Controller
     {
         $certificates = $request->user()
             ->certificates()
-            ->with(['activity', 'fileUpload'])
+            ->where('status', 'emitida')
+            ->with(['activity.activityType', 'activity.coverFile', 'activity.trainingProgram.coverFile', 'fileUpload'])
             ->latest('issued_at')
             ->paginate(12);
 

@@ -9,6 +9,8 @@ use App\Models\Activity;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -79,6 +81,18 @@ class ActivityResource extends InstitutionalResource
                 'default' => 1,
                 'md' => 2,
             ]);
+    }
+
+    protected static function makeFormComponent(array $definition): Component
+    {
+        $component = parent::makeFormComponent($definition);
+
+        if ($definition['name'] === 'max_capacity' && $component instanceof TextInput) {
+            $component->integer()->minValue(1)->nullable()->placeholder('Sin límite')
+                ->helperText('Déjalo vacío para permitir inscripciones sin límite. Las solicitudes pendientes y aprobadas ocupan un lugar.');
+        }
+
+        return $component;
     }
 
     public static function getPages(): array
@@ -195,7 +209,7 @@ class ActivityResource extends InstitutionalResource
             ],
             [
                 'name' => 'max_capacity',
-                'label' => 'Cupo máximo',
+                'label' => 'Cupo máximo (opcional)',
                 'type' => 'number',
             ],
             [

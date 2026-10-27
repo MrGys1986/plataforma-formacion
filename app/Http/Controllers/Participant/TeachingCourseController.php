@@ -3,16 +3,18 @@
 namespace App\Http\Controllers\Participant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Participant\UploadCourseCertificateRequest;
-use App\Http\Requests\Participant\UpdateTeachingEnrollmentRequest;
+use App\Http\Requests\Evidences\ReviewEvidenceRequest;
 use App\Http\Requests\Participant\ReviewTeachingEnrollmentRequest;
+use App\Http\Requests\Participant\UpdateTeachingEnrollmentRequest;
+use App\Http\Requests\Participant\UploadCourseCertificateRequest;
 use App\Models\Activity;
 use App\Models\Certificate;
 use App\Models\Enrollment;
 use App\Models\Evidence;
 use App\Models\EvidenceReview;
 use App\Services\Files\ManagedFileService;
-use App\Http\Requests\Evidences\ReviewEvidenceRequest;
+use Cloudinary\Api\Exception\ApiError;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -148,14 +150,23 @@ class TeachingCourseController extends Controller
         abort_unless($activity->instructor_id === $request->user()->id, 403);
         abort_unless($enrollment->activity_id === $activity->id, 404);
         abort_unless($enrollment->completion_status === 'completado', 422, 'El participante debe completar el curso antes de recibir su constancia.');
+        abort_unless($enrollment->status === 'aprobada' && $activity->generates_certificate, 422, 'La inscripción debe estar aprobada y permitir constancias.');
 
         $existing = Certificate::query()->where('enrollment_id', $enrollment->id)->first();
         $previousFile = $existing?->fileUpload;
-        $file = $files->store(
-            $request->file('certificate'),
-            'certificates/'.$activity->public_id.'/'.$enrollment->user?->public_id,
-            $request->user()->id,
-        );
+        try {
+            $file = $files->store(
+                $request->file('certificate'),
+                'certificates/'.$activity->public_id.'/'.$enrollment->user?->public_id,
+                $request->user()->id,
+            );
+        } catch (ConnectException|ApiError $exception) {
+            report($exception);
+
+            return back()->withErrors([
+                'certificate' => 'No fue posible subir la constancia a Cloudinary. Vuelve a seleccionar el PDF e inténtalo de nuevo; la calificación sigue guardada.',
+            ]);
+        }
 
         try {
             DB::transaction(function () use ($request, $activity, $enrollment, $existing, $file): void {

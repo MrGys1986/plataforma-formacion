@@ -16,6 +16,20 @@
 - Las respuestas incluyen headers contra MIME sniffing, framing y filtración excesiva de referencias.
 - La auditoría elimina valores sensibles y nunca interrumpe el flujo principal si falla.
 
+## Alcance del resumen institucional
+
+El reporte de **Reportes → Resumen institucional** filtra los indicadores y los conteos dentro de cada programa antes de devolverlos al navegador:
+
+| Perfil | Información del resumen |
+| --- | --- |
+| Superadministrador | Todas las áreas y ofertas; incluye pagos. |
+| Calidad Académica | Indicadores académicos institucionales; sin importes de pagos. |
+| Recursos Humanos | Usuarios internos y formación interna. |
+| Educación Continua | Usuarios externos y formación externa; pagos de actividades externas. |
+| Responsable de área | Usuarios adscritos a su área y formación a cargo de esa área. Las insignias se atribuyen al área de su actividad, ruta, diplomado o certificación de origen. |
+
+Un responsable sin área asignada obtiene un resumen vacío; el reporte anterior de `/area-manager/reports` rechaza el acceso hasta que se asigne un área. Los perfiles Profesor, Alumno, Externo, Personal y Evaluador no reciben acceso al resumen institucional por tener esos roles.
+
 ## Datos sensibles
 
 - CURP, teléfono, rutas, credenciales, payloads externos y referencias de pago no se escriben en auditoría.

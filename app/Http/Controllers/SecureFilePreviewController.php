@@ -13,7 +13,7 @@ class SecureFilePreviewController extends Controller
     public function __invoke(FileUpload $fileUpload, AuditService $audit, CloudinaryFileStorage $cloudinary): Response
     {
         $this->authorize('view', $fileUpload);
-        abort_unless(in_array($fileUpload->mime_type, ['application/pdf', 'image/png', 'image/jpeg'], true), 415, 'Este tipo de archivo no admite vista previa.');
+        abort_unless(in_array($fileUpload->mime_type, ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'], true), 415, 'Este tipo de archivo no admite vista previa.');
 
         $audit->log('archivos', 'vista_previa', $fileUpload, newValues: ['mime_type' => $fileUpload->mime_type]);
 
@@ -24,6 +24,8 @@ class SecureFilePreviewController extends Controller
                 $fileUpload->path,
                 $fileUpload->extension ?? 'bin',
                 config('security.signed_url_minutes', 10),
+                $fileUpload->resource_type ?? 'raw',
+                $fileUpload->delivery_type ?? 'private',
             ));
         }
 
